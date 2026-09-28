@@ -6,7 +6,7 @@ import { initMultiEnvironmentApp } from '@mapfre-tech/ngx-multienvironment/core'
 async function bootstrapApp() {
   const { env, envConfig } = await initMultiEnvironmentApp();
   bootstrapApplication(AppComponent, getAppConfig({ env, envConfig })).catch(
-    err: any => console.error(err)
+    (err: any) => console.error(err)
   );
 }
 

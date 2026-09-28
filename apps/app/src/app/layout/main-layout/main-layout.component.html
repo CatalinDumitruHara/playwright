@@ -11,6 +11,7 @@
 <b2b-sidebar>
   <b2b-sidebar-item
     *ngFor="let option of menuOptions()"
+    [title]="option.label"
     [routerLink]="option.routerLink"
     routerLinkActive="active"
     [icon]="option.icon"

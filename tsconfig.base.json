@@ -1,6 +1,7 @@
 
 {
   "compilerOptions": {
+    "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
       "@api-types": ["libs/api-types/src/index.ts"],
