@@ -1,8 +1,9 @@
 {
   "dependencies": {
-    "@angular/cdk": "~18.0.0",
-    "@angular/material": "~18.0.0",
-    "@angular/material-date-fns-adapter": "~18.0.0",
-    "@mapfre-tech/b2b-components": "^3.12.17"
+    "@angular/cdk": "~17.3.0",
+    "@angular/material": "~17.3.0",
+    "@angular/material-date-fns-adapter": "~17.3.0",
+    "@mapfre-tech/b2b-components": "3.12.17",
+    "@mapfre-tech/formly-b2b": "1.2.0"
   }
 }
