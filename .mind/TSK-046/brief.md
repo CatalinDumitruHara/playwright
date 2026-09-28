@@ -1360,7 +1360,63 @@ Comprueba `.mind/TSK-046/env.json`: si su `status` es `unavailable` o `degraded`
 
 La sesión previa **no entregó**. Corrige la causa antes de ampliar alcance:
 
-> agent-runtime timeout (http://localhost:8086):
+> GraphRecursionError: Recursion limit of 500 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.
+For troubleshooting, visit: https://docs.langchain.com/oss/python/langgraph/errors/GRAPH_RECURSION_LIMIT
 
 Acciones:
 - Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
+
+## Estado del build al cerrar el intento anterior
+
+El intento anterior dejó el módulo **SIN COMPILAR**. Reprodúcelo lo PRIMERO de todo, antes de añadir nada nuevo, y no entregues hasta que compile.
+
+- El comando es el mismo que usa la plataforma: `mvn -B -ntp -f <pom> test-compile` (o el equivalente de la toolchain del arquetipo).
+- Si lo que impide compilar viene de la rama BASE y no de tu trabajo, arréglalo igual —es parte de dejar el módulo compilable— y decláralo como `health_check` de severidad Warning indicando el fichero y por qué lo tocaste.
+
+### Lo que reportó la verificación (literal)
+
+```
+[22m
+[1m[31m[39m[22m
+[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/app.routes.ts[0m:[93m79[0m:[93m9[0m - [91merror[0m[90m TS2307: [0mCannot find module '~/app/features/auth/pages/expired-credential/expired-credential.page' or its corresponding type declarations.[39m[22m
+[1m[31m[39m[22m
+[1m[31m[7m79[0m         '~/app/features/auth/pages/expired-credential/expired-credential.page'[39m[22m
+[1m[31m[7m  [0m [91m        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/app.routes.ts[0m:[93m85[0m:[93m14[0m - [91merror[0m[90m TS2307: [0mCannot find module '~/app/features/auth/pages/account-locked/account-locked.page' or its corresponding type declarations.[39m[22m
+[1m[31m[39m[22m
+[1m[31m[7m85[0m       import('~/app/features/auth/pages/account-locked/account-locked.page').then([39m[22m
+[1m[31m[7m  [0m [91m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0[39m[22m[1m[31mm[39m[22m
+[1m[31m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/app.routes.ts[0m:[93m93[0m:[93m9[0m - [91merror[0m[90m TS2307: [0mCannot find module '~/app/features/auth/pages/permissions-changed/permissions-changed.page' or its corresponding type declarations.[39m[22m
+[1m[31m[39m[22m
+[1m[31m[7m93[0m         '~/app/features/auth/pages/permissions-changed/permissions-changed.page'[39m[22m
+[1m[31m[7m  [0m [91m        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/app.routes.ts[0m:[93m99[0m:[93m14[0m - [91merror[0m[90m TS2307: [0mCannot find module '~/app/features/auth/pages/session-ended/session-ended.page' or its corresponding type declarations.[39m[22m
+[1m[31m[39m[22m
+[1m[31m[7m99[0m       import('~/app/features/auth/pages/session-ended/session-ended.page').then([39m[22m
+[1m[31m[7m  [0m [91m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/app.routes.ts[0m:[93m106[0m:[93m14[0m - [91merror[0m[90m TS2307: [0mCannot find module '~/app/pages/unauthorized-access/unauthorized-access.page' or its corresponding type declarations.[39m[22m
+[1m[31m[39m[22m
+[1m[31m[7m106[0m       import('~/app/pages/unauthorized-access/unauthorized-access.page').then([39m[22m
+[1m[31m[7m   [0m [91m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[39m[22m
+
+
+
+ NX   Running target build for project app failed
+
+Failed tasks:
+
+- app:build:production
+
+Hint: run the command with --verbose for more details.
+```
