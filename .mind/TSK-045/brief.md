@@ -1292,26 +1292,7 @@ Comprueba `.mind/TSK-045/env.json`: si su `status` es `unavailable` o `degraded`
 
 La sesión previa **no entregó**. Corrige la causa antes de ampliar alcance:
 
-> sesión abortada a los 3000.0s
-
-Acciones:
-- Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
-
-## Estado del build al cerrar el intento anterior
-
-El intento anterior dejó el módulo **SIN COMPILAR**. Reprodúcelo lo PRIMERO de todo, antes de añadir nada nuevo, y no entregues hasta que compile.
-
-- El comando es el mismo que usa la plataforma: `mvn -B -ntp -f <pom> test-compile` (o el equivalente de la toolchain del arquetipo).
-- Si lo que impide compilar viene de la rama BASE y no de tu trabajo, arréglalo igual —es parte de dejar el módulo compilable— y decláralo como `health_check` de severidad Warning indicando el fichero y por qué lo tocaste.
-
-### Lo que reportó la verificación (literal)
-
-```
-e el compilador no ve y el usuario sí (avisos que no se pintan, títulos sin escala, iconos en 404, directivas escritas como elementos). Corrige contra el bloque «Design system corporativo» del brief:
-- `apps/app/src/app/pages/unauthorized-access/unauthorized-access.page.html`: `<b2b-notification-inline>` sin `[visible]` — arranca `visible=false` y el aviso NO se pinta nunca
-- `apps/app/src/app/pages/unauthorized-access/unauthorized-access.page.html`: `<b2b-button>` escrito como ELEMENTO — es una directiva (`<button b2b-button>`, `<input b2b-button>`, `<a b2b-button>`); así no pinta nada ni falla
-stub-delivery: hay features marcadas como entregadas cuyo cuerpo no hace nada. `TODO`, `not implemented` y un retorno vacío como cuerpo único son bloqueantes de entrega, no notas.
-- 1 de 3 rutas registradas que ninguna plantilla enlaza: `/acceso-no-autorizado`. Una pantalla a la que sólo se llega escribiendo la URL no está entregada: móntala en el menú del shell con la `sección de menú` que declara su spec de UI
+> delivery-gate/build: la verificación bloqueó la entrega.
 npm error code ERESOLVE
 npm error ERESOLVE could not resolve
 npm error
@@ -1348,6 +1329,10 @@ npm error to accept an incorrect (and potentially broken) dependency resolution.
 npm error
 npm error
 npm error For a full report see:
-npm error /home/agent/.npm/_logs/2026-09-28T12_14_05_029Z-eresolve-report.txt
-npm error A complete log of this run can be found in: /home/agent/.npm/_logs/2026-09-28T12_14_05_029Z-debug-0.log
-```
+npm error /home/agent/.npm/_logs/2026-09-28T12_33_25_975Z-eresolve-report.txt
+npm error A complete log of this run can be found in: /home/agent/.npm/_log
+
+Acciones:
+- NO stages ni commits de `node_modules/`, `dist/`, `.angular/`, caches ni blobs concatenados; solo código de producto bajo las zonas / composition root.
+- Si instalaste deps en el workspace, deja `node_modules` fuera de git (`.gitignore`). Reescribe el path canónico con `write_file` (pisa, no concatenes).
+- El runtime hace el push: no inventes `git add -A` de basura para «arreglar» el finalize.
