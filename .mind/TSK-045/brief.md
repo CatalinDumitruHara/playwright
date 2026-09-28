@@ -1329,7 +1329,7 @@ npm error to accept an incorrect (and potentially broken) dependency resolution.
 npm error
 npm error
 npm error For a full report see:
-npm error /home/agent/.npm/_logs/2026-09-28T13_59_29_585Z-eresolve-report.txt
+npm error /home/agent/.npm/_logs/2026-09-28T14_01_38_867Z-eresolve-report.txt
 npm error A complete log of this run can be found in: /home/agent/.npm/_log
 
 Acciones:
