@@ -7,7 +7,7 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@mapfre-tech/nx-angular:webpack-browser",
+      "executor": "@nx/angular:webpack-browser",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/apps/app/browser",
@@ -65,7 +65,7 @@
       "defaultConfiguration": "production"
     },
     "serve": {
-      "executor": "@mapfre-tech/nx-angular:dev-server",
+      "executor": "@nx/angular:dev-server",
       "configurations": {
         "production": {
           "buildTarget": "app:build:production"
