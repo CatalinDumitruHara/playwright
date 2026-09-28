@@ -1,0 +1,9 @@
+<div class="unauthorized-access-container">
+  <b2b-notification-inline
+    [type]="'error'"
+    [title]="'Acceso no autorizado'"
+    [text]="'No tienes permisos para acceder a esta página. Si crees que se trata de un error, por favor, contacta con el administrador.'"
+  ></b2b-notification-inline>
+
+  <b2b-button (click)="navigateToHome()" [label]="'Volver al inicio'"></b2b-button>
+</div>

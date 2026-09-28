@@ -1,0 +1,18 @@
+
+<div class="main-layout">
+  <b2b-header-desktop>
+    <b2b-mapfre-logo slot="logo"></b2b-mapfre-logo>
+  </b2b-header-desktop>
+  <b2b-sidebar>
+    <b2b-sidebar-item
+      *ngFor="let option of menuOptions"
+      [routerLink]="option.routerLink"
+      routerLinkActive="active"
+      [icon]="option.icon"
+      >{{ option.label }}</b2b-sidebar-item
+    >
+  </b2b-sidebar>
+  <b2b-container>
+    <router-outlet></router-outlet>
+  </b2b-container>
+</div>

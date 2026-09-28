@@ -1,11 +1,5 @@
 {
-  "dev": {
-    "apiBaseUrl": "/api"
-  },
-  "pre": {
-    "apiBaseUrl": "/api"
-  },
-  "pro": {
-    "apiBaseUrl": "/api"
-  }
+  "dev": {},
+  "pre": {},
+  "pro": {}
 }

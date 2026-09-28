@@ -1,0 +1,8 @@
+
+{
+  "compilerOptions": {
+    "paths": {
+      "@api-types": ["libs/api-types/src/index.ts"]
+    }
+  }
+}

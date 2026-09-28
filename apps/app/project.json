@@ -1,0 +1,180 @@
+{
+  "name": "app",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "app",
+  "sourceRoot": "apps/app/src",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@mapfre-tech/nx-angular:webpack-browser",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/app/browser",
+        "index": "apps/app/src/index.html",
+        "main": "apps/app/src/main.ts",
+        "polyfills": ["zone.js"],
+        "tsConfig": "apps/app/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/app/public",
+            "output": "/"
+          },
+          { "glob": "**/*", "input": "node_modules/@mapfre-tech/b2b-components/src/assets", "output": "/assets/b2b-components" }
+        ],
+        "styles": ["node_modules/@mapfre-tech/b2b-components/src/styles.scss", "apps/app/src/styles.scss"],
+        "scripts": [],
+        "vendorChunk": true,
+        "allowedCommonJsDependencies": []
+      },
+      "configurations": {
+        "production": {
+          "outputHashing": "all",
+          "sourceMap": {
+            "hidden": true
+          },
+          "budgets": [
+            {
+              "type": "bundle",
+              "name": "vendor",
+              "maximumWarning": "500kb",
+              "maximumError": "800kb"
+            },
+            {
+              "type": "initial",
+              "maximumWarning": "600kb",
+              "maximumError": "900kb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "15kb",
+              "maximumError": "20kb"
+            }
+          ]
+        },
+        "development": {
+          "buildOptimizer": false,
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true,
+          "namedChunks": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@mapfre-tech/nx-angular:dev-server",
+      "configurations": {
+        "production": {
+          "buildTarget": "app:build:production"
+        },
+        "development": {
+          "buildTarget": "app:build:development"
+        }
+      },
+      "defaultConfiguration": "development",
+      "options": {
+        "host": "0.0.0.0"
+      }
+    },
+    "extract-i18n": {
+      "executor": "@angular-devkit/build-angular:extract-i18n",
+      "options": {
+        "buildTarget": "app:build"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/app/jest.config.ts"
+      }
+    },
+    "serve-static": {
+      "executor": "@nx/web:file-server",
+      "options": {
+        "spa": true
+      },
+      "configurations": {
+        "dev": {
+          "buildTarget": "app:build-with-env:dev"
+        },
+        "pre": {
+          "buildTarget": "app:build-with-env:pre"
+        },
+        "pro": {
+          "buildTarget": "app:build-with-env:pro"
+        }
+      },
+      "defaultConfiguration": "dev"
+    },
+    "optimize-assets": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx --yes @funboxteam/optimizt apps/app/public"
+      }
+    },
+    "build-with-env": {
+      "executor": "@mapfre-tech/nx-angular:build-with-env",
+      "options": {
+        "buildTarget": "app:build",
+        "outputPath": "dist/build-with-env/app"
+      },
+      "configurations": {
+        "dev": {
+          "environmentKey": "dev"
+        },
+        "pre": {
+          "environmentKey": "pre"
+        },
+        "pro": {
+          "environmentKey": "pro"
+        }
+      },
+      "defaultConfiguration": "dev"
+    },
+    "bundle-analyzer": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "nx run app:build:production --statsJson && npx --yes webpack-bundle-analyzer dist/apps/app/browser/stats.json"
+      }
+    },
+    "assemble-web": {
+      "executor": "@mapfre-tech/nx-angular:assemble-web",
+      "options": {
+        "buildTarget": "app:build:production",
+        "artifactName": "app",
+        "excludeSourceMaps": false
+      },
+      "configurations": {
+        "production": {
+          "excludeSourceMaps": true
+        }
+      }
+    },
+    "package-debug-files-web": {
+      "executor": "@mapfre-tech/nx-tools:zip",
+      "options": {
+        "filePath": "dist/apps/app",
+        "zipName": "app-debug-files-web"
+      }
+    },
+    "release-debug-files-web": {
+      "executor": "@mapfre-tech/nx-tools:release-debug-files-web",
+      "options": {
+        "file": "dist/artifacts/app/app-debug-files-web.zip"
+      }
+    },
+    "release-web": {
+      "executor": "@mapfre-tech/nx-tools:release-spa",
+      "options": {
+        "file": "dist/artifacts/app/app.zip"
+      }
+    }
+  }
+}
