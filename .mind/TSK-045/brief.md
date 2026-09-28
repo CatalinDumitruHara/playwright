@@ -1292,7 +1292,21 @@ Comprueba `.mind/TSK-045/env.json`: si su `status` es `unavailable` o `degraded`
 
 La sesión previa **no entregó**. Corrige la causa antes de ampliar alcance:
 
-> agent-runtime no responde (http://localhost:8086): Server disconnected without sending a response.
+> delivery-gate/build: la verificación bloqueó la entrega.
+arquetipo 'frontend-application-spa' esperaba un proyecto construible (package.json/pom.xml/pyproject.toml) pero no se encontró ninguno en el repo
 
 Acciones:
 - Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
+
+## Estado del build al cerrar el intento anterior
+
+El intento anterior dejó el módulo **SIN COMPILAR**. Reprodúcelo lo PRIMERO de todo, antes de añadir nada nuevo, y no entregues hasta que compile.
+
+- El comando es el mismo que usa la plataforma: `mvn -B -ntp -f <pom> test-compile` (o el equivalente de la toolchain del arquetipo).
+- Si lo que impide compilar viene de la rama BASE y no de tu trabajo, arréglalo igual —es parte de dejar el módulo compilable— y decláralo como `health_check` de severidad Warning indicando el fichero y por qué lo tocaste.
+
+### Lo que reportó la verificación (literal)
+
+```
+arquetipo 'frontend-application-spa' esperaba un proyecto construible (package.json/pom.xml/pyproject.toml) pero no se encontró ninguno en el repo
+```
