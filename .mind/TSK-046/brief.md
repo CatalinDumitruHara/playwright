@@ -1356,79 +1356,17 @@ Si tu pantalla necesita un cuerpo concreto, añádelo tú por el admin API (`POS
 ### Si el entorno no está disponible
 Comprueba `.mind/TSK-046/env.json`: si su `status` es `unavailable` o `degraded`, la plataforma no pudo darte (todo) el entorno. En ese caso ESCRIBE igualmente los tests de integración y déjalos en el entregable, y repórtalo como health check **Warning** con `check: entorno-de-prueba` — NO como Blocker: no es un defecto de tu tarea, y la verificación queda diferida al CI. Reserva el Blocker para cuando el entorno SÍ estaba y los tests fallan por el código o por el brief.
 
-## Fallo del intento anterior (OBLIGATORIO corregir)
-
-La sesión previa **no entregó**. Corrige la causa antes de ampliar alcance:
-
-> GraphRecursionError: Recursion limit of 500 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.
-For troubleshooting, visit: https://docs.langchain.com/oss/python/langgraph/errors/GRAPH_RECURSION_LIMIT
-
-Acciones:
-- Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
-
 ## Estado del build al cerrar el intento anterior
 
-El intento anterior dejó el módulo **SIN COMPILAR**. Reprodúcelo lo PRIMERO de todo, antes de añadir nada nuevo, y no entregues hasta que compile.
+El intento anterior dejó el módulo COMPILANDO, pero el artefacto entregado **no arrancaría** (o incumple el contrato que declara). El compilador está en VERDE: **no busques ahí y no pierdas el intento intentando reproducir un fallo de compilación que no existe**. Lo que falla es exactamente lo que dice el informe de abajo, y es lo PRIMERO que tienes que arreglar, antes de añadir nada nuevo.
 
-- El comando es el mismo que usa la plataforma: `mvn -B -ntp -f <pom> test-compile` (o el equivalente de la toolchain del arquetipo).
-- Si lo que impide compilar viene de la rama BASE y no de tu trabajo, arréglalo igual —es parte de dejar el módulo compilable— y decláralo como `health_check` de severidad Warning indicando el fichero y por qué lo tocaste.
+- Arregla lo que nombra el informe, en el sitio que nombra. No hace falta reproducirlo con el compilador: ya compila.
+- Si el defecto viene de la rama BASE y no de tu trabajo, arréglalo igual y decláralo como `health_check` de severidad Warning indicando el fichero y por qué lo tocaste.
+- **No borres ni desactives tests para que el informe calle.** Si crees que el informe se equivoca, entrégalo con un `health_check` Blocker explicando por qué; quitar cobertura para tapar una señal es peor que la señal.
 
 ### Lo que reportó la verificación (literal)
 
 ```
-[22m
-[1m[31m[39m[22m
-[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/app.routes.ts[0m:[93m79[0m:[93m9[0m - [91merror[0m[90m TS2307: [0mCannot find module '~/app/features/auth/pages/expired-credential/expired-credential.page' or its corresponding type declarations.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[7m79[0m         '~/app/features/auth/pages/expired-credential/expired-credential.page'[39m[22m
-[1m[31m[7m  [0m [91m        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/app.routes.ts[0m:[93m85[0m:[93m14[0m - [91merror[0m[90m TS2307: [0mCannot find module '~/app/features/auth/pages/account-locked/account-locked.page' or its corresponding type declarations.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[7m85[0m       import('~/app/features/auth/pages/account-locked/account-locked.page').then([39m[22m
-[1m[31m[7m  [0m [91m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0[39m[22m[1m[31mm[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/app.routes.ts[0m:[93m93[0m:[93m9[0m - [91merror[0m[90m TS2307: [0mCannot find module '~/app/features/auth/pages/permissions-changed/permissions-changed.page' or its corresponding type declarations.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[7m93[0m         '~/app/features/auth/pages/permissions-changed/permissions-changed.page'[39m[22m
-[1m[31m[7m  [0m [91m        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/app.routes.ts[0m:[93m99[0m:[93m14[0m - [91merror[0m[90m TS2307: [0mCannot find module '~/app/features/auth/pages/session-ended/session-ended.page' or its corresponding type declarations.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[7m99[0m       import('~/app/features/auth/pages/session-ended/session-ended.page').then([39m[22m
-[1m[31m[7m  [0m [91m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/app.routes.ts[0m:[93m106[0m:[93m14[0m - [91merror[0m[90m TS2307: [0mCannot find module '~/app/pages/unauthorized-access/unauthorized-access.page' or its corresponding type declarations.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[7m106[0m       import('~/app/pages/unauthorized-access/unauthorized-access.page').then([39m[22m
-[1m[31m[7m   [0m [91m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-
-
-
- NX   Running target build for project app failed
-
-Failed tasks:
-
-- app:build:production
-
-Hint: run the command with --verbose for more details.
+stub-delivery: hay features marcadas como entregadas cuyo cuerpo no hace nada. `TODO`, `not implemented` y un retorno vacío como cuerpo único son bloqueantes de entrega, no notas.
+- 9 de 13 rutas registradas que ninguna plantilla enlaza: `/acceso/account-locked`, `/acceso/change-password-forced`, `/acceso/expired-credential`, `/acceso/login`, `/acceso/permissions-changed`, `/acceso/sesion-finalizada` (+3 más). Una pantalla a la que sólo se llega escribiendo la URL no está entregada: móntala en el menú del shell con la `sección de menú` que declara su spec de UI
 ```
-
-## Código ya presente en la zona (zone-extend) — OBLIGATORIO
-
-En el tip actual del workspace YA hay código bajo tus `zone_paths` (típicamente de una TSK predecesora mergeada). **Léelo antes de escribir.**
-
-Ficheros presentes (muestra):
-- `apps/app/src/app/app.routes.ts`
-
-Disciplina:
-1. **EDIT/EXTIENDE** símbolos existentes (`class`/`def`/exports) — **PROHIBIDO** una segunda declaración con el mismo nombre en el mismo fichero.
-2. Añade routers/handlers nuevos en ficheros dedicados o ampliando el existente sin redefinir tipos ya presentes.
-3. Si el DoD pide API pública sobre el mismo dominio, reutiliza servicios/modelos del CRUD previo; no copies otra `MembershipPlanService`.
