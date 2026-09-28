@@ -1292,8 +1292,7 @@ Comprueba `.mind/TSK-045/env.json`: si su `status` es `unavailable` o `degraded`
 
 La sesión previa **no entregó**. Corrige la causa antes de ampliar alcance:
 
-> delivery-gate/build: la verificación bloqueó la entrega.
-arquetipo 'frontend-application-spa' esperaba un proyecto construible (package.json/pom.xml/pyproject.toml) pero no se encontró ninguno en el repo
+> sesión abortada a los 3000.0s
 
 Acciones:
 - Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
@@ -1308,5 +1307,47 @@ El intento anterior dejó el módulo **SIN COMPILAR**. Reprodúcelo lo PRIMERO d
 ### Lo que reportó la verificación (literal)
 
 ```
-arquetipo 'frontend-application-spa' esperaba un proyecto construible (package.json/pom.xml/pyproject.toml) pero no se encontró ninguno en el repo
+e el compilador no ve y el usuario sí (avisos que no se pintan, títulos sin escala, iconos en 404, directivas escritas como elementos). Corrige contra el bloque «Design system corporativo» del brief:
+- `apps/app/src/app/pages/unauthorized-access/unauthorized-access.page.html`: `<b2b-notification-inline>` sin `[visible]` — arranca `visible=false` y el aviso NO se pinta nunca
+- `apps/app/src/app/pages/unauthorized-access/unauthorized-access.page.html`: `<b2b-button>` escrito como ELEMENTO — es una directiva (`<button b2b-button>`, `<input b2b-button>`, `<a b2b-button>`); así no pinta nada ni falla
+stub-delivery: hay features marcadas como entregadas cuyo cuerpo no hace nada. `TODO`, `not implemented` y un retorno vacío como cuerpo único son bloqueantes de entrega, no notas.
+- 1 de 3 rutas registradas que ninguna plantilla enlaza: `/acceso-no-autorizado`. Una pantalla a la que sólo se llega escribiendo la URL no está entregada: móntala en el menú del shell con la `sección de menú` que declara su spec de UI
+npm error code ERESOLVE
+npm error ERESOLVE could not resolve
+npm error
+npm error While resolving: @mapfre-tech/formly-b2b@1.2.0
+npm error Found: @angular/forms@17.3.12
+npm error node_modules/@angular/forms
+npm error   @angular/forms@"~17.3.0" from the root project
+npm error   peer @angular/forms@"^17.0.0 || ^18.0.0" from @angular/material@17.3.10
+npm error   node_modules/@angular/material
+npm error     @angular/material@"~17.3.0" from the root project
+npm error     peer @angular/material@"17.3.10" from @angular/material-date-fns-adapter@17.3.10
+npm error     node_modules/@angular/material-date-fns-adapter
+npm error       @angular/material-date-fns-adapter@"~17.3.0" from the root project
+npm error       1 more (@mapfre-tech/formly-b2b)
+npm error     1 more (@mapfre-tech/formly-b2b)
+npm error   2 more (@mapfre-tech/b2b-components, @mapfre-tech/formly-b2b)
+npm error
+npm error Could not resolve dependency:
+npm error peer @ngx-formly/core@">=6.3.5" from @mapfre-tech/formly-b2b@1.2.0
+npm error node_modules/@mapfre-tech/formly-b2b
+npm error   @mapfre-tech/formly-b2b@"1.2.0" from the root project
+npm error
+npm error Conflicting peer dependency: @angular/forms@21.2.24
+npm error node_modules/@angular/forms
+npm error   peer @angular/forms@">=19.0.0" from @ngx-formly/core@8.0.0
+npm error   node_modules/@ngx-formly/core
+npm error     peer @ngx-formly/core@">=6.3.5" from @mapfre-tech/formly-b2b@1.2.0
+npm error     node_modules/@mapfre-tech/formly-b2b
+npm error       @mapfre-tech/formly-b2b@"1.2.0" from the root project
+npm error
+npm error Fix the upstream dependency conflict, or retry
+npm error this command with --force or --legacy-peer-deps
+npm error to accept an incorrect (and potentially broken) dependency resolution.
+npm error
+npm error
+npm error For a full report see:
+npm error /home/agent/.npm/_logs/2026-09-28T12_14_05_029Z-eresolve-report.txt
+npm error A complete log of this run can be found in: /home/agent/.npm/_logs/2026-09-28T12_14_05_029Z-debug-0.log
 ```
