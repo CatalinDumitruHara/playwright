@@ -1,31 +1,35 @@
-import {
-  HttpErrorResponse,
-  HttpInterceptorFn,
-} from '@angular/common/http';
-import { catchError, throwError } from 'rxjs';
+import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpEvent, HttpErrorResponse } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { AuthenticationService } from './authentication.service';
 
-export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  // Clone the request and add the authorization header
-  const authToken = 'dummy-auth-token'; // Replace with actual token retrieval logic
-  const authReq = req.clone({
-    setHeaders: {
-      Authorization: `Bearer ${authToken}`,
-    },
-  });
+export const authInterceptor: HttpInterceptorFn = (
+  req: HttpRequest<unknown>,
+  next: HttpHandlerFn
+): Observable<HttpEvent<unknown>> => {
+  const authService = inject(AuthenticationService);
+  const router = inject(Router);
+  const sessionToken = localStorage.getItem('sessionToken');
 
-  // Pass the cloned request to the next handler
-  return next(authReq).pipe(
+  let clonedRequest = req;
+
+  if (authService.isAuthenticated() && sessionToken) {
+    clonedRequest = req.clone({
+      setHeaders: {
+        Authorization: `Bearer ${sessionToken}`,
+      },
+    });
+  }
+
+  return next(clonedRequest).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
-        // Redirect to the login page
-        console.log('Redirecting to login page...');
-        // In a real app, you would use the Router to navigate
-        // this.router.navigate(['/login']);
+        authService.logout();
+        router.navigate(['/login']);
       } else if (error.status === 403) {
-        // Redirect to the unauthorized page
-        console.log('Redirecting to unauthorized page...');
-        // In a real app, you would use the Router to navigate
-        // this.router.navigate(['/unauthorized']);
+        router.navigate(['/acceso-no-autorizado']);
       }
       return throwError(() => error);
     })

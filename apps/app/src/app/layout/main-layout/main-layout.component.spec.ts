@@ -1,87 +1,138 @@
-
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
-import { By } from '@angular/platform-browser';
-import { MainLayoutComponent } from './main-layout.component';
-import { AuthenticationService } from '../../core/auth/authentication.service';
+import { signal, WritableSignal, Component, Input } from '@angular/core';
+import { byText, createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SessionContext } from '@api-types';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { AuthenticationService } from '../../core/auth/authentication.service';
+import { MainLayoutComponent } from './main-layout.component';
+import {
+  B2bHeaderDesktopComponent,
+  B2bMapfreLogoComponent,
+  B2bSidebarComponent,
+  B2bSidebarItemComponent,
+} from '@mapfre-tech/b2b-components';
+
+@Component({
+  selector: 'app-home',
+  template: '<h1>Home</h1>',
+  standalone: true,
+})
+class HomeComponent {}
+
+@Component({
+  selector: 'b2b-header-desktop',
+  template: '<ng-content select="[b2b-header-logo]"></ng-content><ng-content select="[b2b-header-functions]"></ng-content>',
+  standalone: true,
+})
+class MockB2bHeaderDesktopComponent {}
+
+@Component({
+  selector: 'b2b-sidebar',
+  template: '<ng-content></ng-content>',
+  standalone: true,
+})
+class MockB2bSidebarComponent {}
+
+@Component({
+  selector: 'b2b-sidebar-item',
+  template: '<ng-content></ng-content>',
+  standalone: true,
+})
+class MockB2bSidebarItemComponent {
+  @Input() icon?: string;
+}
+
+@Component({
+  selector: 'b2b-mapfre-logo',
+  template: '',
+  standalone: true,
+})
+class MockB2bMapfreLogoComponent {}
 
 describe('MainLayoutComponent', () => {
-  let component: MainLayoutComponent;
-  let fixture: ComponentFixture<MainLayoutComponent>;
+  let spectator: Spectator<MainLayoutComponent>;
+  let authenticationServiceMock: {
+    sessionContext: WritableSignal<SessionContext | null>;
+    logout: jest.Mock;
+  };
 
-  async function configureTestBed(session: SessionContext | null) {
-    await TestBed.configureTestingModule({
-      imports: [MainLayoutComponent, RouterTestingModule],
-      providers: [
+  const createComponent = createRoutingFactory({
+    component: MainLayoutComponent,
+    overrideComponents: [
+      [
+        MainLayoutComponent,
         {
-          provide: AuthenticationService,
-          useValue: {
-            get currentSession() {
-              return session;
-            },
+          remove: {
+            imports: [
+              B2bHeaderDesktopComponent,
+              B2bSidebarComponent,
+              B2bSidebarItemComponent,
+              B2bMapfreLogoComponent,
+            ],
+          },
+          add: {
+            imports: [
+              MockB2bHeaderDesktopComponent,
+              MockB2bSidebarComponent,
+              MockB2bSidebarItemComponent,
+              MockB2bMapfreLogoComponent,
+            ],
           },
         },
       ],
-      schemas: [NO_ERRORS_SCHEMA], // Ignorar componentes desconocidos como b2b-sidebar-item
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(MainLayoutComponent);
-    component = fixture.componentInstance;
-  }
-
-  it('should create', async () => {
-    await configureTestBed(null);
-    fixture.detectChanges();
-    expect(component).toBeTruthy();
+    ],
+    mocks: [AuthenticationService],
+    routes: [{ path: 'home', component: HomeComponent }],
   });
 
-  describe('when user is not authenticated', () => {
-    beforeEach(async () => {
-      await configureTestBed(null);
-      fixture.detectChanges();
-    });
-
-    it('should show no menu options', () => {
-      const menuItems = fixture.debugElement.queryAll(By.css('b2b-sidebar-item'));
-      expect(component.menuOptions.length).toBe(0);
-      expect(menuItems.length).toBe(0);
+  beforeEach(() => {
+    authenticationServiceMock = {
+      sessionContext: signal(null),
+      logout: jest.fn(),
+    };
+    spectator = createComponent({
+      providers: [{ provide: AuthenticationService, useValue: authenticationServiceMock }],
     });
   });
 
-  describe('when user has "user" role', () => {
-    beforeEach(async () => {
-      const userSession: SessionContext = {
-        user: { name: 'Test User', email: 'user@test.com' },
-        permissions: ['user'],
-      };
-      await configureTestBed(userSession);
-      fixture.detectChanges();
-    });
-
-    it('should only show "Inicio" menu option', () => {
-      const menuItems = fixture.debugElement.queryAll(By.css('b2b-sidebar-item'));
-      expect(component.menuOptions.length).toBe(1);
-      expect(component.menuOptions[0].label).toBe('Inicio');
-    });
+  it('should create', () => {
+    expect(spectator.component).toBeTruthy();
   });
 
-  describe('when user has "admin" role', () => {
-    beforeEach(async () => {
-      const adminSession: SessionContext = {
-        user: { name: 'Admin User', email: 'admin@test.com' },
-        permissions: ['admin', 'user'],
-      };
-      await configureTestBed(adminSession);
-      fixture.detectChanges();
-    });
+  it('should display user name when authenticated', () => {
+    const session: SessionContext = {
+      user: { name: 'John Doe', email: 'john.doe@example.com' },
+      permissions: ['ROL-001'],
+    };
+    authenticationServiceMock.sessionContext.set(session);
+    spectator.detectChanges();
+    expect(spectator.query('.user-info span')).toHaveText('John Doe');
+  });
 
-    it('should show "Inicio" and "Usuarios" menu options', () => {
-      const menuItems = fixture.debugElement.queryAll(By.css('b2b-sidebar-item'));
-      expect(component.menuOptions.length).toBe(2);
-      expect(component.menuOptions.find(m => m.label === 'Inicio')).toBeDefined();
-      expect(component.menuOptions.find(m => m.label === 'Usuarios')).toBeDefined();
-    });
+  it('should display menu options based on user role', () => {
+    const session: SessionContext = {
+      user: { name: 'John Doe', email: 'john.doe@example.com' },
+      permissions: ['ROL-001', 'ROL-002'],
+    };
+    authenticationServiceMock.sessionContext.set(session);
+    spectator.detectChanges();
+
+    const menuItems = spectator.queryAll('b2b-sidebar-item');
+    expect(menuItems).toHaveLength(2);
+    expect(spectator.query(byText('Inicio'))).toBeTruthy();
+    expect(spectator.query(byText('Gestión de Incidencias'))).toBeTruthy();
+  });
+
+  it('should call logout when logout button is clicked', () => {
+    const session: SessionContext = {
+      user: { name: 'John Doe', email: 'john.doe@example.com' },
+      permissions: ['ROL-001'],
+    };
+    authenticationServiceMock.sessionContext.set(session);
+    spectator.detectChanges();
+
+    const logoutButton = spectator.query(byText('Cerrar sesión'));
+    expect(logoutButton).toBeTruthy();
+    spectator.click(logoutButton as Element);
+
+    expect(authenticationServiceMock.logout).toHaveBeenCalled();
   });
 });

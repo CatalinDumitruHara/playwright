@@ -1,61 +1,66 @@
-
 import { TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
-import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from '@angular/router';
+import { CanActivateFn, Router, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { roleGuard } from './role.guard';
 import { AuthenticationService } from './authentication.service';
+import { RouterTestingModule } from '@angular/router/testing';
+import { signal } from '@angular/core';
 import { SessionContext } from '@api-types';
-import { BehaviorSubject } from 'rxjs';
-
-class MockAuthService {
-  _currentSession: SessionContext | null = null;
-
-  get currentSession(): SessionContext | null {
-    return this._currentSession;
-  }
-}
 
 describe('roleGuard', () => {
-  let router: Router;
-  let authService: MockAuthService;
+  const executeGuard: CanActivateFn = (route, state) =>
+    TestBed.runInInjectionContext(() => roleGuard(route, state));
 
-  const dummyState = {} as RouterStateSnapshot;
+  let authServiceMock: {
+    sessionContext: jest.Mock
+  };
+  let router: Router;
 
   beforeEach(() => {
+    authServiceMock = {
+      sessionContext: jest.fn()
+    };
+
     TestBed.configureTestingModule({
-      imports: [RouterTestingModule.withRoutes([])],
+      imports: [RouterTestingModule],
       providers: [
         {
           provide: AuthenticationService,
-          useClass: MockAuthService,
+          useValue: authServiceMock,
         },
       ],
     });
-
     router = TestBed.inject(Router);
-    authService = TestBed.inject(AuthenticationService) as unknown as MockAuthService;
   });
 
   it('should return true if user has an allowed role', () => {
-    authService._currentSession = { user: { name: 'test', email: 'test@test.com' }, permissions: ['admin'] };
-    const route = { data: { roles: ['admin', 'editor'] } } as unknown as ActivatedRouteSnapshot;
-    const canActivate = TestBed.runInInjectionContext(() => roleGuard(route, dummyState));
+    const session = { role_code: 'ROL-003' } as SessionContext;
+    authServiceMock.sessionContext.mockReturnValue(signal(session)());
+    const route = { data: { roles: ['ROL-003'] } } as unknown as ActivatedRouteSnapshot;
+
+    const canActivate = executeGuard(route, {} as RouterStateSnapshot);
     expect(canActivate).toBe(true);
   });
 
-  it('should return false if user does not have an allowed role', () => {
-    authService._currentSession = { user: { name: 'test', email: 'test@test.com' }, permissions: ['user'] };
-    const route = { data: { roles: ['admin', 'editor'] } } as unknown as ActivatedRouteSnapshot;
-    jest.spyOn(router, 'navigate');
-    const canActivate = TestBed.runInInjectionContext(() => roleGuard(route, dummyState));
+  it('should redirect to /unauthorized and return false if user does not have an allowed role', () => {
+    const session = { role_code: 'ROL-001' } as SessionContext;
+    authServiceMock.sessionContext.mockReturnValue(signal(session)());
+    const navigateSpy = jest.spyOn(router, 'navigate');
+    const route = { data: { roles: ['ROL-003'] } } as unknown as ActivatedRouteSnapshot;
+
+    const canActivate = executeGuard(route, {} as RouterStateSnapshot);
+
     expect(canActivate).toBe(false);
+    expect(navigateSpy).toHaveBeenCalledWith(['/unauthorized']);
   });
 
-  it('should return false if user is not logged in', () => {
-    authService._currentSession = null;
-    const route = { data: { roles: ['admin'] } } as unknown as ActivatedRouteSnapshot;
-    jest.spyOn(router, 'navigate');
-    const canActivate = TestBed.runInInjectionContext(() => roleGuard(route, dummyState));
+  it('should redirect to /unauthorized and return false if there is no session', () => {
+    authServiceMock.sessionContext.mockReturnValue(signal(null)());
+    const navigateSpy = jest.spyOn(router, 'navigate');
+    const route = { data: { roles: ['ROL-003'] } } as unknown as ActivatedRouteSnapshot;
+
+    const canActivate = executeGuard(route, {} as RouterStateSnapshot);
+
     expect(canActivate).toBe(false);
+    expect(navigateSpy).toHaveBeenCalledWith(['/unauthorized']);
   });
 });

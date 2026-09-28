@@ -1,29 +1,34 @@
-
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { computed, Injectable, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { SessionContext } from '@api-types';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthenticationService {
-  private readonly http = inject(HttpClient);
-  private readonly sessionState = new BehaviorSubject<SessionContext | null>(
-    null
-  );
+  private _sessionContext = signal<SessionContext | null>(null);
+  public sessionContext = this._sessionContext.asReadonly();
 
-  public readonly sessionState$ = this.sessionState.asObservable();
-
-  public get currentSession(): SessionContext | null {
-    return this.sessionState.getValue();
+  constructor(private router: Router) {
+    // Simulate a logged-in user for development
+    if (this.isAuthenticated()) {
+      this._sessionContext.set({
+        user: { name: 'John Doe', email: 'john.doe@example.com' },
+        permissions: ['ROL-001', 'ROL-002'],
+      });
+    }
   }
 
-  public getSessionContext(): Observable<SessionContext> {
-    return this.http.get<SessionContext>('/auth/sessions/current').pipe(
-      tap((session) => {
-        this.sessionState.next(session);
-      })
-    );
+  logout(): void {
+    // Remove the session token from local storage
+    localStorage.removeItem('sessionToken');
+    this._sessionContext.set(null);
+    // Redirect to the login page
+    this.router.navigate(['/login']);
+  }
+
+  isAuthenticated(): boolean {
+    // Check if the session token exists in local storage
+    return !!localStorage.getItem('sessionToken');
   }
 }

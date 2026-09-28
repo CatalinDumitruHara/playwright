@@ -7,13 +7,13 @@ export const roleGuard: CanActivateFn = (route) => {
   const router = inject(Router);
 
   const allowedRoles = route.data['roles'] as Array<string>;
-  const userPermissions = authService.currentSession?.permissions ?? [];
+  const userRole = authService.sessionContext()?.role_code;
 
-  if (allowedRoles.some(role => userPermissions.includes(role))) {
+  if (userRole && allowedRoles.includes(userRole)) {
     return true;
   }
 
   console.log('Redirecting to unauthorized page');
-  router.navigate(['/unauthorized']);
+  router.navigate(['/acceso-no-autorizado']);
   return false;
 };

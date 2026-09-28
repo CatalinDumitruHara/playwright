@@ -1,29 +1,17 @@
 import { TestBed } from '@angular/core/testing';
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from '@angular/common/http/testing';
-import {
-  HttpClient,
-  HttpErrorResponse,
-  provideHttpClient,
-  withInterceptors,
-} from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { authInterceptor } from './auth.interceptor';
 import { AuthenticationService } from './authentication.service';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 
-describe('authInterceptor', () => {
+describe('AuthInterceptor', () => {
   let httpMock: HttpTestingController;
   let httpClient: HttpClient;
-
-  const mockRouter = {
-    navigate: jest.fn(),
-  };
-
-  const mockAuthService = {
-    getToken: () => 'test-token',
-  };
+  let authService: AuthenticationService;
+  let router: Router;
+  let getItemSpy: jest.SpyInstance;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -32,69 +20,104 @@ describe('authInterceptor', () => {
         provideHttpClientTesting(),
         {
           provide: AuthenticationService,
-          useValue: mockAuthService,
+          useValue: {
+            isAuthenticated: jest.fn(),
+            logout: jest.fn(),
+          },
         },
         {
           provide: Router,
-          useValue: mockRouter,
+          useValue: {
+            navigate: jest.fn(),
+          },
         },
       ],
     });
 
     httpMock = TestBed.inject(HttpTestingController);
     httpClient = TestBed.inject(HttpClient);
+    authService = TestBed.inject(AuthenticationService);
+    router = TestBed.inject(Router);
+    getItemSpy = jest.spyOn(Storage.prototype, 'getItem');
   });
 
   afterEach(() => {
     httpMock.verify();
+    getItemSpy.mockRestore();
   });
 
-  it('should add an Authorization header', () => {
-    httpClient.get('/api/data').subscribe();
+  it('should add Authorization header if user is authenticated', () => {
+    const token = 'test-token';
+    (authService.isAuthenticated as jest.Mock).mockReturnValue(true);
+    getItemSpy.mockReturnValue(token);
 
-    const httpRequest = httpMock.expectOne('/api/data');
+    httpClient.get('/test').subscribe();
 
-    expect(httpRequest.request.headers.has('Authorization')).toEqual(true);
-    // The token is hardcoded in the interceptor
-    expect(httpRequest.request.headers.get('Authorization')).toBe(
-      'Bearer dummy-auth-token'
-    );
+    const req = httpMock.expectOne('/test');
+    expect(req.request.headers.has('Authorization')).toBe(true);
+    expect(req.request.headers.get('Authorization')).toBe(`Bearer ${token}`);
+    req.flush({});
   });
 
-  it('should log to console on 401 error', () => {
-    const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-    httpClient.get('/api/data').subscribe({
-      error: (error) => {
-        expect(error instanceof HttpErrorResponse).toBe(true);
-        expect(error.status).toBe(401);
+  it('should not add Authorization header if user is not authenticated', () => {
+    (authService.isAuthenticated as jest.Mock).mockReturnValue(false);
+    getItemSpy.mockReturnValue(null);
+
+    httpClient.get('/test').subscribe();
+
+    const req = httpMock.expectOne('/test');
+    expect(req.request.headers.has('Authorization')).toBe(false);
+    req.flush({});
+  });
+
+  it('should redirect to /login on 401 error', () => {
+    const token = 'test-token';
+    (authService.isAuthenticated as jest.Mock).mockReturnValue(true);
+    getItemSpy.mockReturnValue(token);
+
+    httpClient.get('/test').subscribe({
+      error: (err) => {
+        expect(err.status).toBe(401);
       },
     });
 
-    const httpRequest = httpMock.expectOne('/api/data');
-    httpRequest.flush('Unauthorized', {
-      status: 401,
-      statusText: 'Unauthorized',
-    });
+    const req = httpMock.expectOne('/test');
+    req.flush({}, { status: 401, statusText: 'Unauthorized' });
 
-    expect(consoleSpy).toHaveBeenCalledWith('Redirecting to login page...');
-    consoleSpy.mockRestore();
+    expect(router.navigate).toHaveBeenCalledWith(['/login']);
   });
 
-  it('should log to console on 403 error', () => {
-    const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-    httpClient.get('/api/data').subscribe({
-      error: (error) => {
-        expect(error instanceof HttpErrorResponse).toBe(true);
-        expect(error.status).toBe(403);
+  it('should call logout on 401 error', () => {
+    const token = 'test-token';
+    (authService.isAuthenticated as jest.Mock).mockReturnValue(true);
+    getItemSpy.mockReturnValue(token);
+
+    httpClient.get('/test').subscribe({
+      error: (err) => {
+        expect(err.status).toBe(401);
       },
     });
 
-    const httpRequest = httpMock.expectOne('/api/data');
-    httpRequest.flush('Forbidden', { status: 403, statusText: 'Forbidden' });
+    const req = httpMock.expectOne('/test');
+    req.flush({}, { status: 401, statusText: 'Unauthorized' });
 
-    expect(consoleSpy).toHaveBeenCalledWith(
-      'Redirecting to unauthorized page...'
-    );
-    consoleSpy.mockRestore();
+    expect(authService.logout).toHaveBeenCalled();
+  });
+
+  it('should redirect to /acceso-no-autorizado on 403 error', () => {
+    const token = 'test-token';
+    (authService.isAuthenticated as jest.Mock).mockReturnValue(true);
+    getItemSpy.mockReturnValue(token);
+
+    httpClient.get('/test').subscribe({
+      error: (err) => {
+        expect(err.status).toBe(403);
+      },
+    });
+
+    const req = httpMock.expectOne('/test');
+    req.flush({}, { status: 403, statusText: 'Forbidden' });
+
+    expect(router.navigate).toHaveBeenCalledWith(['/acceso-no-autorizado']);
   });
 });

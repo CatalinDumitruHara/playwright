@@ -1,5 +1,5 @@
 
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import {
   B2bHeaderDesktopComponent,
@@ -28,33 +28,44 @@ import { CommonModule } from '@angular/common';
   ],
 })
 export class MainLayoutComponent {
-  public session: SessionContext | null;
-  public menuOptions: any[] = [];
-
   private readonly authenticationService = inject(AuthenticationService);
+  public session = this.authenticationService.sessionContext;
 
-  constructor() {
-    this.session = this.authenticationService.currentSession;
-    this.buildMenu();
-  }
-
-  private buildMenu(): void {
+  public menuOptions = computed(() => {
     const allMenus = [
       {
         label: 'Inicio',
         routerLink: '/home',
         icon: 'b2b-icon-home',
-        requiredPermission: 'user', // O cualquier otro permiso base
+        allowedRoles: ['ROL-001', 'ROL-002', 'ROL-003'],
       },
       {
-        label: 'Usuarios',
-        routerLink: '/users',
-        icon: 'b2b-icon-users',
-        requiredPermission: 'admin',
+        label: 'Gestión de Incidencias',
+        routerLink: '/incidents',
+        icon: 'b2b-icon-incident',
+        allowedRoles: ['ROL-002'],
+      },
+      {
+        label: 'Administración',
+        routerLink: '/admin',
+        icon: 'b2b-icon-settings',
+        allowedRoles: ['ROL-003'],
       },
     ];
 
-    const userPermissions = this.session?.permissions ?? [];
-    this.menuOptions = allMenus.filter(menu => userPermissions.includes(menu.requiredPermission));
+    const userPermissions = this.session()?.permissions;
+    if (!userPermissions) {
+      return [];
+    }
+
+    return allMenus.filter(menu => menu.allowedRoles.some(role => userPermissions.includes(role)));
+  });
+
+  public get userName(): string {
+    return this.session()?.user.name || '';
+  }
+
+  public logout(): void {
+    this.authenticationService.logout();
   }
 }

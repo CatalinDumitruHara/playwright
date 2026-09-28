@@ -15,11 +15,18 @@ export const appRoutes: Route[] = [
           import('./pages/welcome/welcome.page').then(p => p.WelcomePage),
       },
       {
-        path: 'users',
+        path: 'incidents',
         loadComponent: () =>
           import('./pages/welcome/welcome.page').then(p => p.WelcomePage), // Placeholder
         canActivate: [roleGuard],
-        data: { roles: ['admin'] },
+        data: { roles: ['ROL-002'] },
+      },
+      {
+        path: 'admin',
+        loadComponent: () =>
+          import('./pages/welcome/welcome.page').then(p => p.WelcomePage), // Placeholder
+        canActivate: [roleGuard],
+        data: { roles: ['ROL-003'] },
       },
       {
         path: '',
@@ -29,12 +36,19 @@ export const appRoutes: Route[] = [
     ],
   },
   {
+    path: 'login',
+    loadComponent: () =>
+      import('./pages/welcome/welcome.page').then(p => p.WelcomePage), // Placeholder for login page
+  },
+  {
     path: 'acceso-no-autorizado',
     loadComponent: () =>
-      import('./pages/unauthorized-access/unauthorized-access.page').then(p => p.UnauthorizedAccessComponent),
+      import('./pages/unauthorized-access/unauthorized-access.page').then(
+        p => p.UnauthorizedAccessPage
+      ),
   },
   {
     path: '**',
-    redirectTo: 'home',
+    redirectTo: '',
   },
 ];
