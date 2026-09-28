@@ -1296,36 +1296,11 @@ La sesión previa **no entregó**. Corrige la causa antes de ampliar alcance:
 workspace-config: la configuración del workspace no cuadra con lo que hay en disco. Los ficheros nuevos van DENTRO del `sourceRoot` declarado, el lockfile se commitea, y una opción o un fichero que la configuración nombra tienen que existir en la versión declarada del framework.
 - fuentes FUERA de todo `sourceRoot` (`apps/app/src`): `libs/api-types/src/index.ts`. El compilador no las ve: si algo las importa el build muere con `TS2307`, y si no, es código muerto que parece entregado
 - el target `test` (karmaConfig) referencia `apps/app/karma.conf.js`, que no existe
-- el workspace es Nx (`@nx/*`, `project.json`, scripts `nx …`) y no hay `nx.json` (rompe `npm run build`, `npm run start`, `npm run test`). Sin el manifiesto del monorepo, `nx <target>` aborta con `Cannot read properties of null (reading 'cli')`, que no señala la causa
 - el target `build` de `app` está definido DOS veces con salidas distintas: `angular.json` → `dist/apps/app`, `apps/app/project.json` → `dist/apps/app/browser`. Lo que se despliega depende de con qué herramienta se construya
-- el target `app:package-debug-files-web` usa el executor `@mapfre-tech/nx-tools:zip` y `@mapfre-tech/nx-tools` no está en `package.json`: no puede ejecutarse
-- el target `app:release-debug-files-web` usa el executor `@mapfre-tech/nx-tools:release-debug-files-web` y `@mapfre-tech/nx-tools` no está en `package.json`: no puede ejecutarse
-- (+7 más)
-design-system: la UI entregada se desvía del design system corporativo en cosas que el compilador no ve y el usuario sí (avisos que no se pintan, títulos sin escala, iconos en 404, directivas escritas como elementos). Corrige contra el bloque «Design system corporativo» del brief:
-- `apps/app/src/app/pages/unauthorized-access/unauthorized-access.page.html`: `<b2b-notification-inline>` sin `[visible]` — arranca `visible=false` y el aviso NO se pinta nunca
-npm error code ERESOLVE
-npm error ERESOLVE could not resolve
-npm erro
-
-Acciones:
-- Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
-
-## Estado del build al cerrar el intento anterior
-
-El intento anterior dejó el módulo **SIN COMPILAR**. Reprodúcelo lo PRIMERO de todo, antes de añadir nada nuevo, y no entregues hasta que compile.
-
-- El comando es el mismo que usa la plataforma: `mvn -B -ntp -f <pom> test-compile` (o el equivalente de la toolchain del arquetipo).
-- Si lo que impide compilar viene de la rama BASE y no de tu trabajo, arréglalo igual —es parte de dejar el módulo compilable— y decláralo como `health_check` de severidad Warning indicando el fichero y por qué lo tocaste.
-
-### Lo que reportó la verificación (literal)
-
-```
-uild` de `app` está definido DOS veces con salidas distintas: `angular.json` → `dist/apps/app`, `apps/app/project.json` → `dist/apps/app/browser`. Lo que se despliega depende de con qué herramienta se construya
-- el target `app:package-debug-files-web` usa el executor `@mapfre-tech/nx-tools:zip` y `@mapfre-tech/nx-tools` no está en `package.json`: no puede ejecutarse
-- el target `app:release-debug-files-web` usa el executor `@mapfre-tech/nx-tools:release-debug-files-web` y `@mapfre-tech/nx-tools` no está en `package.json`: no puede ejecutarse
-- (+7 más)
-design-system: la UI entregada se desvía del design system corporativo en cosas que el compilador no ve y el usuario sí (avisos que no se pintan, títulos sin escala, iconos en 404, directivas escritas como elementos). Corrige contra el bloque «Design system corporativo» del brief:
-- `apps/app/src/app/pages/unauthorized-access/unauthorized-access.page.html`: `<b2b-notification-inline>` sin `[visible]` — arranca `visible=false` y el aviso NO se pinta nunca
+- el target `app:serve-static` usa el executor `@nx/web:file-server` y `@nx/web` no está en `package.json`: no puede ejecutarse
+- `apps/app/public/assets/environments.json` declara los entornos (dev, pre, pro) y los deja TODOS vacíos. La app usa `@mapfre-tech/ngx-multienvironment`, así que cada valor que lea de ahí (`API_URL` y compañía) será `undefined` en tiempo de ejecución: compila, arranca y no llama a ningún backend. Rellena al menos el entorno de desarrollo
+- `app:build`: `assets` referencia `apps/app/src/assets`, que no existe
+- (+3 más)
 npm error code ERESOLVE
 npm error ERESOLVE could not resolve
 npm error
@@ -1337,31 +1312,9 @@ npm error   peer @angular/forms@"^17.0.0 || ^18.0.0" from @angular/material@17.3
 npm error   node_modules/@angular/material
 npm error     @angular/material@"~17.3.0" from the root project
 npm error     peer @angular/material@"17.3.10" from @angular/material-date-fns-adapter@17.3.10
-npm error     node_modules/@angular/material-date-fns-adapter
-npm error       @angular/material-date-fns-adapter@"~17.3.0" from the root project
-npm error       1 more (@mapfre-tech/formly-b2b)
-npm error     1 more (@mapfre-tech/formly-b2b)
-npm error   2 more (@mapfre-tech/b2b-components, @mapfre-tech/formly-b2b)
-npm error
-npm error Could not resolve dependency:
-npm error peer @ngx-formly/core@">=6.3.5" from @mapfre-tech/formly-b2b@1.2.0
-npm error node_modules/@mapfre-tech/formly-b2b
-npm error   @mapfre-tech/formly-b2b@"1.2.0" from the root project
-npm error
-npm error Conflicting peer dependency: @angular/forms@21.2.24
-npm error node_modules/@angular/forms
-npm error   peer @angular/forms@">=19.0.0" from @ngx-formly/core@8.0.0
-npm error   node_modules/@ngx-formly/core
-npm error     peer @ngx-formly/core@">=6.3.5" from @mapfre-tech/formly-b2b@1.2.0
-npm error     node_modules/@mapfre-tech/formly-b2b
-npm error       @mapfre-tech/formly-b2b@"1.2.0" from the root project
-npm error
-npm error Fix the upstream dependency conflict, or retry
-npm error this command with --force or --legacy-peer-deps
-npm error to accept an incorrect (and potentially broken) dependency resolution.
-npm error
-npm error
-npm error For a full report see:
-npm error /home/agent/.npm/_logs/2026-09-28T13_47_11_580Z-eresolve-report.txt
-npm error A complete log of this run can be found in: /home/agent/.npm/_logs/2026-09-28T13_47_11_580Z-debug-0.log
-```
+npm error     node_modules/@angular/material
+
+Acciones:
+- NO stages ni commits de `node_modules/`, `dist/`, `.angular/`, caches ni blobs concatenados; solo código de producto bajo las zonas / composition root.
+- Si instalaste deps en el workspace, deja `node_modules` fuera de git (`.gitignore`). Reescribe el path canónico con `write_file` (pisa, no concatenes).
+- El runtime hace el push: no inventes `git add -A` de basura para «arreglar» el finalize.
