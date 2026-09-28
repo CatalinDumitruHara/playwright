@@ -1370,3 +1370,45 @@ El intento anterior dejó el módulo COMPILANDO, pero el artefacto entregado **n
 stub-delivery: hay features marcadas como entregadas cuyo cuerpo no hace nada. `TODO`, `not implemented` y un retorno vacío como cuerpo único son bloqueantes de entrega, no notas.
 - 9 de 13 rutas registradas que ninguna plantilla enlaza: `/acceso/account-locked`, `/acceso/change-password-forced`, `/acceso/expired-credential`, `/acceso/login`, `/acceso/permissions-changed`, `/acceso/sesion-finalizada` (+3 más). Una pantalla a la que sólo se llega escribiendo la URL no está entregada: móntala en el menú del shell con la `sección de menú` que declara su spec de UI
 ```
+
+## Código ya presente en la zona (zone-extend) — OBLIGATORIO
+
+En el tip actual del workspace YA hay código bajo tus `zone_paths` (típicamente de una TSK predecesora mergeada). **Léelo antes de escribir.**
+
+Ficheros presentes (muestra):
+- `apps/app/src/app/features/auth/pages/account-locked/account-locked.page.html`
+- `apps/app/src/app/features/auth/pages/account-locked/account-locked.page.scss`
+- `apps/app/src/app/features/auth/pages/account-locked/account-locked.page.ts`
+- `apps/app/src/app/features/auth/pages/change-password-forced/change-password-forced.page.html`
+- `apps/app/src/app/features/auth/pages/change-password-forced/change-password-forced.page.scss`
+- `apps/app/src/app/features/auth/pages/change-password-forced/change-password-forced.page.ts`
+- `apps/app/src/app/features/auth/pages/expired-credential/expired-credential.page.html`
+- `apps/app/src/app/features/auth/pages/expired-credential/expired-credential.page.scss`
+- `apps/app/src/app/features/auth/pages/expired-credential/expired-credential.page.ts`
+- `apps/app/src/app/features/auth/pages/home/home.page.html`
+- `apps/app/src/app/features/auth/pages/home/home.page.scss`
+- `apps/app/src/app/features/auth/pages/home/home.page.ts`
+- `apps/app/src/app/features/auth/pages/login/login.page.html`
+- `apps/app/src/app/features/auth/pages/login/login.page.scss`
+- `apps/app/src/app/features/auth/pages/login/login.page.ts`
+- `apps/app/src/app/features/auth/pages/permissions-changed/permissions-changed.page.html`
+- `apps/app/src/app/features/auth/pages/permissions-changed/permissions-changed.page.scss`
+- `apps/app/src/app/features/auth/pages/permissions-changed/permissions-changed.page.ts`
+- `apps/app/src/app/features/auth/pages/session-ended/session-ended.page.html`
+- `apps/app/src/app/features/auth/pages/session-ended/session-ended.page.scss`
+- `apps/app/src/app/features/auth/pages/session-ended/session-ended.page.ts`
+- `apps/app/src/app/features/profile/pages/change-password/change-password.page.html`
+- `apps/app/src/app/features/profile/pages/change-password/change-password.page.scss`
+- `apps/app/src/app/features/profile/pages/change-password/change-password.page.ts`
+- `apps/app/src/app/features/profile/pages/change-password-confirmation/change-password-confirmation.page.html`
+- `apps/app/src/app/features/profile/pages/change-password-confirmation/change-password-confirmation.page.scss`
+- `apps/app/src/app/features/profile/pages/change-password-confirmation/change-password-confirmation.page.ts`
+- `apps/app/src/app/features/profile/pages/my-profile/my-profile.page.html`
+- `apps/app/src/app/features/profile/pages/my-profile/my-profile.page.scss`
+- `apps/app/src/app/features/profile/pages/my-profile/my-profile.page.ts`
+- `apps/app/src/app/app.routes.ts`
+
+Disciplina:
+1. **EDIT/EXTIENDE** símbolos existentes (`class`/`def`/exports) — **PROHIBIDO** una segunda declaración con el mismo nombre en el mismo fichero.
+2. Añade routers/handlers nuevos en ficheros dedicados o ampliando el existente sin redefinir tipos ya presentes.
+3. Si el DoD pide API pública sobre el mismo dominio, reutiliza servicios/modelos del CRUD previo; no copies otra `MembershipPlanService`.

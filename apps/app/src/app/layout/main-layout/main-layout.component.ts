@@ -1,6 +1,7 @@
 
 import { Component, computed, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { NavMenuComponent } from '../nav-menu/nav-menu.component';
 import {
   B2bHeaderDesktopComponent,
   B2bSidebarComponent,
@@ -25,6 +26,7 @@ import { CommonModule } from '@angular/common';
     B2bSidebarItemComponent,
     RouterModule,
     CommonModule,
+    NavMenuComponent,
   ],
 })
 export class MainLayoutComponent {
