@@ -1292,7 +1292,8 @@ Comprueba `.mind/TSK-045/env.json`: si su `status` es `unavailable` o `degraded`
 
 La sesión previa **no entregó**. Corrige la causa antes de ampliar alcance:
 
-> OpenAIModelNotFoundError: Error code: 404 - {'error': {'message': 'litellm.NotFoundError: GeminiException - {\n  "error": {\n    "code": 404,\n    "message": "This model models/gemini-2.5-pro is no longer available to new users. Please update your code to use models/gemini-3.1-pro-preview for the latest features and improvements. We recommend you to use the Interactions API (https://ai.google.dev/gemini-api/docs/get-started).",\n    "status": "NOT_FOUND"\n  }\n}\n. Received Model Group=deep/red\nAvailable Model Group Fallbacks=None', 'type': None, 'param': None, 'code': '404'}}
+> delivery-gate/build: la verificación bloqueó la entrega.
+arquetipo 'frontend-application-spa' esperaba un proyecto construible (package.json/pom.xml/pyproject.toml) pero no se encontró ninguno en el repo
 
 Acciones:
 - Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
