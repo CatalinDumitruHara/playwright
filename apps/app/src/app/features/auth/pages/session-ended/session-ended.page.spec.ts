@@ -2,12 +2,19 @@ import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { SessionEndedPage } from './session-ended.page';
 import { Router } from '@angular/router';
 
+import { LOCALE_ID } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import localeEs from '@angular/common/locales/es';
+
+registerLocaleData(localeEs);
+
 describe('SessionEndedPage', () => {
   let spectator: SpectatorRouting<SessionEndedPage>;
   const createComponent = createRoutingFactory({
     component: SessionEndedPage,
     stubsEnabled: false,
     mocks: [Router],
+    providers: [{ provide: LOCALE_ID, useValue: 'es-ES' }],
   });
 
   beforeEach(() => (spectator = createComponent()));
@@ -36,12 +43,12 @@ describe('SessionEndedPage', () => {
     const now = new Date();
     spectator.detectChanges();
     const dateElement = spectator.query('[data-testid="datetime"]');
-    expect(dateElement).toHaveText(now.toLocaleString());
+    expect(dateElement).toHaveText(`Fecha y hora: ${now.toLocaleString('es-ES')}`);
   });
 
   it('should navigate to the login page when the "Volver" button is clicked', () => {
     const router = spectator.inject(Router);
-    const button = spectator.query('[data-testid="back-button"]');
+    const button = spectator.query('a[b2b-button]');
     spectator.click(button as Element);
     expect(router.navigate).toHaveBeenCalledWith(['/acceso']);
   });

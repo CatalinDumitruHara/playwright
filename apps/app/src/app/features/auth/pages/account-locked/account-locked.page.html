@@ -1,1 +1,48 @@
-<h1>Account Locked</h1>
+
+<div class="container">
+  <div class="lock-message">
+    <h2>Cuenta Bloqueada</h2>
+    <p>
+      Has excedido el número de intentos de inicio de sesión.
+      Tu cuenta ha sido bloqueada temporalmente.
+    </p>
+    <p>
+      Tiempo restante de bloqueo: <strong>{{ remainingTime }}</strong>
+    </p>
+  </div>
+
+  <form class="login-form" (ngSubmit)="login()" #loginForm="ngForm">
+    <div class="form-group">
+      <label for="corporateEmail">Correo Corporativo</label>
+      <input
+        type="email"
+        id="corporateEmail"
+        name="corporateEmail"
+        [(ngModel)]="corporateEmail"
+        [disabled]="isFormDisabled"
+        required
+      />
+    </div>
+    <div class="form-group">
+      <label for="password">Contraseña</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        [(ngModel)]="password"
+        [disabled]="isFormDisabled"
+        required
+      />
+    </div>
+    <button type="submit" [disabled]="isFormDisabled">
+      Iniciar Sesión
+    </button>
+  </form>
+
+  <div class="admin-contact">
+    <p>
+      Si necesitas acceso inmediato, por favor, comunica al Administrador en
+      "Usuarios con bloqueo vigente".
+    </p>
+  </div>
+</div>

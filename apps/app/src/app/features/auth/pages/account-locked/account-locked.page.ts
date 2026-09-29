@@ -1,11 +1,20 @@
+
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-account-locked',
-  standalone: true,
-  imports: [CommonModule],
   templateUrl: './account-locked.page.html',
-  styleUrl: './account-locked.page.scss',
+  styleUrls: ['./account-locked.page.scss'],
+  standalone: true,
+  imports: [RouterModule, FormsModule],
 })
-export class AccountLockedPage {}
+export class AccountLockedPage {
+  // TODO: Implement logic to get remaining lock time
+  // and handle form submission after lock expires.
+  public remainingTime = '15:00'; // Placeholder
+  public corporateEmail = 'user@example.com'; // Placeholder
+  public password = ''; // Placeholder
+  public isFormDisabled = true; // Form is disabled until lock expires
+}

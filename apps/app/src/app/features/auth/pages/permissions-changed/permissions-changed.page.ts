@@ -1,11 +1,24 @@
+
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-permissions-changed',
-  standalone: true,
-  imports: [CommonModule],
   templateUrl: './permissions-changed.page.html',
-  styleUrl: './permissions-changed.page.scss',
+  styleUrls: ['./permissions-changed.page.scss'],
 })
-export class PermissionsChangedPage {}
+export class PermissionsChangedPage {
+
+  
+  currentRole = '';
+
+  constructor(private router: Router) { }
+
+
+  reloadMenu(): void {
+    // TODO: Implement actual menu reload logic.
+    // For now, it navigates to the home page.
+    this.router.navigate(['/']);
+  }
+
+}

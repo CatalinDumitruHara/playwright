@@ -1,1 +1,18 @@
-<h1>Permissions Changed</h1>
+
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Permisos Actualizados</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="container">
+    <h1>Tus permisos han cambiado</h1>
+    <p>Hemos detectado que tus permisos de acceso han sido actualizados. Para asegurar que veas las opciones correctas, por favor, recarga el menú.</p>
+    <p>Tu rol actual es: <strong>{{ currentRole }}</strong></p> <!-- Assuming currentRole is a property in the component -->
+    
+    <ion-button expand="block" (click)="reloadMenu()">
+      Recargar menú y acciones
+    </ion-button>
+  </div>
+</ion-content>

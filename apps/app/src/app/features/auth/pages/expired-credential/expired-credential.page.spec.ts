@@ -39,7 +39,7 @@ describe('ExpiredCredentialPage', () => {
     it('should display the generic error message when no expiration date is provided', () => {
       spectator.component.expirationDate = null;
       spectator.detectChanges();
-      const notificationEl = spectator.debugElement.query(By.css('b2b-notification-inline'));
+      const notificationEl = spectator.debugElement.query(By.css('[data-testid="notification"]'));
       expect(notificationEl.nativeElement.textContent).toContain('Su credencial temporal ha caducado');
       expect(notificationEl.nativeElement.textContent).not.toContain('el');
     });
@@ -47,7 +47,7 @@ describe('ExpiredCredentialPage', () => {
     it('should display the expiration date when provided', () => {
       spectator.component.expirationDate = '2023-10-26T12:00:00Z';
       spectator.detectChanges();
-      const notificationEl = spectator.debugElement.query(By.css('b2b-notification-inline'));
+      const notificationEl = spectator.debugElement.query(By.css('[data-testid="notification"]'));
       expect(notificationEl.nativeElement.textContent).toContain(
         'Su credencial temporal ha caducado el 26/10/2023'
       );
