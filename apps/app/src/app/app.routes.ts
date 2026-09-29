@@ -56,6 +56,13 @@ export const appRoutes: Route[] = [
         redirectTo: 'home',
         pathMatch: 'full',
       },
+      {
+        path: 'inicio',
+        loadComponent: () =>
+          import(
+            './features/user/pages/role-initial-page/role-initial-page.page'
+          ).then((p) => p.RoleInitialPage),
+      },
     ],
   },
   {
