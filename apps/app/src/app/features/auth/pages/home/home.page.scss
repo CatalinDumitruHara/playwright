@@ -1,22 +1,8 @@
-:host {
-  display: block;
-  height: 100%;
+/* Estilos para la página de inicio */
+.user-info {
+  margin-bottom: 20px;
 }
 
-.page-container {
-  display: flex;
-  height: 100vh;
-}
-
-.content-container {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  overflow-y: auto;
-}
-
-main {
-  padding: 24px;
-  flex-grow: 1;
-  background-color: #f4f5f6;
+.shortcuts {
+  margin-bottom: 20px;
 }

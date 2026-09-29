@@ -99,7 +99,7 @@ describe('MainLayoutComponent', () => {
 
   it('should display user name when authenticated', () => {
     const session: SessionContext = {
-      user: { name: 'John Doe', email: 'john.doe@example.com' },
+      user: { name: 'John Doe', email: 'john.doe@example.com', role_code: 'user' }, permissions: [],
       permissions: ['ROL-001'],
     };
     authenticationServiceMock.sessionContext.set(session);
@@ -109,7 +109,7 @@ describe('MainLayoutComponent', () => {
 
   it('should display menu options based on user role', () => {
     const session: SessionContext = {
-      user: { name: 'John Doe', email: 'john.doe@example.com' },
+      user: { name: 'John Doe', email: 'john.doe@example.com', role_code: 'user' }, permissions: [],
       permissions: ['ROL-001', 'ROL-002'],
     };
     authenticationServiceMock.sessionContext.set(session);
@@ -123,7 +123,7 @@ describe('MainLayoutComponent', () => {
 
   it('should call logout when logout button is clicked', () => {
     const session: SessionContext = {
-      user: { name: 'John Doe', email: 'john.doe@example.com' },
+      user: { name: 'John Doe', email: 'john.doe@example.com', role_code: 'user' }, permissions: [],
       permissions: ['ROL-001'],
     };
     authenticationServiceMock.sessionContext.set(session);

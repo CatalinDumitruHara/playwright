@@ -33,7 +33,7 @@ describe('roleGuard', () => {
   });
 
   it('should return true if user has an allowed role', () => {
-    const session = { user: { name: 'test', email: 'test@test.com' }, permissions: ['ROL-003'] } as SessionContext;
+    const session = { user: { name: 'test', email: 'test@test.com', role_code: 'ROL-003' }, permissions: ['ROL-003'] } as SessionContext;
     authServiceMock.sessionContext.mockReturnValue(signal(session)());
     const route = { data: { roles: ['ROL-003'] } } as unknown as ActivatedRouteSnapshot;
 
@@ -42,7 +42,7 @@ describe('roleGuard', () => {
   });
 
   it('should redirect to /unauthorized and return false if user does not have an allowed role', () => {
-    const session = { user: { name: 'test', email: 'test@test.com' }, permissions: ['ROL-001'] } as SessionContext;
+    const session = { user: { name: 'test', email: 'test@test.com', role_code: 'ROL-001' }, permissions: ['ROL-001'] } as SessionContext;
     authServiceMock.sessionContext.mockReturnValue(signal(session)());
     const navigateSpy = jest.spyOn(router, 'navigate');
     const route = { data: { roles: ['ROL-003'] } } as unknown as ActivatedRouteSnapshot;

@@ -1,8 +1,8 @@
 import { createRoutingFactory, mockProvider, Spectator } from '@ngneat/spectator/jest';
 import { ExpiredCredentialPage } from './expired-credential.page';
 import { Router } from '@angular/router';
-import { By } from '@angular/platform-browser';
 import { B2bButtonComponent, B2bNotificationInlineComponent } from '@mapfre-tech/b2b-components';
+import { By } from '@angular/platform-browser';
 
 describe('ExpiredCredentialPage', () => {
   let spectator: Spectator<ExpiredCredentialPage>;
@@ -35,19 +35,25 @@ describe('ExpiredCredentialPage', () => {
     expect(title).toHaveText('Credencial temporal caducada');
   });
 
-  it('should display the generic error message when no expiration date is provided', () => {
-    spectator.component.expirationDate = null;
-    spectator.detectChanges();
-    const notification = spectator.query('b2b-notification-inline');
-    expect(notification?.textContent).toContain('Su credencial temporal ha caducado');
+  describe('[AC-PWD-08] Expired Credential Message', () => {
+    it('should display the generic error message when no expiration date is provided', () => {
+      spectator.component.expirationDate = null;
+      spectator.detectChanges();
+      const notificationEl = spectator.debugElement.query(By.css('b2b-notification-inline'));
+      expect(notificationEl.nativeElement.textContent).toContain('Su credencial temporal ha caducado');
+      expect(notificationEl.nativeElement.textContent).not.toContain('el');
+    });
+
+    it('should display the expiration date when provided', () => {
+      spectator.component.expirationDate = '2023-10-26T12:00:00Z';
+      spectator.detectChanges();
+      const notificationEl = spectator.debugElement.query(By.css('b2b-notification-inline'));
+      expect(notificationEl.nativeElement.textContent).toContain(
+        'Su credencial temporal ha caducado el 26/10/2023'
+      );
+    });
   });
 
-  it('should display the expiration date when provided', () => {
-    const notification = spectator.query('b2b-notification-inline');
-    expect(notification?.textContent).toContain(
-      'Su credencial temporal ha caducado el 26/10/2023'
-    );
-  });
 
   it('should navigate to the login page when the button is clicked', () => {
     const router = spectator.inject(Router);

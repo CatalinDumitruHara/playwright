@@ -1,26 +1,33 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { B2bButtonComponent, B2bContainerComponent, B2bNotificationInlineComponent } from '@mapfre-tech/b2b-components';
+import { CommonModule } from '@angular/common';
+import { IonicModule } from '@ionic/angular';
 
 @Component({
   selector: 'app-session-ended',
-  standalone: true,
-  imports: [CommonModule, RouterModule, B2bButtonComponent, B2bContainerComponent, B2bNotificationInlineComponent],
   templateUrl: './session-ended.page.html',
-  styleUrl: './session-ended.page.scss',
+  styleUrls: ['./session-ended.page.scss'],
+  standalone: true,
+  imports: [CommonModule, IonicModule, RouterModule],
 })
-export class SessionEndedPage {
+export class SessionEndedPage implements OnInit {
   reason: string;
-  date: Date;
+  endedAt: Date;
 
   constructor(private router: Router) {
-    const navigation = this.router.getCurrentNavigation();
-    this.reason = navigation?.extras.state?.['reason'] || 'Tu sesión ha finalizado';
-    this.date = navigation?.extras.state?.['date'] || new Date();
+    this.reason = '';
+    this.endedAt = new Date();
   }
 
-  goToLogin(): void {
+  ngOnInit() {
+    const navigation = this.router.getCurrentNavigation();
+    this.reason =
+      navigation?.extras.state?.['reason'] ||
+      'Tu sesión ha finalizado por inactividad.';
+    this.endedAt = new Date();
+  }
+
+  goToLogin() {
     this.router.navigate(['/acceso']);
   }
 }

@@ -24,7 +24,10 @@ describe('MyProfilePage', () => {
     ],
   });
 
-  beforeEach(() => (spectator = createComponent()));
+  beforeEach(() => {
+    spectator = createComponent();
+    spectator.detectChanges();
+  });
 
   it('should create', () => {
     expect(spectator.component).toBeTruthy();
@@ -32,19 +35,25 @@ describe('MyProfilePage', () => {
 
   it('should not display user data if session is not available', () => {
     spectator.component.user_data = undefined;
-    spectator.detectChanges();
+
     expect(spectator.query('[data-testid="user-name"]')).toBeFalsy();
     expect(spectator.query('[data-testid="user-email"]')).toBeFalsy();
   });
 
   it('should display user data from session context', () => {
-    spectator.detectChanges();
+
 
     const nameElement = spectator.query('[data-testid="user-name"]');
     const emailElement = spectator.query('[data-testid="user-email"]');
+    const roleElement = spectator.query('[data-testid="user-role"]');
+    const statusElement = spectator.query('[data-testid="user-status"]');
+    const passwordUpdateElement = spectator.query('[data-testid="user-password-update"]');
 
     expect(nameElement).toHaveText(MOCK_SESSION_CONTEXT.user.name);
     expect(emailElement).toHaveText(MOCK_SESSION_CONTEXT.user.email);
+    expect(roleElement).toHaveText('Administrador');
+    expect(statusElement).toHaveText('Activa');
+    expect(passwordUpdateElement).toHaveText(new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }));
   });
 
   it('should navigate to change password page', () => {

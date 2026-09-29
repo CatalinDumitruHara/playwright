@@ -1,25 +1,23 @@
-<div class="page-container">
-  <b2b-sidebar>
-    <b2b-sidebar-item
-      *ngFor="let item of navigationItems"
-      [title]="item.text"
-      [icon]="item.icon"
-      [routerLink]="item.link"
-      routerLinkActive="active"
-    ></b2b-sidebar-item>
-  </b2b-sidebar>
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Inicio</ion-title>
+  </ion-toolbar>
+</ion-header>
 
-  <div class="content-container">
-    <b2b-header-desktop logoRoute="/inicio">
-      <button b2b-button variant="secondary" (click)="logout()">
-        Cerrar sesión
-      </button>
-    </b2b-header-desktop>
-
-    <main>
-      <b2b-container>
-        <router-outlet></router-outlet>
-      </b2b-container>
-    </main>
+<ion-content class="ion-padding">
+  <div class="user-info" *ngIf="user$ | async as user">
+    <h2>Bienvenido, {{ user.name || 'Usuario' }}</h2>
+    <p>Rol: {{ user.role_code }}</p>
   </div>
-</div>
+
+  <div class="shortcuts" *ngIf="user$ | async as user">
+    <h3>Accesos directos</h3>
+    <b2b-sidebar-item title="Opción 1" *ngIf="user.role_code === 'user' || user.role_code === 'admin'">Opción 1</b2b-sidebar-item>
+    <b2b-sidebar-item title="Opción 2" *ngIf="user.role_code === 'admin'">Opción 2</b2b-sidebar-item>
+  </div>
+
+  <ion-button expand="block" (click)="logout()">Cerrar sesión</ion-button>
+</ion-content>

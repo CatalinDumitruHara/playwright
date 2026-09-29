@@ -1,65 +1,38 @@
-import { Component, inject } from '@angular/core';
+import { B2bSidebarItemComponent } from '@mapfre-tech/b2b-components';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
-import {
-  B2bButtonComponent,
-  B2bContainerComponent,
-  B2bHeaderDesktopComponent,
-  B2bSidebarComponent,
-  B2bSidebarItemComponent,
-} from '@mapfre-tech/b2b-components';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { IonicModule } from '@ionic/angular';
 import { AuthenticationService } from '../../../../core/auth/authentication.service';
-
-interface NavigationItem {
-  id: string;
-  text: string;
-  icon: string;
-  link: string;
-  roles: string[];
-}
+import { Observable, map } from 'rxjs';
+import { SessionContext } from '../../../../core/auth/authentication.service';
 
 @Component({
   selector: 'app-home',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    B2bButtonComponent,
-    B2bContainerComponent,
-    B2bHeaderDesktopComponent,
-    B2bSidebarComponent,
-    B2bSidebarItemComponent,
-  ],
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
+  standalone: true,
+  imports: [IonicModule, CommonModule, B2bSidebarItemComponent],
 })
-export class HomePage {
-  private authService = inject(AuthenticationService);
-  private router = inject(Router);
+export class HomePage implements OnInit {
+  user$!: Observable<SessionContext['user'] | undefined>;
+  constructor(
+    private authService: AuthenticationService,
+    private router: Router
+  ) {}
 
-  navigationItems: NavigationItem[] = [
-    {
-      id: 'item-1',
-      text: 'Opción 1',
-      icon: 'b2b-icon-apps',
-      link: '/ruta-1',
-      roles: ['admin', 'user'],
-    },
-    {
-      id: 'item-2',
-      text: 'Opción 2',
-      icon: 'b2b-icon-search',
-      link: '/ruta-2',
-      roles: ['admin'],
-    },
-  ];
+  ngOnInit(): void {
+    this.user$ = this.authService.getSessionContext().pipe(map(context => context?.user));
+  }
 
-  async logout(): Promise<void> {
-    try {
-      await this.authService.logout();
-      this.router.navigate(['/acceso/sesion-finalizada']);
-    } catch (error) {
-      console.error('Error al cerrar sesión:', error);
-    }
+  logout() {
+    this.authService.logout().subscribe({
+      next: () => {
+        this.router.navigate(['/acceso/sesion-finalizada']);
+      },
+      error: (error: any) => {
+        console.error('Error al cerrar sesión', error);
+      },
+    });
   }
 }

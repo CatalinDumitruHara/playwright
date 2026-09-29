@@ -1,34 +1,36 @@
-<div class="b2b-container">
-  <h1 style="font-size: var(--b2b-titles-04-font-size)">Acceso</h1>
-  <form [formGroup]="loginForm" (ngSubmit)="login()">
+<div class="container">
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <h2>Acceso</h2>
+
     <div class="form-field">
-      <b2b-notification-inline
-        *ngIf="errorMessage"
-        status="error"
-        >{{ errorMessage }}</b2b-notification-inline
-      >
+      <label for="username">Correo corporativo</label>
+      <!--
+        <b2b-input formControlName="username" type="email" placeholder="tu.correo@mapfre.com"></b2b-input>
+      -->
+      <input id="username" formControlName="username" type="email" placeholder="tu.correo@mapfre.com">
+      <div *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched" class="error-message">
+        El correo es obligatorio y debe tener un formato válido.
+      </div>
     </div>
+
     <div class="form-field">
-      <label b2b-label for="username">Correo corporativo</label>
-      <input
-        b2b-input
-        class="b2b-width-full"
-        id="username"
-        name="username"
-        formControlName="username"
-      />
+      <label for="password">Contraseña</label>
+      <!--
+        <b2b-input formControlName="password" type="password" placeholder="Contraseña"></b2b-input>
+      -->
+      <input id="password" formControlName="password" type="password" placeholder="Contraseña">
+      <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="error-message">
+        La contraseña es obligatoria.
+      </div>
     </div>
-    <div class="form-field">
-      <label b2b-label for="password">Contraseña</label>
-      <b2b-password-field
-        class="b2b-width-full"
-        id="password"
-        name="password"
-        formControlName="password"
-      ></b2b-password-field>
+
+    <div *ngIf="authError" class="error-message">
+      Usuario o contraseña incorrectos.
     </div>
-    <button b2b-button type="submit" [disabled]="loginForm.invalid">
-      Acceder
-    </button>
+
+    <!--
+      <b2b-button type="submit" [disabled]="loginForm.invalid">Acceder</b2b-button>
+    -->
+    <button type="submit" [disabled]="loginForm.invalid">Acceder</button>
   </form>
 </div>

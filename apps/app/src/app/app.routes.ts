@@ -10,7 +10,7 @@ export const appRoutes: Route[] = [
     canActivate: [authGuard],
     children: [
       {
-        path: 'home',
+        path: 'inicio',
         loadComponent: () =>
           import('./features/auth/pages/home/home.page').then(
             (c) => c.HomePage
@@ -56,13 +56,7 @@ export const appRoutes: Route[] = [
         redirectTo: 'home',
         pathMatch: 'full',
       },
-      {
-        path: 'inicio',
-        loadComponent: () =>
-          import(
-            './features/user/pages/role-initial-page/role-initial-page.page'
-          ).then((p) => p.RoleInitialPage),
-      },
+
     ],
   },
   {

@@ -29,7 +29,7 @@ export class MyProfilePage implements OnInit {
   private authService = inject(AuthenticationService);
   private router = inject(Router);
 
-  user_data: SessionContext['user'] | undefined;
+  user_data: (SessionContext['user'] & { role?: string }) | undefined;
   // TODO: remove mock
   account_status = 'Activa';
   last_password_change = new Date();
@@ -37,6 +37,10 @@ export class MyProfilePage implements OnInit {
   ngOnInit(): void {
     this.authService.getSessionContext().subscribe(session => {
       this.user_data = session?.user;
+      // TODO: remove mock
+      if (this.user_data) {
+        this.user_data.role = 'Administrador';
+      }
     });
   }
 

@@ -4,10 +4,11 @@
       <div *ngIf="user_data" class="profile-data">
         <b2b-read-data label="Nombre" data-testid="user-name">{{ user_data.name }}</b2b-read-data>
         <b2b-read-data label="Correo electrónico" data-testid="user-email">{{ user_data.email }}</b2b-read-data>
-        <b2b-read-data label="Estado de la cuenta">
+        <b2b-read-data label="Rol vigente" data-testid="user-role">{{ user_data.role }}</b2b-read-data>
+        <b2b-read-data label="Estado de la cuenta" data-testid="user-status">
           <b2b-tag type="ok">{{ account_status }}</b2b-tag>
         </b2b-read-data>
-        <b2b-read-data label="Última actualización de contraseña">
+        <b2b-read-data label="Última actualización de contraseña" data-testid="user-password-update">
           {{ last_password_change | date : 'dd/MM/yyyy' }}
         </b2b-read-data>
       </div>

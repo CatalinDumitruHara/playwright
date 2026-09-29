@@ -30,12 +30,30 @@ describe('LoginPage', () => {
     expect(component).toBeTruthy();
   });
 
+  it('form should be invalid when empty', () => {
+    expect(component.loginForm.valid).toBeFalsy();
+  });
+
+  it('form should be valid when both fields are filled', () => {
+    component.loginForm.controls['username'].setValue('test@test.com');
+    component.loginForm.controls['password'].setValue('password');
+    expect(component.loginForm.valid).toBeTruthy();
+  });
+
+  it('should call onSubmit method when form is submitted', () => {
+    jest.spyOn(component, 'onSubmit');
+    const form = fixture.nativeElement.querySelector('form');
+    form.dispatchEvent(new Event('submit'));
+    fixture.detectChanges();
+    expect(component.onSubmit).toHaveBeenCalled();
+  });
+
   it('should call login on submit', () => {
-    const button = fixture.nativeElement.querySelector('button');
+    const form = fixture.nativeElement.querySelector('form');
     component.loginForm.controls['username'].setValue('test@test.com');
     component.loginForm.controls['password'].setValue('password');
     fixture.detectChanges();
-    button.click();
+    form.dispatchEvent(new Event('submit'));
     expect(authService.login).toHaveBeenCalledWith({
       username: 'test@test.com',
       password: 'password',
