@@ -1356,97 +1356,14 @@ Si tu pantalla necesita un cuerpo concreto, añádelo tú por el admin API (`POS
 ### Si el entorno no está disponible
 Comprueba `.mind/TSK-046/env.json`: si su `status` es `unavailable` o `degraded`, la plataforma no pudo darte (todo) el entorno. En ese caso ESCRIBE igualmente los tests de integración y déjalos en el entregable, y repórtalo como health check **Warning** con `check: entorno-de-prueba` — NO como Blocker: no es un defecto de tu tarea, y la verificación queda diferida al CI. Reserva el Blocker para cuando el entorno SÍ estaba y los tests fallan por el código o por el brief.
 
+## REWORK — feedback del revisor (atiéndelo TODO)
+- (mind-platform) MIND (plataforma): este PR tiene **conflictos de merge** con `main` (`mergeable_state=dirty`). Suele pasar al mergear otro PR en paralelo que tocó ficheros compartidos (routers, `__init__`, deps…). Haz rebase o merge de `main` en tu rama, resuelve los conflictos sin cambiar el alcance de la tarea, deja build/tests verdes y vuelve a empujar. Preferible mergear PRs en orden del DAG (uno a uno) para reducir este caso.
+
 ## Fallo del intento anterior (OBLIGATORIO corregir)
 
 La sesión previa **no entregó**. Corrige la causa antes de ampliar alcance:
 
-> delivery-gate/browser: la verificación bloqueó la entrega.
-Running 1 test using 1 worker
-
-  ✘  1 [chromium] › welcome.e2e-spec.ts:8:7 › @smoke welcome shell › home loads without pageerror (6.2s)
-
-
-  1) [chromium] › welcome.e2e-spec.ts:8:7 › @smoke welcome shell › home loads without pageerror ────
-
-    Error: [31mTimed out 5000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
-
-    Locator: locator('body')
-    Expected: visible
-    Received: hidden
-    Call log:
-    [2m  - expect.toBeVisible with timeout 5000ms[22m
-    [2m  - waiting for locator('body')[22m
-    [2m    9 × locator resolved to <body>…</body>[22m
-    [2m      - unexpected value "hidden"[22m
-
-
-      10 |     page.on('pageerror', (err) => errors.push(String(err)));
-      11 |     await page.goto('/');
-    > 12 |     await expect(page.locator('body')).toBeVisible();
-         |                                        ^
-      13 |     expect(errors, `pageerrors: ${errors.join('; ')}`).toEqual([]);
-      14 |   });
-      15 | });
-        at /workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/e2e/welcome.e2e-spec.ts:12:40
-
-    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    test-results/welcome.e2e-spec.ts--smoke-a14fd-ome-loads-without-pageerror-chromium/test-failed-1.png
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
-    test-results/welcome.e2e-spec.ts--smoke-a14fd-ome-loads-without-pageerror-chromium/trace.zip
-    Usage:
-
-        npx playwright show-trace test-results/welcome.e2e-spec.ts--smoke-a14fd-ome-loads-without-pageerror-chromium/trace.zip
-
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-  1 failed
-    [chromium] › welcome.e2e-spec.ts:8:7 › @smoke welcome shell › home loa
+> agent-runtime timeout (http://localhost:8086):
 
 Acciones:
 - Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
-
-## Código ya presente en la zona (zone-extend) — OBLIGATORIO
-
-En el tip actual del workspace YA hay código bajo tus `zone_paths` (típicamente de una TSK predecesora mergeada). **Léelo antes de escribir.**
-
-Ficheros presentes (muestra):
-- `apps/app/src/app/features/auth/pages/account-locked/account-locked.page.html`
-- `apps/app/src/app/features/auth/pages/account-locked/account-locked.page.scss`
-- `apps/app/src/app/features/auth/pages/account-locked/account-locked.page.ts`
-- `apps/app/src/app/features/auth/pages/change-password-forced/change-password-forced.page.html`
-- `apps/app/src/app/features/auth/pages/change-password-forced/change-password-forced.page.scss`
-- `apps/app/src/app/features/auth/pages/change-password-forced/change-password-forced.page.spec.ts`
-- `apps/app/src/app/features/auth/pages/change-password-forced/change-password-forced.page.ts`
-- `apps/app/src/app/features/auth/pages/expired-credential/expired-credential.page.html`
-- `apps/app/src/app/features/auth/pages/expired-credential/expired-credential.page.scss`
-- `apps/app/src/app/features/auth/pages/expired-credential/expired-credential.page.ts`
-- `apps/app/src/app/features/auth/pages/home/home.page.html`
-- `apps/app/src/app/features/auth/pages/home/home.page.scss`
-- `apps/app/src/app/features/auth/pages/home/home.page.ts`
-- `apps/app/src/app/features/auth/pages/login/login.page.html`
-- `apps/app/src/app/features/auth/pages/login/login.page.scss`
-- `apps/app/src/app/features/auth/pages/login/login.page.spec.ts`
-- `apps/app/src/app/features/auth/pages/login/login.page.ts`
-- `apps/app/src/app/features/auth/pages/permissions-changed/permissions-changed.page.html`
-- `apps/app/src/app/features/auth/pages/permissions-changed/permissions-changed.page.scss`
-- `apps/app/src/app/features/auth/pages/permissions-changed/permissions-changed.page.ts`
-- `apps/app/src/app/features/auth/pages/session-ended/session-ended.page.html`
-- `apps/app/src/app/features/auth/pages/session-ended/session-ended.page.scss`
-- `apps/app/src/app/features/auth/pages/session-ended/session-ended.page.ts`
-- `apps/app/src/app/features/profile/pages/change-password/change-password.page.html`
-- `apps/app/src/app/features/profile/pages/change-password/change-password.page.scss`
-- `apps/app/src/app/features/profile/pages/change-password/change-password.page.ts`
-- `apps/app/src/app/features/profile/pages/change-password-confirmation/change-password-confirmation.page.html`
-- `apps/app/src/app/features/profile/pages/change-password-confirmation/change-password-confirmation.page.scss`
-- `apps/app/src/app/features/profile/pages/change-password-confirmation/change-password-confirmation.page.ts`
-- `apps/app/src/app/features/profile/pages/my-profile/my-profile.page.html`
-- `apps/app/src/app/features/profile/pages/my-profile/my-profile.page.scss`
-- `apps/app/src/app/features/profile/pages/my-profile/my-profile.page.ts`
-- `apps/app/src/app/app.routes.ts`
-
-Disciplina:
-1. **EDIT/EXTIENDE** símbolos existentes (`class`/`def`/exports) — **PROHIBIDO** una segunda declaración con el mismo nombre en el mismo fichero.
-2. Añade routers/handlers nuevos en ficheros dedicados o ampliando el existente sin redefinir tipos ya presentes.
-3. Si el DoD pide API pública sobre el mismo dominio, reutiliza servicios/modelos del CRUD previo; no copies otra `MembershipPlanService`.
