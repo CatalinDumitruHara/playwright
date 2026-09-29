@@ -10,7 +10,7 @@
 
   <b2b-grid-layout>
     <b2b-sidebar>
-      <b2b-sidebar-item *ngFor="let item of menuItems">
+      <b2b-sidebar-item *ngFor="let item of menuItems" [title]="item.label">
         <a [routerLink]="item.path">{{ item.label }}</a>
       </b2b-sidebar-item>
     </b2b-sidebar>
