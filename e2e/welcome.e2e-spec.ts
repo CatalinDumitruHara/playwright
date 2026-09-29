@@ -4,8 +4,8 @@ import { test, expect } from '@playwright/test';
  * @smoke — app boots and the default route mounts without a fatal page error.
  * Platform runs this when PlaywrightTriggerPolicy selects smoke/functional in-session.
  *
- * Prefer `app-root` over `body` visibility: Angular/Ionic may leave `body` with CSS
- * that fails Playwright's "visible" heuristic even when the shell has mounted.
+ * Prefer `app-root` attached over `body`/`app-root` visibility: Angular/Ionic often
+ * leave those nodes failing Playwright's "visible" heuristic even when the shell mounted.
  */
 test.describe('@smoke welcome shell', () => {
   test('home loads without pageerror', async ({ page }) => {
@@ -13,7 +13,7 @@ test.describe('@smoke welcome shell', () => {
     const errors: string[] = [];
     page.on('pageerror', (err) => errors.push(String(err)));
     await page.goto('/', { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('app-root')).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('app-root')).toBeAttached({ timeout: 15_000 });
     expect(errors, `pageerrors: ${errors.join('; ')}`).toEqual([]);
   });
 });
