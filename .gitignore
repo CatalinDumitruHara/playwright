@@ -34,3 +34,8 @@ large_tool_results/
 *_new.py
 *_2.py
 tmp/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
