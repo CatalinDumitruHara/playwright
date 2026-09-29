@@ -1,11 +1,7 @@
 <div class="session-ended-container">
-  <b2b-notification-inline
-    [type]="'info'"
-    [title]="'Sesión finalizada'"
-    [showIcon]="true"
-    [closable]="false"
-  >
+  <b2b-notification-inline [visible]="true" type="info">
     <div class="notification-content">
+      <p class="title">Sesión finalizada</p>
       <p class="reason">{{ reason }}</p>
       <p class="date">{{ date | date : 'dd/MM/yyyy HH:mm:ss' }}</p>
     </div>
@@ -13,3 +9,4 @@
 
   <button b2b-button (click)="goToLogin()">Volver al acceso</button>
 </div>
+

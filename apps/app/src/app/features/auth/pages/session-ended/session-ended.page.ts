@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { B2bComponentsModule } from '@mapfre-tech/b2b-components';
+import { B2bButtonComponent, B2bContainerComponent, B2bNotificationInlineComponent } from '@mapfre-tech/b2b-components';
 
 @Component({
   selector: 'app-session-ended',
   standalone: true,
-  imports: [CommonModule, RouterModule, B2bComponentsModule],
+  imports: [CommonModule, RouterModule, B2bButtonComponent, B2bContainerComponent, B2bNotificationInlineComponent],
   templateUrl: './session-ended.page.html',
   styleUrl: './session-ended.page.scss',
 })

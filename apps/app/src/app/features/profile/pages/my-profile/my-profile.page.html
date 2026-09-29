@@ -1,12 +1,11 @@
 <b2b-container>
   <div class="profile-card">
-    <b2b-card-primary title="Mi perfil">
+    <div b2b-card-primary title="Mi perfil">
       <div *ngIf="user_data" class="profile-data">
-        <b2b-read-data label="Nombre" data-testid="user-name">{{ user_data.name }} {{ user_data.surnames }}</b2b-read-data>
+        <b2b-read-data label="Nombre" data-testid="user-name">{{ user_data.name }}</b2b-read-data>
         <b2b-read-data label="Correo electrónico" data-testid="user-email">{{ user_data.email }}</b2b-read-data>
-        <b2b-read-data label="Teléfono" data-testid="user-phone">{{ user_data.phone }}</b2b-read-data>
         <b2b-read-data label="Estado de la cuenta">
-          <b2b-tag [label]="account_status" type="success"></b2b-tag>
+          <b2b-tag type="ok">{{ account_status }}</b2b-tag>
         </b2b-read-data>
         <b2b-read-data label="Última actualización de contraseña">
           {{ last_password_change | date : 'dd/MM/yyyy' }}
@@ -17,7 +16,7 @@
         <button b2b-button (click)="goToChangePassword()" data-testid="change-password-button">Cambiar contraseña</button>
         <button b2b-button (click)="goToHome()" variant="secondary" data-testid="home-button">Volver</button>
       </div>
-    </b2b-card-primary>
+    </div>
   </div>
 </b2b-container>
 

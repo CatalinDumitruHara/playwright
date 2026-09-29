@@ -6,7 +6,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import {
   B2bButtonComponent,
   B2bInputComponent,
@@ -14,6 +14,7 @@ import {
   B2bContainerComponent,
 } from '@mapfre-tech/b2b-components';
 import { passwordMatchValidator } from '../../../../core/validators/password-match.validator';
+import { AuthenticationService } from '../../../../core/auth/authentication.service';
 
 @Component({
   selector: 'app-change-password',
@@ -33,7 +34,11 @@ import { passwordMatchValidator } from '../../../../core/validators/password-mat
 export class ChangePasswordPage {
   changePasswordForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthenticationService,
+    private router: Router
+  ) {
     this.changePasswordForm = this.fb.group(
       {
         currentPassword: ['', Validators.required],
@@ -46,7 +51,16 @@ export class ChangePasswordPage {
 
   onSubmit() {
     if (this.changePasswordForm.valid) {
-      // Lógica para cambiar la contraseña
+      this.authService
+        .changePassword(this.changePasswordForm.value)
+        .subscribe({
+          next: () => {
+            this.router.navigate(['/mi-perfil/contrasena/confirmacion']);
+          },
+          error: () => {
+            // La gestión de errores se hará en otro sitio
+          },
+        });
     }
   }
 }

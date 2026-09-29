@@ -2,14 +2,15 @@ import { createRoutingFactory, mockProvider, Spectator } from '@ngneat/spectator
 import { of } from 'rxjs';
 import { AuthenticationService, SessionContext } from '../../../../core/auth/authentication.service';
 import { MyProfilePage } from './my-profile.page';
+import { Router } from '@angular/router';
 
 const MOCK_SESSION_CONTEXT: SessionContext = {
   user: {
-    name: 'John',
-    surnames: 'Doe',
+    name: 'John Doe',
     email: 'john.doe@example.com',
-    phone: '123456789',
+    role_code: 'TEST_ROLE',
   },
+  permissions: [],
 };
 
 describe('MyProfilePage', () => {
@@ -34,7 +35,6 @@ describe('MyProfilePage', () => {
     spectator.detectChanges();
     expect(spectator.query('[data-testid="user-name"]')).toBeFalsy();
     expect(spectator.query('[data-testid="user-email"]')).toBeFalsy();
-    expect(spectator.query('[data-testid="user-phone"]')).toBeFalsy();
   });
 
   it('should display user data from session context', () => {
@@ -42,11 +42,9 @@ describe('MyProfilePage', () => {
 
     const nameElement = spectator.query('[data-testid="user-name"]');
     const emailElement = spectator.query('[data-testid="user-email"]');
-    const phoneElement = spectator.query('[data-testid="user-phone"]');
 
-    expect(nameElement).toHaveText(`${MOCK_SESSION_CONTEXT.user.name} ${MOCK_SESSION_CONTEXT.user.surnames}`);
+    expect(nameElement).toHaveText(MOCK_SESSION_CONTEXT.user.name);
     expect(emailElement).toHaveText(MOCK_SESSION_CONTEXT.user.email);
-    expect(phoneElement).toHaveText(MOCK_SESSION_CONTEXT.user.phone);
   });
 
   it('should navigate to change password page', () => {
