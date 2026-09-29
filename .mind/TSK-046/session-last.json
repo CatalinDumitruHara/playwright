@@ -1,21 +1,21 @@
 {
   "task_code": "TSK-046",
-  "attempt": 8,
-  "at": "2026-09-29T16:36:54.631346+00:00",
+  "attempt": 9,
+  "at": "2026-09-29T16:39:03.825620+00:00",
   "construction_id": "f873afad-5ba0-4d41-88c6-813c8e4313b3",
   "status": "delivered",
   "delivered": true,
   "error": null,
   "summary": "Tarea TSK-046 completada. Se ha corregido el feedback del revisor añadiendo las rutas huérfanas al menú de navegación principal para que sean accesibles. La aplicación construye correctamente y está lista para ser entregada.",
   "model": "deep/red",
-  "input_tokens": 171283,
-  "output_tokens": 336,
-  "llm_calls": 1,
-  "cost_usd": 0.21746375,
+  "input_tokens": 189597,
+  "output_tokens": 3626,
+  "llm_calls": 2,
+  "cost_usd": 0.27325625000000003,
   "build_status": "green",
   "build_output": "",
   "environment_status": "unavailable",
   "environment_detail": "el runtime no tiene proveedor de entorno configurado (ENVIRONMENT_PROVIDER=none): la verificación de integración queda diferida al CI",
   "schema_status": "skipped",
-  "commit_sha": "09a1a5aeefc17d1999c96aedfd2ccf405044b5a6"
+  "commit_sha": "75620d08fda716511762fc5ec837198722219f3d"
 }
