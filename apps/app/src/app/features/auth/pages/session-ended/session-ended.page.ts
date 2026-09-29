@@ -1,14 +1,26 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
+
+
+import {
+  B2bButtonComponent,
+  B2bContainerComponent,
+  B2bNotificationInlineComponent,
+} from '@mapfre-tech/b2b-components';
 
 @Component({
   selector: 'app-session-ended',
   templateUrl: './session-ended.page.html',
   styleUrls: ['./session-ended.page.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule, RouterModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    B2bContainerComponent,
+    B2bNotificationInlineComponent,
+    B2bButtonComponent,
+  ],
 })
 export class SessionEndedPage implements OnInit {
   reason: string;
