@@ -1363,64 +1363,7 @@ Comprueba `.mind/TSK-046/env.json`: si su `status` es `unavailable` o `degraded`
 
 La sesión previa **no entregó**. Corrige la causa antes de ampliar alcance:
 
-> delivery-gate/browser: la verificación bloqueó la entrega.
-Running 1 test using 1 worker
-
-  ✘  1 [chromium] › welcome.e2e-spec.ts:8:7 › @smoke welcome shell › home loads without pageerror (5.8s)
-
-
-  1) [chromium] › welcome.e2e-spec.ts:8:7 › @smoke welcome shell › home loads without pageerror ────
-
-    Error: [31mTimed out 5000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
-
-    Locator: locator('body')
-    Expected: visible
-    Received: hidden
-    Call log:
-    [2m  - expect.toBeVisible with timeout 5000ms[22m
-    [2m  - waiting for locator('body')[22m
-    [2m    9 × locator resolved to <body>…</body>[22m
-    [2m      - unexpected value "hidden"[22m
-
-
-      10 |     page.on('pageerror', (err) => errors.push(String(err)));
-      11 |     await page.goto('/');
-    > 12 |     await expect(page.locator('body')).toBeVisible();
-         |                                        ^
-      13 |     expect(errors, `pageerrors: ${errors.join('; ')}`).toEqual([]);
-      14 |   });
-      15 | });
-        at /workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/e2e/welcome.e2e-spec.ts:12:40
-
-    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    test-results/welcome.e2e-spec.ts--smoke-a14fd-ome-loads-without-pageerror-chromium/test-failed-1.png
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
-    test-results/welcome.e2e-spec.ts--smoke-a14fd-ome-loads-without-pageerror-chromium/trace.zip
-    Usage:
-
-        npx playwright show-trace test-results/welcome.e2e-spec.ts--smoke-a14fd-ome-loads-without-pageerror-chromium/trace.zip
-
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-  1 failed
-    [chromium] › welcome.e2e-spec.ts:8:7 › @smoke welcome shell › home loa
+> agent-runtime no responde (http://localhost:8086): Server disconnected without sending a response.
 
 Acciones:
 - Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
-
-## Estado del build al cerrar el intento anterior
-
-El intento anterior dejó el módulo COMPILANDO, pero el artefacto entregado **no arrancaría** (o incumple el contrato que declara). El compilador está en VERDE: **no busques ahí y no pierdas el intento intentando reproducir un fallo de compilación que no existe**. Lo que falla es exactamente lo que dice el informe de abajo, y es lo PRIMERO que tienes que arreglar, antes de añadir nada nuevo.
-
-- Arregla lo que nombra el informe, en el sitio que nombra. No hace falta reproducirlo con el compilador: ya compila.
-- Si el defecto viene de la rama BASE y no de tu trabajo, arréglalo igual y decláralo como `health_check` de severidad Warning indicando el fichero y por qué lo tocaste.
-- **No borres ni desactives tests para que el informe calle.** Si crees que el informe se equivoca, entrégalo con un `health_check` Blocker explicando por qué; quitar cobertura para tapar una señal es peor que la señal.
-
-### Lo que reportó la verificación (literal)
-
-```
-ted:i,onSelect:s,ariaControls:o})=>w.jsxs("div",{className:tt("tabbed-pane-tab",i&&"selected"),onClick:()=>s==null?void 0:s(e),role:"tab",title:t,"aria-controls":o,children:[w.jsx("div",{className:"tabbed-pane-tab-label",children:t}),!!n&&w.jsx("div",{className:"tabbed-pane-tab-counter",children:n}),!!r&&w.jsx("div",{className:"tabbed-pane-tab-counter error",children:r})]}),y0="modulepreload",w0=function(e,t){return new URL(e,t).href},_c={},_0=function(t,n,r){let i=Promise.resolve();if(n&&n.length>0){const o=document.getElementsByTagName("link"),l=document.querySelector("meta[property=csp-nonce]"),a=(l==null?void 0:l.nonce)||(l==null?void 0:l.getAttribute("nonce"));i=Promise.allSettled(n.map(u=>{if(u=w0(u,r),u in _c)return;_c[u]=!0;const c=u.endsWith(".css"),f=c?'[rel="stylesheet"]':"";if(!!r)for(let m=o.length-1;m>=0;m--){const y=o[m];if(y.href===u&&(!c||y.rel==="stylesheet"))return}else if(document.querySelector(`link[href="${u}"]${f}`))return;const g=document.createElement("link");if(g.rel=c?"stylesheet":y0,c||(g.as="script"),g.crossOrigin="",g.href=u,a&&g.setAttribute("nonce",a),document.head.appendChild(g),c)return new Promise((m,y)=>{g.addEventListener("load",m),g.addEventListener("error",()=>y(new Error(`Unable to preload CSS for ${u}`)))})}))}function s(o){const l=new Event("vite:preloadError",{cancelable:!0});if(l.payload=o,window.dispatchEvent(l),!l.defaultPrevented)throw o}return i.then(o=>{for(const l of o||[])l.status==="rejected"&&s(l.reason);return t().catch(s)})},pw=20,Vs=({text:e,language:t,mimeType:n,linkify:r,readOnly:i,highlight:s,revealLine:o,lineNumbers:l,isFocused:a,focusOnChange:u,wrapLines:c,onChange:f,dataTestId:d,placeholder:g})=>{const[m,y]=ks(),[_]=M.useState(_0(()=>import("./codeMirrorModule-KatbITLF.js"),__vite__mapDeps([0,1]),import.meta.url).then(x=>x.default)),p=M.useRef(null),[h,v]=M.useState();return M.useEffect(()=>{(async()=>{var b,S;const x=await _;S0(x);const E=y.current;if(!E)return;const C=k0(t)||E0(n)||(r?"text/linkified":"");if(p.current&&C===p.current.cm.getOption("mode")&&!!i===p.current.cm.getOption("readOnly")&&l===p.current.cm.getOption("lineNumbers")&&c===p.current.cm.getOption("lineWrapping")&&g===p.current.cm.getOption("placeholder"))return;(S=(b=p.current)==null?void 0:b.cm)==null||S.getWrapperElement().remove();const N=x(E,{value:"",mode:C,readOnly:!!i,lineNumbers:l,lineWrapping:c,placeholder`. Un `TODO`/`placeholder` sobre la base de la API en un artefacto marcado como completado es un bloqueante, no una nota
-- llamadas que el OpenAPI no publica: playwright-report/trace/assets/inspectorTab-DdpLd2bb.js: `GET file`; playwright-report/trace/assets/inspectorTab-DdpLd2bb.js: `GET sha1/src@{}.txt`; playwright-report/trace/assets/inspectorTab-DdpLd2bb.js: `GET sha1/{}`; playwright-report/trace/embedded.6m3UZh7r.js: `GET contexts`; playwright-report/trace/embedded.6m3UZh7r.js: `GET ping`; playwright-report/trace/index.WUV-8boJ.js: `GET contexts` (+6 más). Usa el path y el verbo literales del contrato
-```
