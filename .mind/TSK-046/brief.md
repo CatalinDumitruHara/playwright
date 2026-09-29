@@ -1356,50 +1356,14 @@ Si tu pantalla necesita un cuerpo concreto, añádelo tú por el admin API (`POS
 ### Si el entorno no está disponible
 Comprueba `.mind/TSK-046/env.json`: si su `status` es `unavailable` o `degraded`, la plataforma no pudo darte (todo) el entorno. En ese caso ESCRIBE igualmente los tests de integración y déjalos en el entregable, y repórtalo como health check **Warning** con `check: entorno-de-prueba` — NO como Blocker: no es un defecto de tu tarea, y la verificación queda diferida al CI. Reserva el Blocker para cuando el entorno SÍ estaba y los tests fallan por el código o por el brief.
 
+## REWORK — feedback del revisor (atiéndelo TODO)
+- (mind-platform) MIND (plataforma): este PR tiene **conflictos de merge** con `main` (`mergeable_state=dirty`). Suele pasar al mergear otro PR en paralelo que tocó ficheros compartidos (routers, `__init__`, deps…). Haz rebase o merge de `main` en tu rama, resuelve los conflictos sin cambiar el alcance de la tarea, deja build/tests verdes y vuelve a empujar. Preferible mergear PRs en orden del DAG (uno a uno) para reducir este caso.
+
 ## Fallo del intento anterior (OBLIGATORIO corregir)
 
 La sesión previa **no entregó**. Corrige la causa antes de ampliar alcance:
 
-> delivery-gate/browser: la verificación bloqueó la entrega.
-Running 1 test using 1 worker
-
-  ✘  1 [chromium] › welcome.e2e-spec.ts:11:7 › @smoke welcome shell › home loads without pageerror (15.5s)
-
-
-  1) [chromium] › welcome.e2e-spec.ts:11:7 › @smoke welcome shell › home loads without pageerror ───
-
-    Error: [31mTimed out 15000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
-
-    Locator: locator('app-root')
-    Expected: visible
-    Received: hidden
-    Call log:
-    [2m  - expect.toBeVisible with timeout 15000ms[22m
-    [2m  - waiting for locator('app-root')[22m
-    [2m    19 × locator resolved to <app-root></app-root>[22m
-    [2m       - unexpected value "hidden"[22m
-
-
-      14 |     page.on('pageerror', (err) => errors.push(String(err)));
-      15 |     await page.goto('/', { waitUntil: 'domcontentloaded' });
-    > 16 |     await expect(page.locator('app-root')).toBeVisible({ timeout: 15_000 });
-         |                                            ^
-      17 |     expect(errors, `pageerrors: ${errors.join('; ')}`).toEqual([]);
-      18 |   });
-      19 | });
-        at /workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/e2e/welcome.e2e-spec.ts:16:44
-
-    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    test-results/welcome.e2e-spec.ts--smoke-a14fd-ome-loads-without-pageerror-chromium/test-failed-1.png
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
-    test-results/welcome.e2e-spec.ts--smoke-a14fd-ome-loads-without-pageerror-chromium/trace.zip
-    Usage:
-
-        npx playwright show-trace test-results/welcome.e2e-spec.ts--smoke-a14fd-ome-loads-without-pageerror-chromium/trace.zip
-
-    ────────────────────────────────────────────────────────────────────────────────────────────────
+> agent-runtime no responde (http://localhost:8086): Server disconnected without sending a response.
 
 Acciones:
 - Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
