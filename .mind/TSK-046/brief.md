@@ -1371,5 +1371,5 @@ El intento anterior dejó el módulo COMPILANDO, pero el artefacto entregado **n
 
 ```
 stub-delivery: hay features marcadas como entregadas cuyo cuerpo no hace nada. `TODO`, `not implemented` y un retorno vacío como cuerpo único son bloqueantes de entrega, no notas.
-- 4 de 13 rutas registradas que ninguna plantilla enlaza: `/acceso/credencial-caducada`, `/acceso/cuenta-bloqueada`, `/avisos/permisos-actualizados`, `/avisos/version-no-soportada`. Una pantalla a la que sólo se llega escribiendo la URL no está entregada: móntala en el menú del shell con la `sección de menú` que declara su spec de UI
+- 3 de 13 rutas registradas que ninguna plantilla enlaza: `/acceso/credencial-caducada`, `/avisos/permisos-actualizados`, `/avisos/version-no-soportada`. Una pantalla a la que sólo se llega escribiendo la URL no está entregada: móntala en el menú del shell con la `sección de menú` que declara su spec de UI
 ```
