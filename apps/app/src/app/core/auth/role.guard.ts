@@ -1,18 +1,17 @@
 import { inject } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot } from '@angular/router';
+import { CanActivateFn, Router } from '@angular/router';
 import { AuthenticationService } from './authentication.service';
 
 export const roleGuard: CanActivateFn = (route) => {
   const authService = inject(AuthenticationService);
   const router = inject(Router);
+  const expectedRoles = route.data['roles'] as string[];
+  const userRole = authService.sessionContext()?.user.role;
 
-  const allowedRoles = route.data['roles'] as Array<string>;
-  const userPermissions = authService.sessionContext()?.permissions ?? [];
-  if (allowedRoles.some(role => userPermissions.includes(role))) {
+  if (userRole && expectedRoles.includes(userRole)) {
     return true;
   }
 
-  console.log('Redirecting to unauthorized page');
-  router.navigate(['/acceso-no-autorizado']);
+  router.navigate(['/inicio']); // o a una página de "acceso denegado"
   return false;
 };

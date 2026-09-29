@@ -1,73 +1,86 @@
-
-import { Component, computed, inject } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { NavMenuComponent } from '../nav-menu/nav-menu.component';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
 import {
-  B2bHeaderDesktopComponent,
-  B2bSidebarComponent,
+  B2bButtonComponent,
   B2bContainerComponent,
+  B2bHeaderDesktopComponent,
   B2bMapfreLogoComponent,
+  B2bSidebarComponent,
   B2bSidebarItemComponent,
 } from '@mapfre-tech/b2b-components';
 import { AuthenticationService } from '../../core/auth/authentication.service';
 import { SessionContext } from '@api-types';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-main-layout',
-  templateUrl: './main-layout.component.html',
-  styleUrls: ['./main-layout.component.scss'],
   standalone: true,
   imports: [
-    B2bHeaderDesktopComponent,
-    B2bSidebarComponent,
-    B2bContainerComponent,
-    B2bMapfreLogoComponent,
-    B2bSidebarItemComponent,
-    RouterModule,
     CommonModule,
-    NavMenuComponent,
+    RouterModule,
+    B2bButtonComponent,
+    B2bContainerComponent,
+    B2bHeaderDesktopComponent,
+    B2bMapfreLogoComponent,
+    B2bSidebarComponent,
+    B2bSidebarItemComponent,
   ],
+  templateUrl: './main-layout.component.html',
+  styleUrls: ['./main-layout.component.scss'],
 })
-export class MainLayoutComponent {
-  private readonly authenticationService = inject(AuthenticationService);
-  public session = this.authenticationService.sessionContext;
+export class MainLayoutComponent implements OnInit {
+  session: SessionContext | null = null;
+  filteredMenu: any[] = [];
+  allMenus = [
+    {
+      label: 'Inicio',
+      path: '/inicio',
+      allowedRoles: ['ROL-001', 'ROL-002', 'ROL-003'],
+    },
+    {
+      label: 'Mi Perfil',
+      path: '/mi-perfil',
+      allowedRoles: ['ROL-001', 'ROL-002', 'ROL-003'],
+    },
+    {
+      label: 'Incidencias',
+      path: '/incidents',
+      allowedRoles: ['ROL-002'],
+    },
+    {
+      label: 'Admin',
+      path: '/admin',
+      allowedRoles: ['ROL-003'],
+    },
+  ];
 
-  public menuOptions = computed(() => {
-    const allMenus = [
-      {
-        label: 'Inicio',
-        routerLink: '/home',
-        icon: 'b2b-icon-home',
-        allowedRoles: ['ROL-001', 'ROL-002', 'ROL-003'],
-      },
-      {
-        label: 'Gestión de Incidencias',
-        routerLink: '/incidents',
-        icon: 'b2b-icon-incident',
-        allowedRoles: ['ROL-002'],
-      },
-      {
-        label: 'Administración',
-        routerLink: '/admin',
-        icon: 'b2b-icon-settings',
-        allowedRoles: ['ROL-003'],
-      },
-    ];
+  constructor(
+    private authService: AuthenticationService,
+    private router: Router
+  ) {}
 
-    const userPermissions = this.session()?.permissions;
-    if (!userPermissions) {
-      return [];
-    }
-
-    return allMenus.filter(menu => menu.allowedRoles.some(role => userPermissions.includes(role)));
-  });
-
-  public get userName(): string {
-    return this.session()?.user.name || '';
+  ngOnInit(): void {
+    this.session = this.authService.sessionContext();
+    this.filterMenu();
   }
 
-  public logout(): void {
-    this.authenticationService.logout();
+  filterMenu(): void {
+    const userRole = this.session?.user.role;
+    if (userRole) {
+      this.filteredMenu = this.allMenus.filter(menu =>
+        menu.allowedRoles.includes(userRole)
+      );
+    }
+  }
+
+  logout() {
+    this.authService.logout().subscribe({
+      next: () => {
+        this.router.navigate(['/acceso/sesion-finalizada']);
+      },
+      error: (error: any) => {
+        console.error('Error al cerrar sesión', error);
+      },
+    });
   }
 }

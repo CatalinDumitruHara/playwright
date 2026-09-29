@@ -8,7 +8,8 @@ import {
   B2bContainerComponent,
   B2bTagComponent,
 } from '@mapfre-tech/b2b-components';
-import { AuthenticationService, SessionContext } from '../../../../core/auth/authentication.service';
+import { AuthenticationService } from '../../../../core/auth/authentication.service';
+import { SessionDetail } from '@api-types';
 
 @Component({
   selector: 'app-my-profile',
@@ -29,19 +30,10 @@ export class MyProfilePage implements OnInit {
   private authService = inject(AuthenticationService);
   private router = inject(Router);
 
-  user_data: (SessionContext['user'] & { role?: string }) | undefined;
-  // TODO: remove mock
-  account_status = 'Activa';
-  last_password_change = new Date();
+  session: SessionDetail | null = null;
 
   ngOnInit(): void {
-    this.authService.getSessionContext().subscribe(session => {
-      this.user_data = session?.user;
-      // TODO: remove mock
-      if (this.user_data) {
-        this.user_data.role = 'Administrador';
-      }
-    });
+    this.session = this.authService.getSession();
   }
 
   goToChangePassword(): void {

@@ -1,35 +1,15 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, tap, map } from 'rxjs';
+import { Observable, tap, map } from 'rxjs';
 import { Router } from '@angular/router';
-// import { SessionContext } from '@api-types';
-
-export interface SessionContext {
-  user: { name: string; email: string; role_code: string; };
-  permissions: string[];
-}
-
-// TODO: Move to a shared library
-export interface LoginRequest {
-  username: string;
-  password?: string;
-  temporal_password?: string;
-}
-
-export interface SessionDetail {
-  token: string;
-  must_change_password?: boolean;
-  session_context: SessionContext;
-}
-
-export interface ChangePasswordForcedRequest {
-  new_password: string;
-}
-
-export interface ChangePasswordRequest {
-  old_password: string;
-  new_password: string;
-}
+import {
+  SessionContext,
+  LoginRequest,
+  SessionDetail,
+  ChangePasswordForcedRequest,
+  ChangePasswordRequest,
+} from '@api-types';
+import { ENVIRONMENT } from '@mapfre-tech/ngx-multienvironment/core';
 
 @Injectable({
   providedIn: 'root',
@@ -37,11 +17,13 @@ export interface ChangePasswordRequest {
 export class AuthenticationService {
   private http = inject(HttpClient);
   private router = inject(Router);
-  private session: any | null = null;
+  private environment = inject(ENVIRONMENT);
+  private apiBaseUrl = (this.environment as any).apiBaseUrl;
+  private session: SessionDetail | null = null;
 
   login(loginRequest: LoginRequest): Observable<SessionDetail> {
     return this.http
-      .post<SessionDetail>(`/auth/sessions`, loginRequest)
+      .post<SessionDetail>(`${this.apiBaseUrl}/auth/sessions`, loginRequest)
       .pipe(
         tap((sessionDetail: SessionDetail) => {
           this.session = sessionDetail;
@@ -51,10 +33,10 @@ export class AuthenticationService {
   }
 
   changePasswordForced(
-    changePasswordForcedRequest: any
+    changePasswordForcedRequest: ChangePasswordForcedRequest
   ): Observable<void> {
     return this.http.put<void>(
-      `/auth/initial-password`,
+      `${this.apiBaseUrl}/auth/initial-password`,
       changePasswordForcedRequest
     );
   }
@@ -63,19 +45,22 @@ export class AuthenticationService {
     changePasswordRequest: ChangePasswordRequest
   ): Observable<void> {
     return this.http.put<void>(
-      `/auth/password`,
+      `${this.apiBaseUrl}/auth/password`,
       changePasswordRequest
     );
   }
 
   logout(): Observable<void> {
-    localStorage.removeItem('sessionToken');
-    this.session = null;
-    this.router.navigate(['/login']);
-    return of(undefined);
+    return this.http.delete<void>(`${this.apiBaseUrl}/auth/sessions/current`).pipe(
+      tap(() => {
+        localStorage.removeItem('sessionToken');
+        this.session = null;
+        this.router.navigate(['/login']);
+      })
+    );
   }
 
-  getSession(): any | null {
+  getSession(): SessionDetail | null {
     return this.session;
   }
 
@@ -84,20 +69,23 @@ export class AuthenticationService {
   }
 
   getSessionContext(): Observable<SessionContext | null> {
-    return this.http.get<SessionDetail>('/auth/sessions/current').pipe(
+    return this.http.get<SessionDetail>(`${this.apiBaseUrl}/auth/sessions/current`).pipe(
       tap(sessionDetail => {
         this.session = sessionDetail;
         localStorage.setItem('sessionToken', sessionDetail.token);
       }),
-      map(sessionDetail => sessionDetail.session_context)
+      map(sessionDetail => sessionDetail as unknown as SessionContext)
     );
   }
-  
+
   sessionContext(): SessionContext | null {
-    return this.session?.session_context || null;
+    return this.session as unknown as SessionContext;
   }
 
   hasRole(role: string): boolean {
-    return this.session?.session_context.permissions.includes(role);
+    if (!this.session) {
+      return false;
+    }
+    return (this.session as unknown as SessionContext).user.role === role;
   }
 }

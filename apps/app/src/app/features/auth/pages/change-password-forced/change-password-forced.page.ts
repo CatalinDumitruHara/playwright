@@ -11,7 +11,8 @@ import {
   B2bNotificationInlineComponent,
   B2bPasswordFieldComponent,
 } from '@mapfre-tech/b2b-components';
-import { AuthenticationService, ChangePasswordForcedRequest } from '../../../../core/auth/authentication.service';
+import { AuthenticationService } from '../../../../core/auth/authentication.service';
+import { ChangePasswordForcedRequest } from '@api-types';
 import { Router } from '@angular/router';
 import { passwordMatchValidator } from '../../../../core/validators/password-match.validator';
 

@@ -1,23 +1,16 @@
 <b2b-container>
-  <div class="profile-card">
-    <div b2b-card-primary title="Mi perfil">
-      <div *ngIf="user_data" class="profile-data">
-        <b2b-read-data label="Nombre" data-testid="user-name">{{ user_data.name }}</b2b-read-data>
-        <b2b-read-data label="Correo electrónico" data-testid="user-email">{{ user_data.email }}</b2b-read-data>
-        <b2b-read-data label="Rol vigente" data-testid="user-role">{{ user_data.role }}</b2b-read-data>
-        <b2b-read-data label="Estado de la cuenta" data-testid="user-status">
-          <b2b-tag type="ok">{{ account_status }}</b2b-tag>
-        </b2b-read-data>
-        <b2b-read-data label="Última actualización de contraseña" data-testid="user-password-update">
-          {{ last_password_change | date : 'dd/MM/yyyy' }}
-        </b2b-read-data>
-      </div>
-
-      <div class="profile-actions">
-        <button b2b-button (click)="goToChangePassword()" data-testid="change-password-button">Cambiar contraseña</button>
-        <button b2b-button (click)="goToHome()" variant="secondary" data-testid="home-button">Volver</button>
-      </div>
+  <div b2b-card-primary>
+    <h2>Mi perfil</h2>
+    <div *ngIf="session">
+      <b2b-read-data label="Nombre">{{session.user.name}}</b2b-read-data>
+      <b2b-read-data label="Correo corporativo">{{session.user.email}}</b2b-read-data>
+      <b2b-read-data label="Rol vigente">{{session.user.role}}</b2b-read-data>
     </div>
+    <button b2b-button (click)="goToChangePassword()">
+      Cambiar contraseña
+    </button>
+    <button b2b-button variant="secondary" (click)="goToHome()">
+      Volver a inicio
+    </button>
   </div>
 </b2b-container>
-

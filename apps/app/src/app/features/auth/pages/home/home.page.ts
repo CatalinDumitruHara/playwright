@@ -1,28 +1,38 @@
-import { B2bSidebarItemComponent } from '@mapfre-tech/b2b-components';
-import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { IonicModule } from '@ionic/angular';
+import { CommonModule } from '@angular/common';
+import {
+  B2bButtonComponent,
+  B2bContainerComponent,
+  B2bSidebarComponent,
+  B2bSidebarItemComponent,
+} from '@mapfre-tech/b2b-components';
 import { AuthenticationService } from '../../../../core/auth/authentication.service';
-import { Observable, map } from 'rxjs';
-import { SessionContext } from '../../../../core/auth/authentication.service';
+import { SessionContext } from '@api-types';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
+  standalone: true,
+  imports: [
+    CommonModule,
+    B2bButtonComponent,
+    B2bSidebarComponent,
+    B2bSidebarItemComponent,
+    B2bContainerComponent,
+  ],
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
-  standalone: true,
-  imports: [IonicModule, CommonModule, B2bSidebarItemComponent],
 })
 export class HomePage implements OnInit {
-  user$!: Observable<SessionContext['user'] | undefined>;
+  user: SessionContext['user'] | null = null;
+
   constructor(
     private authService: AuthenticationService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.user$ = this.authService.getSessionContext().pipe(map(context => context?.user));
+    this.user = this.authService.sessionContext()?.user ?? null;
   }
 
   logout() {
