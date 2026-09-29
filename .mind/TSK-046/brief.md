@@ -1355,15 +1355,3 @@ Si tu pantalla necesita un cuerpo concreto, añádelo tú por el admin API (`POS
 
 ### Si el entorno no está disponible
 Comprueba `.mind/TSK-046/env.json`: si su `status` es `unavailable` o `degraded`, la plataforma no pudo darte (todo) el entorno. En ese caso ESCRIBE igualmente los tests de integración y déjalos en el entregable, y repórtalo como health check **Warning** con `check: entorno-de-prueba` — NO como Blocker: no es un defecto de tu tarea, y la verificación queda diferida al CI. Reserva el Blocker para cuando el entorno SÍ estaba y los tests fallan por el código o por el brief.
-
-## REWORK — feedback del revisor (atiéndelo TODO)
-- (mind-platform) MIND (plataforma): este PR tiene **conflictos de merge** con `main` (`mergeable_state=dirty`). Suele pasar al mergear otro PR en paralelo que tocó ficheros compartidos (routers, `__init__`, deps…). Haz rebase o merge de `main` en tu rama, resuelve los conflictos sin cambiar el alcance de la tarea, deja build/tests verdes y vuelve a empujar. Preferible mergear PRs en orden del DAG (uno a uno) para reducir este caso.
-
-## Fallo del intento anterior (OBLIGATORIO corregir)
-
-La sesión previa **no entregó**. Corrige la causa antes de ampliar alcance:
-
-> agent-runtime no responde (http://localhost:8086): Server disconnected without sending a response.
-
-Acciones:
-- Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
