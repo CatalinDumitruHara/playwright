@@ -1363,115 +1363,64 @@ Comprueba `.mind/TSK-046/env.json`: si su `status` es `unavailable` o `degraded`
 
 La sesión previa **no entregó**. Corrige la causa antes de ampliar alcance:
 
-> delivery-gate/build: la verificación bloqueó la entrega.
-client-contract: lo que el front LLAMA no está fijado contra lo que el back PUBLICA. El contrato de API es un artefacto compartido y versionado: el cliente se genera desde él, no se escribe a mano.
-- deuda de URL declarada y entregada: playwright-report/trace/assets/inspectorTab-DdpLd2bb.js: `//")||n.source.startsWith(".."))&&(i=!1);const s=i?n.name+"=":"";return`${r===e.capture?"*":""}${s}${n.source}`}).join(" >> ")}function t0(e,t){const n=(r,i)=>{for(const s of r.parts)t(s,i),Il.has(s.name)&&n(s.body.parsed,!0)};n(e,!1)}function n0(e){let t=0,n,r=0;const i={parts:[]},s=()=>{const l=e.substring(r,t).trim(),a=l.indexOf("=");let u,c;a!==-1&&l.substring(0,a).trim().match(/^[a-zA-Z_0-9-+:*]+$/)?(u=l.substring(0,a).trim(),c=l.substring(a+1)):l.length>1&&l[0]==='"'&&l[l.length-1]==='"'||l.length>1&&l[0]==="'"&&l[l.length-1]==="'"?(u="text",c=l):/^\(*\/\//.test(l)||l.startsWith("..")?(u="xpath",c=l):(u="css",c=l);let f=!1;if(u[0]==="*"&&(f=!0,u=u.substring(1)),i.parts.push({name:u,body:c}),f){if(i.capture!==void 0)throw new be("Only one of the selectors can capture using * modifier");i.capture=i.parts.length-1}};if(!e.includes(">>"))return t=e.length,s(),i;const o=()=>{const a=e.substring(r,t).match(/^\s*text\s*=(.*)$/);return!!a&&!!a[1]};for(;t<e.length;){const l=e[t];l==="\\"&&t+1<e.length?t+=2:l===n?(n=void 0,t++):!n&&(l==='"'||l==="'"||l==="`")&&!o()?(n=l,t++):!n&&l===">"&&e[t+1]===">"?(s(),t+=2,r=t):t++}return s(),i}function on(e,t){let n=0,r=e.length===0;const i=()=>e[n]||"",s=()=>{const _=i();return++n,r=n>=e.length,_},o=_=>{throw r?new be(`Unexpected end of selector while parsing selector \`${e}\``):new be(`Error while parsing selector \`${e}\` - unexpected symbol "${i()}" at position ${n}`+(_?" during "+_:""))};function l(){for(;!r&&/\s/.test(i());)s()}function a(_){return _>=""||_>="0"&&_<="9"||_>="A"&&_<="Z"||_>="a"&&_<="z"||_>="0"&&_<="9"||_==="_"||_==="-"}function u(){let _="";for(l();!r&&a(i());)_+=s
+> delivery-gate/browser: la verificación bloqueó la entrega.
+Running 1 test using 1 worker
+
+  ✘  1 [chromium] › welcome.e2e-spec.ts:8:7 › @smoke welcome shell › home loads without pageerror (5.8s)
+
+
+  1) [chromium] › welcome.e2e-spec.ts:8:7 › @smoke welcome shell › home loads without pageerror ────
+
+    Error: [31mTimed out 5000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+    Locator: locator('body')
+    Expected: visible
+    Received: hidden
+    Call log:
+    [2m  - expect.toBeVisible with timeout 5000ms[22m
+    [2m  - waiting for locator('body')[22m
+    [2m    9 × locator resolved to <body>…</body>[22m
+    [2m      - unexpected value "hidden"[22m
+
+
+      10 |     page.on('pageerror', (err) => errors.push(String(err)));
+      11 |     await page.goto('/');
+    > 12 |     await expect(page.locator('body')).toBeVisible();
+         |                                        ^
+      13 |     expect(errors, `pageerrors: ${errors.join('; ')}`).toEqual([]);
+      14 |   });
+      15 | });
+        at /workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/e2e/welcome.e2e-spec.ts:12:40
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/welcome.e2e-spec.ts--smoke-a14fd-ome-loads-without-pageerror-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/welcome.e2e-spec.ts--smoke-a14fd-ome-loads-without-pageerror-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/welcome.e2e-spec.ts--smoke-a14fd-ome-loads-without-pageerror-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › welcome.e2e-spec.ts:8:7 › @smoke welcome shell › home loa
 
 Acciones:
 - Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
 
 ## Estado del build al cerrar el intento anterior
 
-El intento anterior dejó el módulo **SIN COMPILAR**. Reprodúcelo lo PRIMERO de todo, antes de añadir nada nuevo, y no entregues hasta que compile.
+El intento anterior dejó el módulo COMPILANDO, pero el artefacto entregado **no arrancaría** (o incumple el contrato que declara). El compilador está en VERDE: **no busques ahí y no pierdas el intento intentando reproducir un fallo de compilación que no existe**. Lo que falla es exactamente lo que dice el informe de abajo, y es lo PRIMERO que tienes que arreglar, antes de añadir nada nuevo.
 
-- El comando es el mismo que usa la plataforma: `mvn -B -ntp -f <pom> test-compile` (o el equivalente de la toolchain del arquetipo).
-- Si lo que impide compilar viene de la rama BASE y no de tu trabajo, arréglalo igual —es parte de dejar el módulo compilable— y decláralo como `health_check` de severidad Warning indicando el fichero y por qué lo tocaste.
+- Arregla lo que nombra el informe, en el sitio que nombra. No hace falta reproducirlo con el compilador: ya compila.
+- Si el defecto viene de la rama BASE y no de tu trabajo, arréglalo igual y decláralo como `health_check` de severidad Warning indicando el fichero y por qué lo tocaste.
+- **No borres ni desactives tests para que el informe calle.** Si crees que el informe se equivoca, entrégalo con un `health_check` Blocker explicando por qué; quitar cobertura para tapar una señal es peor que la señal.
 
 ### Lo que reportó la verificación (literal)
 
 ```
-          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m    Error occurs in the template of component ChangePasswordPage.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/profile/pages/change-password/change-password.page.ts[0m:[93m15[0m:[93m40[0m - [91merror[0m[90m TS2307: [0mCannot find module '../../../../core/validators/password-match.validator' or its corresponding type declarations.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[7m15[0m import { passwordMatchValidator } from '../../../../core/validators/password-match.validator';[39m[22m
-[1m[31m[7m  [0m [91m                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/profile/pages/my-profile/my-profile.page.html[0m:[93m1[0m:[93m1[0m - [91merror[0m[90m NG8001: [0m'b2b-container' is not a known element:[39m[22m
-[1m[31m1. If 'b2b-container' is an Angular component, then verify that it is included in the '@Component.imports' of this component.[39m[22m
-[1m[31m2. If 'b2b-container' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component t[39m[22m[1m[31mo suppress this message.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[7m1[0m <b2b-container>[39m[22m
-[1m[31m[7m [0m [91m~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m  [96mapps/app/src/app/features/profile/pages/my-profile/my-profile.page.ts[0m:[93m20[0m:[93m16[0m[39m[22m
-[1m[31m    [7m20[0m   templateUrl: './my-profile.page.html',[39m[22m
-[1m[31m    [7m  [0m [96m               ~~~~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m    Error occurs in the template of component MyProfilePage.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/user/pages/role-initial-page/role-initial-page.page.html[0m:[93m13[0m:[93m7[0m - [91merror[0m[90m NG8008: [0mRequired input 'title' from component B2bSidebarItemComponent must be specified.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[7m13[0m       <b2b-sidebar-item *ngFor="let item of menuItems">[39m[22m
-[1m[31m[7m  [0m [91m      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m  [96mapps/app/src/app/features/user/pages/role-initial-page/role-initial-page.page.ts[0m:[93m30[0m:[93m16[0m[39m[22m
-[1m[31m    [7m30[0m   templateUrl: './role-initial-page.page.html',[39m[22m
-[1m[31m    [7m  [0m [96m               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m    Error occurs in the template of component RoleInitialPage.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-
-
-
- NX   Running target build for project app failed
-
-Failed tasks:
-
-- app:build:production
-
-Hint: run the command with --verbose for more details.
+ted:i,onSelect:s,ariaControls:o})=>w.jsxs("div",{className:tt("tabbed-pane-tab",i&&"selected"),onClick:()=>s==null?void 0:s(e),role:"tab",title:t,"aria-controls":o,children:[w.jsx("div",{className:"tabbed-pane-tab-label",children:t}),!!n&&w.jsx("div",{className:"tabbed-pane-tab-counter",children:n}),!!r&&w.jsx("div",{className:"tabbed-pane-tab-counter error",children:r})]}),y0="modulepreload",w0=function(e,t){return new URL(e,t).href},_c={},_0=function(t,n,r){let i=Promise.resolve();if(n&&n.length>0){const o=document.getElementsByTagName("link"),l=document.querySelector("meta[property=csp-nonce]"),a=(l==null?void 0:l.nonce)||(l==null?void 0:l.getAttribute("nonce"));i=Promise.allSettled(n.map(u=>{if(u=w0(u,r),u in _c)return;_c[u]=!0;const c=u.endsWith(".css"),f=c?'[rel="stylesheet"]':"";if(!!r)for(let m=o.length-1;m>=0;m--){const y=o[m];if(y.href===u&&(!c||y.rel==="stylesheet"))return}else if(document.querySelector(`link[href="${u}"]${f}`))return;const g=document.createElement("link");if(g.rel=c?"stylesheet":y0,c||(g.as="script"),g.crossOrigin="",g.href=u,a&&g.setAttribute("nonce",a),document.head.appendChild(g),c)return new Promise((m,y)=>{g.addEventListener("load",m),g.addEventListener("error",()=>y(new Error(`Unable to preload CSS for ${u}`)))})}))}function s(o){const l=new Event("vite:preloadError",{cancelable:!0});if(l.payload=o,window.dispatchEvent(l),!l.defaultPrevented)throw o}return i.then(o=>{for(const l of o||[])l.status==="rejected"&&s(l.reason);return t().catch(s)})},pw=20,Vs=({text:e,language:t,mimeType:n,linkify:r,readOnly:i,highlight:s,revealLine:o,lineNumbers:l,isFocused:a,focusOnChange:u,wrapLines:c,onChange:f,dataTestId:d,placeholder:g})=>{const[m,y]=ks(),[_]=M.useState(_0(()=>import("./codeMirrorModule-KatbITLF.js"),__vite__mapDeps([0,1]),import.meta.url).then(x=>x.default)),p=M.useRef(null),[h,v]=M.useState();return M.useEffect(()=>{(async()=>{var b,S;const x=await _;S0(x);const E=y.current;if(!E)return;const C=k0(t)||E0(n)||(r?"text/linkified":"");if(p.current&&C===p.current.cm.getOption("mode")&&!!i===p.current.cm.getOption("readOnly")&&l===p.current.cm.getOption("lineNumbers")&&c===p.current.cm.getOption("lineWrapping")&&g===p.current.cm.getOption("placeholder"))return;(S=(b=p.current)==null?void 0:b.cm)==null||S.getWrapperElement().remove();const N=x(E,{value:"",mode:C,readOnly:!!i,lineNumbers:l,lineWrapping:c,placeholder`. Un `TODO`/`placeholder` sobre la base de la API en un artefacto marcado como completado es un bloqueante, no una nota
+- llamadas que el OpenAPI no publica: playwright-report/trace/assets/inspectorTab-DdpLd2bb.js: `GET file`; playwright-report/trace/assets/inspectorTab-DdpLd2bb.js: `GET sha1/src@{}.txt`; playwright-report/trace/assets/inspectorTab-DdpLd2bb.js: `GET sha1/{}`; playwright-report/trace/embedded.6m3UZh7r.js: `GET contexts`; playwright-report/trace/embedded.6m3UZh7r.js: `GET ping`; playwright-report/trace/index.WUV-8boJ.js: `GET contexts` (+6 más). Usa el path y el verbo literales del contrato
 ```
-
-## Código ya presente en la zona (zone-extend) — OBLIGATORIO
-
-En el tip actual del workspace YA hay código bajo tus `zone_paths` (típicamente de una TSK predecesora mergeada). **Léelo antes de escribir.**
-
-Ficheros presentes (muestra):
-- `apps/app/src/app/features/auth/pages/account-locked/account-locked.page.html`
-- `apps/app/src/app/features/auth/pages/account-locked/account-locked.page.scss`
-- `apps/app/src/app/features/auth/pages/account-locked/account-locked.page.ts`
-- `apps/app/src/app/features/auth/pages/change-password-forced/change-password-forced.page.html`
-- `apps/app/src/app/features/auth/pages/change-password-forced/change-password-forced.page.scss`
-- `apps/app/src/app/features/auth/pages/change-password-forced/change-password-forced.page.spec.ts`
-- `apps/app/src/app/features/auth/pages/change-password-forced/change-password-forced.page.ts`
-- `apps/app/src/app/features/auth/pages/expired-credential/expired-credential.page.html`
-- `apps/app/src/app/features/auth/pages/expired-credential/expired-credential.page.scss`
-- `apps/app/src/app/features/auth/pages/expired-credential/expired-credential.page.spec.ts`
-- `apps/app/src/app/features/auth/pages/expired-credential/expired-credential.page.ts`
-- `apps/app/src/app/features/auth/pages/home/home.page.html`
-- `apps/app/src/app/features/auth/pages/home/home.page.scss`
-- `apps/app/src/app/features/auth/pages/home/home.page.ts`
-- `apps/app/src/app/features/auth/pages/login/login.page.html`
-- `apps/app/src/app/features/auth/pages/login/login.page.scss`
-- `apps/app/src/app/features/auth/pages/login/login.page.spec.ts`
-- `apps/app/src/app/features/auth/pages/login/login.page.ts`
-- `apps/app/src/app/features/auth/pages/permissions-changed/permissions-changed.page.html`
-- `apps/app/src/app/features/auth/pages/permissions-changed/permissions-changed.page.scss`
-- `apps/app/src/app/features/auth/pages/permissions-changed/permissions-changed.page.ts`
-- `apps/app/src/app/features/auth/pages/session-ended/session-ended.page.html`
-- `apps/app/src/app/features/auth/pages/session-ended/session-ended.page.scss`
-- `apps/app/src/app/features/auth/pages/session-ended/session-ended.page.spec.ts`
-- `apps/app/src/app/features/auth/pages/session-ended/session-ended.page.ts`
-- `apps/app/src/app/features/profile/pages/change-password/change-password.page.html`
-- `apps/app/src/app/features/profile/pages/change-password/change-password.page.scss`
-- `apps/app/src/app/features/profile/pages/change-password/change-password.page.spec.ts`
-- `apps/app/src/app/features/profile/pages/change-password/change-password.page.ts`
-- `apps/app/src/app/features/profile/pages/change-password-confirmation/change-password-confirmation.page.html`
-- `apps/app/src/app/features/profile/pages/change-password-confirmation/change-password-confirmation.page.scss`
-- `apps/app/src/app/features/profile/pages/change-password-confirmation/change-password-confirmation.page.spec.ts`
-- `apps/app/src/app/features/profile/pages/change-password-confirmation/change-password-confirmation.page.ts`
-- `apps/app/src/app/features/profile/pages/my-profile/my-profile.page.html`
-- `apps/app/src/app/features/profile/pages/my-profile/my-profile.page.scss`
-- `apps/app/src/app/features/profile/pages/my-profile/my-profile.page.spec.ts`
-- `apps/app/src/app/features/profile/pages/my-profile/my-profile.page.ts`
-- `apps/app/src/app/app.routes.ts`
-
-Disciplina:
-1. **EDIT/EXTIENDE** símbolos existentes (`class`/`def`/exports) — **PROHIBIDO** una segunda declaración con el mismo nombre en el mismo fichero.
-2. Añade routers/handlers nuevos en ficheros dedicados o ampliando el existente sin redefinir tipos ya presentes.
-3. Si el DoD pide API pública sobre el mismo dominio, reutiliza servicios/modelos del CRUD previo; no copies otra `MembershipPlanService`.
