@@ -1,17 +1,23 @@
 <b2b-container>
-  <div b2b-card-primary>
-    <b2b-read-data label="Nombre">{{ userName }}</b2b-read-data>
-    <b2b-read-data label="Correo electrónico">{{ userEmail }}</b2b-read-data>
-    <b2b-read-data label="Rol">{{ userRole }}</b2b-read-data>
-    <b2b-read-data label="Estado de la cuenta">{{
-      accountStatus
-    }}</b2b-read-data>
-    <b2b-read-data label="Última actualización de contraseña">{{
-      lastPasswordUpdate | date : 'medium'
-    }}</b2b-read-data>
+  <div class="profile-card">
+    <b2b-card-primary title="Mi perfil">
+      <div *ngIf="user_data" class="profile-data">
+        <b2b-read-data label="Nombre" data-testid="user-name">{{ user_data.name }} {{ user_data.surnames }}</b2b-read-data>
+        <b2b-read-data label="Correo electrónico" data-testid="user-email">{{ user_data.email }}</b2b-read-data>
+        <b2b-read-data label="Teléfono" data-testid="user-phone">{{ user_data.phone }}</b2b-read-data>
+        <b2b-read-data label="Estado de la cuenta">
+          <b2b-tag [label]="account_status" type="success"></b2b-tag>
+        </b2b-read-data>
+        <b2b-read-data label="Última actualización de contraseña">
+          {{ last_password_change | date : 'dd/MM/yyyy' }}
+        </b2b-read-data>
+      </div>
 
-    <button b2b-button routerLink="/mi-perfil/contrasena">
-      Cambiar contraseña
-    </button>
+      <div class="profile-actions">
+        <button b2b-button (click)="goToChangePassword()" data-testid="change-password-button">Cambiar contraseña</button>
+        <button b2b-button (click)="goToHome()" variant="secondary" data-testid="home-button">Volver</button>
+      </div>
+    </b2b-card-primary>
   </div>
 </b2b-container>
+

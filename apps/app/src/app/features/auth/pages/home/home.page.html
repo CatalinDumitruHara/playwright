@@ -1,1 +1,25 @@
-<h1>Home</h1>
+<div class="page-container">
+  <b2b-sidebar>
+    <b2b-sidebar-item
+      *ngFor="let item of navigationItems"
+      [title]="item.text"
+      [icon]="item.icon"
+      [routerLink]="item.link"
+      routerLinkActive="active"
+    ></b2b-sidebar-item>
+  </b2b-sidebar>
+
+  <div class="content-container">
+    <b2b-header-desktop logoRoute="/inicio">
+      <button b2b-button variant="secondary" (click)="logout()">
+        Cerrar sesión
+      </button>
+    </b2b-header-desktop>
+
+    <main>
+      <b2b-container>
+        <router-outlet></router-outlet>
+      </b2b-container>
+    </main>
+  </div>
+</div>

@@ -8,10 +8,12 @@ import {
 } from '@angular/forms';
 import {
   B2bButtonComponent,
-  B2bInputComponent,
-  B2bLabelComponent,
   B2bNotificationInlineComponent,
+  B2bPasswordFieldComponent,
 } from '@mapfre-tech/b2b-components';
+import { AuthenticationService, ChangePasswordForcedRequest } from '../../../../core/auth/authentication.service';
+import { Router } from '@angular/router';
+import { passwordMatchValidator } from '../../../../core/validators/password-match.validator';
 
 @Component({
   selector: 'app-change-password-forced',
@@ -19,34 +21,49 @@ import {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    B2bInputComponent,
     B2bButtonComponent,
-    B2bLabelComponent,
     B2bNotificationInlineComponent,
+    B2bPasswordFieldComponent,
   ],
   templateUrl: './change-password-forced.page.html',
   styleUrl: './change-password-forced.page.scss',
 })
 export class ChangePasswordForcedPage {
   private fb = inject(FormBuilder);
+  private authService = inject(AuthenticationService);
+  private router = inject(Router);
 
   form: FormGroup = this.fb.group(
     {
       newPassword: ['', [Validators.required, Validators.minLength(10)]],
       confirmPassword: ['', Validators.required],
     },
-    { validators: this.passwordsMatch }
+    { validators: passwordMatchValidator }
   );
-
-  passwordsMatch(group: FormGroup) {
-    const newPassword = group.get('newPassword')?.value;
-    const confirmPassword = group.get('confirmPassword')?.value;
-    return newPassword === confirmPassword ? null : { mismatch: true };
-  }
+  
+  errorMessage: string | null = null;
 
   changePassword() {
     if (this.form.valid) {
-      console.log(this.form.value);
+      this.errorMessage = null;
+      const changePasswordForcedRequest: ChangePasswordForcedRequest = {
+        new_password: this.form.value.newPassword,
+      };
+      this.authService
+        .changePasswordForced(changePasswordForcedRequest)
+        .subscribe({
+          next: () => {
+            this.router.navigate(['/inicio']);
+          },
+          error: (error) => {
+            this.errorMessage = 'Ha ocurrido un error al cambiar la contraseña. Por favor, inténtelo de nuevo.';
+            console.error('Change password failed', error);
+          },
+        });
     }
+  }
+
+  goBack() {
+    this.router.navigate(['/acceso']);
   }
 }

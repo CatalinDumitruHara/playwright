@@ -9,6 +9,6 @@ export const passwordMatchValidator: ValidatorFn = (
   return newPassword &&
     confirmPassword &&
     newPassword.value !== confirmPassword.value
-    ? { passwordMismatch: true }
+    ? { mismatch: true }
     : null;
 };

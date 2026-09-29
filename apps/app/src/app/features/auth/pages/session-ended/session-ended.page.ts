@@ -1,26 +1,26 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import {
-  B2bButtonComponent,
-  B2bNotificationInlineComponent,
-  B2bContainerComponent,
-} from '@mapfre-tech/b2b-components';
+import { Router, RouterModule } from '@angular/router';
+import { B2bComponentsModule } from '@mapfre-tech/b2b-components';
 
 @Component({
   selector: 'app-session-ended',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    B2bButtonComponent,
-    B2bNotificationInlineComponent,
-    B2bContainerComponent,
-  ],
+  imports: [CommonModule, RouterModule, B2bComponentsModule],
   templateUrl: './session-ended.page.html',
   styleUrl: './session-ended.page.scss',
 })
 export class SessionEndedPage {
-  reason = 'Cierre de sesión voluntario';
-  endedAt = new Date();
+  reason: string;
+  date: Date;
+
+  constructor(private router: Router) {
+    const navigation = this.router.getCurrentNavigation();
+    this.reason = navigation?.extras.state?.['reason'] || 'Tu sesión ha finalizado';
+    this.date = navigation?.extras.state?.['date'] || new Date();
+  }
+
+  goToLogin(): void {
+    this.router.navigate(['/acceso']);
+  }
 }
