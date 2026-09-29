@@ -1,1 +1,9 @@
-<h1>Session Ended</h1>
+<b2b-container>
+  <b2b-notification-inline [visible]="true" type="info">
+    <p>Sesión finalizada</p>
+    <p>Motivo: {{ reason }}</p>
+    <p>Fecha y hora: {{ endedAt | date : 'medium' }}</p>
+  </b2b-notification-inline>
+
+  <a b2b-button routerLink="/acceso/login">Volver a acceder</a>
+</b2b-container>
