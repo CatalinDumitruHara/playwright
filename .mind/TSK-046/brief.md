@@ -1360,39 +1360,7 @@ Comprueba `.mind/TSK-046/env.json`: si su `status` es `unavailable` o `degraded`
 
 La sesión previa **no entregó**. Corrige la causa antes de ampliar alcance:
 
-> sesión abortada a los 3000.0s
+> agent-runtime no responde (http://localhost:8086): Server disconnected without sending a response.
 
 Acciones:
 - Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
-
-## Estado del build al cerrar el intento anterior
-
-El intento anterior dejó el módulo **SIN COMPILAR**. Reprodúcelo lo PRIMERO de todo, antes de añadir nada nuevo, y no entregues hasta que compile.
-
-- El comando es el mismo que usa la plataforma: `mvn -B -ntp -f <pom> test-compile` (o el equivalente de la toolchain del arquetipo).
-- Si lo que impide compilar viene de la rama BASE y no de tu trabajo, arréglalo igual —es parte de dejar el módulo compilable— y decláralo como `health_check` de severidad Warning indicando el fichero y por qué lo tocaste.
-
-### Lo que reportó la verificación (literal)
-
-```
-arn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/node_modules/@angular/common/locales'
-npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/node_modules/@angular/common/locales'
-npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/node_modules/@angular/common/locales'
-npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/node_modules/@angular/common/locales'
-npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/node_modules/@angular/common/locales'
-npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/node_modules/@angular/common/locales'
-npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/node_modules/@angular/common/locales'
-npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/node_modules/@angular/common/locales'
-npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/node_modules/@angular/common/locales'
-npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/node_modules/@angular/common/locales'
-npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/node_modules/@angular/common/locales'
-npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/node_modules/@angular/common/locales'
-npm error code ENOENT
-npm error syscall stat
-npm error path /home/agent/.npm/_cacache/content-v2/sha512/6b/29/4873b67dcb8cb31d800936e1121b785f842fb421ba7f30032268e66036fe29984745c9f6618619f2e0c36201f59d050d5143699f0d698cd71f12bc6ca9f2
-npm error errno -2
-npm error enoent ENOENT: no such file or directory, stat '/home/agent/.npm/_cacache/content-v2/sha512/6b/29/4873b67dcb8cb31d800936e1121b785f842fb421ba7f30032268e66036fe29984745c9f6618619f2e0c36201f59d050d5143699f0d698cd71f12bc6ca9f2'
-npm error enoent This is related to npm not being able to find a file.
-npm error enoent
-npm error A complete log of this run can be found in: /home/agent/.npm/_logs/2026-09-29T14_06_56_209Z-debug-0.log,/home/agent/.npm/_logs/2026-09-29T14_06_56_209Z-debug-1.log
-```
