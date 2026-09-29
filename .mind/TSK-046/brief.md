@@ -1406,3 +1406,47 @@ Running 1 test using 1 worker
 
 Acciones:
 - Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
+
+## Código ya presente en la zona (zone-extend) — OBLIGATORIO
+
+En el tip actual del workspace YA hay código bajo tus `zone_paths` (típicamente de una TSK predecesora mergeada). **Léelo antes de escribir.**
+
+Ficheros presentes (muestra):
+- `apps/app/src/app/features/auth/pages/account-locked/account-locked.page.html`
+- `apps/app/src/app/features/auth/pages/account-locked/account-locked.page.scss`
+- `apps/app/src/app/features/auth/pages/account-locked/account-locked.page.ts`
+- `apps/app/src/app/features/auth/pages/change-password-forced/change-password-forced.page.html`
+- `apps/app/src/app/features/auth/pages/change-password-forced/change-password-forced.page.scss`
+- `apps/app/src/app/features/auth/pages/change-password-forced/change-password-forced.page.spec.ts`
+- `apps/app/src/app/features/auth/pages/change-password-forced/change-password-forced.page.ts`
+- `apps/app/src/app/features/auth/pages/expired-credential/expired-credential.page.html`
+- `apps/app/src/app/features/auth/pages/expired-credential/expired-credential.page.scss`
+- `apps/app/src/app/features/auth/pages/expired-credential/expired-credential.page.ts`
+- `apps/app/src/app/features/auth/pages/home/home.page.html`
+- `apps/app/src/app/features/auth/pages/home/home.page.scss`
+- `apps/app/src/app/features/auth/pages/home/home.page.ts`
+- `apps/app/src/app/features/auth/pages/login/login.page.html`
+- `apps/app/src/app/features/auth/pages/login/login.page.scss`
+- `apps/app/src/app/features/auth/pages/login/login.page.spec.ts`
+- `apps/app/src/app/features/auth/pages/login/login.page.ts`
+- `apps/app/src/app/features/auth/pages/permissions-changed/permissions-changed.page.html`
+- `apps/app/src/app/features/auth/pages/permissions-changed/permissions-changed.page.scss`
+- `apps/app/src/app/features/auth/pages/permissions-changed/permissions-changed.page.ts`
+- `apps/app/src/app/features/auth/pages/session-ended/session-ended.page.html`
+- `apps/app/src/app/features/auth/pages/session-ended/session-ended.page.scss`
+- `apps/app/src/app/features/auth/pages/session-ended/session-ended.page.ts`
+- `apps/app/src/app/features/profile/pages/change-password/change-password.page.html`
+- `apps/app/src/app/features/profile/pages/change-password/change-password.page.scss`
+- `apps/app/src/app/features/profile/pages/change-password/change-password.page.ts`
+- `apps/app/src/app/features/profile/pages/change-password-confirmation/change-password-confirmation.page.html`
+- `apps/app/src/app/features/profile/pages/change-password-confirmation/change-password-confirmation.page.scss`
+- `apps/app/src/app/features/profile/pages/change-password-confirmation/change-password-confirmation.page.ts`
+- `apps/app/src/app/features/profile/pages/my-profile/my-profile.page.html`
+- `apps/app/src/app/features/profile/pages/my-profile/my-profile.page.scss`
+- `apps/app/src/app/features/profile/pages/my-profile/my-profile.page.ts`
+- `apps/app/src/app/app.routes.ts`
+
+Disciplina:
+1. **EDIT/EXTIENDE** símbolos existentes (`class`/`def`/exports) — **PROHIBIDO** una segunda declaración con el mismo nombre en el mismo fichero.
+2. Añade routers/handlers nuevos en ficheros dedicados o ampliando el existente sin redefinir tipos ya presentes.
+3. Si el DoD pide API pública sobre el mismo dominio, reutiliza servicios/modelos del CRUD previo; no copies otra `MembershipPlanService`.
