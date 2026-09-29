@@ -1360,8 +1360,9 @@ Comprueba `.mind/TSK-046/env.json`: si su `status` es `unavailable` o `degraded`
 
 La sesión previa **no entregó**. Corrige la causa antes de ampliar alcance:
 
-> agent-runtime no responde (http://localhost:8086): Server error '500 Internal Server Error' for url 'http://localhost:8086/invocations'
-For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500
+> workspace corrupted (node_modules); wiped for clean retry
 
 Acciones:
-- Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
+- NO stages ni commits de `node_modules/`, `dist/`, `.angular/`, caches ni blobs concatenados; solo código de producto bajo las zonas / composition root.
+- Si instalaste deps en el workspace, deja `node_modules` fuera de git (`.gitignore`). Reescribe el path canónico con `write_file` (pisa, no concatenes).
+- El runtime hace el push: no inventes `git add -A` de basura para «arreglar» el finalize.
