@@ -1360,7 +1360,7 @@ Comprueba `.mind/TSK-046/env.json`: si su `status` es `unavailable` o `degraded`
 
 La sesión previa **no entregó**. Corrige la causa antes de ampliar alcance:
 
-> manual reset: PR closed; re-dispatch for visual-via-node test
+> agent-runtime no responde (http://localhost:8086): Server disconnected without sending a response.
 
 Acciones:
 - Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
