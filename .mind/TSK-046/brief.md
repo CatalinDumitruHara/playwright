@@ -1370,13 +1370,6 @@ El intento anterior dejó el módulo COMPILANDO, pero el artefacto entregado **n
 ### Lo que reportó la verificación (literal)
 
 ```
-client-contract: lo que el front LLAMA no está fijado contra lo que el back PUBLICA. El contrato de API es un artefacto compartido y versionado: el cliente se genera desde él, no se escribe a mano.
-- deuda de URL declarada y entregada: apps/app/src/app/core/auth/authentication.service.ts: `// TODO`. Un `TODO`/`placeholder` sobre la base de la API en un artefacto marcado como completado es un bloqueante, no una nota
-- DTO del contrato declarados a mano: apps/app/src/app/core/auth/authentication.service.ts: `LoginRequest`; apps/app/src/app/core/auth/authentication.service.ts: `SessionContext`; apps/app/src/app/core/auth/authentication.service.ts: `SessionDetail`. Los tipos del contrato se importan de `libs/api-types` (generados desde openapi.yaml en el PR #0); una `interface` propia con el nombre de un schema es un contrato paralelo que diverge en cuanto alguien renombra un campo
-design-system: la UI entregada se desvía del design system corporativo en cosas que el compilador no ve y el usuario sí (avisos que no se pintan, títulos sin escala, iconos en 404, directivas escritas como elementos). Corrige contra el bloque «Design system corporativo» del brief:
-- `apps/app/src/app/features/auth/pages/login/login.page.html`: `<b2b-input>` escrito como ELEMENTO — es una directiva (`<button b2b-input>`, `<input b2b-input>`, `<a b2b-input>`); así no pinta nada ni falla
-- `apps/app/src/app/features/auth/pages/login/login.page.html`: `<b2b-button>` escrito como ELEMENTO — es una directiva (`<button b2b-button>`, `<input b2b-button>`, `<a b2b-button>`); así no pinta nada ni falla
 stub-delivery: hay features marcadas como entregadas cuyo cuerpo no hace nada. `TODO`, `not implemented` y un retorno vacío como cuerpo único son bloqueantes de entrega, no notas.
-- 5 de 13 rutas registradas que ninguna plantilla enlaza: `/acceso/cambio-obligatorio-contrasena`, `/acceso/credencial-caducada`, `/acceso/cuenta-bloqueada`, `/avisos/permisos-actualizados`, `/avisos/version-no-soportada`. Una pantalla a la que sólo se llega escribiendo la URL no está entregada: móntala en el menú del shell con la `sección de menú` que declara su spec de UI
-- servicio(s) de producción que FABRICAN su respuesta en vez de pedirla: `apps/app/src/app/features/profile/pages/my-profile/my-profile.page.ts::ngOnInit` (datos marcados como «mock» en el fuente). Un doble en el árbol de producto es un bloqueante: la pantalla se ve llena y no hay nada detrás — los dobles solo valen en tests
+- 4 de 13 rutas registradas que ninguna plantilla enlaza: `/acceso/credencial-caducada`, `/acceso/cuenta-bloqueada`, `/avisos/permisos-actualizados`, `/avisos/version-no-soportada`. Una pantalla a la que sólo se llega escribiendo la URL no está entregada: móntala en el menú del shell con la `sección de menú` que declara su spec de UI
 ```
