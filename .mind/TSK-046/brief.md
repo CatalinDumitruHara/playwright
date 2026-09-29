@@ -1360,8 +1360,7 @@ Comprueba `.mind/TSK-046/env.json`: si su `status` es `unavailable` o `degraded`
 
 La sesión previa **no entregó**. Corrige la causa antes de ampliar alcance:
 
-> GraphRecursionError: Recursion limit of 500 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.
-For troubleshooting, visit: https://docs.langchain.com/oss/python/langgraph/errors/GRAPH_RECURSION_LIMIT
+> sesión abortada a los 3000.0s
 
 Acciones:
 - Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
@@ -1376,48 +1375,24 @@ El intento anterior dejó el módulo **SIN COMPILAR**. Reprodúcelo lo PRIMERO d
 ### Lo que reportó la verificación (literal)
 
 ```
-                                                                           ~~~~~~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m  [96mapps/app/src/app/features/profile/pages/my-profile/my-profile.page.ts[0m:[93m25[0m:[93m16[0m[39m[22m
-[1m[31m    [7m25[0m   templateUrl: './my-profile.p[39m[22m[1m[31mage.html',[39m[22m
-[1m[31m    [7m  [0m [96m               ~~~~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m    Error occurs in the template of component MyProfilePage.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/profile/pages/my-profile/my-profile.page.html[0m:[93m7[0m:[93m79[0m - [91merror[0m[90m TS2339: [0mProperty 'phone' does not exist on type '{ name: string; email: string; role_code: string; }'.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[7m7[0m         <b2b-read-data label="Teléfono" data-testid="user-phone">{{ user_data.phone }}</b2b-read-data>[39m[22m
-[1m[31m[7m [0m [91m                                                                              ~~~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m  [96mapps/app/src/app/features/profile/pages/my-profile/my-profile.page.ts[0m:[93m25[0m:[93m16[0m[39m[22m
-[1m[31m    [7m25[0m   templateUrl: './my-profile.page.html',[39m[22m
-[1m[31m    [7m  [0m [96m               ~~~~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m    Error occurs in the template of component MyProfilePage.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/profile/pages/my-profile/my-profile.page.html[0m:[93m9[0m:[93m20[0m - [91merror[0m[90m NG8002: [0mCan't bind to 'label' since it isn't a known property of 'b2b-tag'.[39m[22m
-[1m[31m1. If 'b2b-tag' is an Angular component and it has 'label' input, then verify that it is included in the '@Component.imports' of this component.[39m[22m
-[1m[31m2. If 'b2b-tag' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.[39m[22m
-[1m[31m3. To allow any property add 'NO_ERRORS_SCHEMA' to the '@Component.schemas' of this component.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[7m9[0m           <b2b-tag [label]="account_status" type="success"></b2b-tag>[39m[22m
-[1m[31m[7m [0m [91m                   ~~~~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m  [96mapps/app/src/app/features/profile/pages/my-profile/my-profile.page.ts[0m:[93m25[0m:[93m16[0m[39m[22m
-[1m[31m    [7m25[0m   templateUrl: './my-profile.page.html',[39m[22m
-[1m[31m    [7m  [0m [96m               ~~~~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m    Error occurs in the template of component MyProfilePage.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-
-
-
- NX   Running target build for project app failed
-
-Failed tasks:
-
-- app:build:production
-
-Hint: run the command with --verbose for more details.
+arn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/node_modules/@angular/common/locales'
+npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/node_modules/@angular/common/locales'
+npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/node_modules/@angular/common/locales'
+npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/node_modules/@angular/common/locales'
+npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/node_modules/@angular/common/locales'
+npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/node_modules/@angular/common/locales'
+npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/node_modules/@angular/common/locales'
+npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/node_modules/@angular/common/locales'
+npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/node_modules/@angular/common/locales'
+npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/node_modules/@angular/common/locales'
+npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/node_modules/@angular/common/locales'
+npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/node_modules/@angular/common/locales'
+npm error code ENOENT
+npm error syscall stat
+npm error path /home/agent/.npm/_cacache/content-v2/sha512/6b/29/4873b67dcb8cb31d800936e1121b785f842fb421ba7f30032268e66036fe29984745c9f6618619f2e0c36201f59d050d5143699f0d698cd71f12bc6ca9f2
+npm error errno -2
+npm error enoent ENOENT: no such file or directory, stat '/home/agent/.npm/_cacache/content-v2/sha512/6b/29/4873b67dcb8cb31d800936e1121b785f842fb421ba7f30032268e66036fe29984745c9f6618619f2e0c36201f59d050d5143699f0d698cd71f12bc6ca9f2'
+npm error enoent This is related to npm not being able to find a file.
+npm error enoent
+npm error A complete log of this run can be found in: /home/agent/.npm/_logs/2026-09-29T14_06_56_209Z-debug-0.log,/home/agent/.npm/_logs/2026-09-29T14_06_56_209Z-debug-1.log
 ```
