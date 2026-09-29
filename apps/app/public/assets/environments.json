@@ -1,7 +1,0 @@
-{
-  "dev": {
-    "apiBaseUrl": "http://localhost:1080"
-  },
-  "pre": {},
-  "pro": {}
-}
