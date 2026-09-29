@@ -5,6 +5,7 @@ import {
   B2bButtonComponent,
   B2bCardPrimaryComponent,
   B2bReadDataComponent,
+  B2bContainerComponent,
 } from '@mapfre-tech/b2b-components';
 
 @Component({
@@ -16,6 +17,7 @@ import {
     B2bButtonComponent,
     B2bCardPrimaryComponent,
     B2bReadDataComponent,
+    B2bContainerComponent,
   ],
   templateUrl: './my-profile.page.html',
   styleUrl: './my-profile.page.scss',
