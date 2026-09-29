@@ -52,6 +52,21 @@ export class MainLayoutComponent implements OnInit {
       path: '/admin',
       allowedRoles: ['ROL-003'],
     },
+    {
+      label: 'Credencial Caducada',
+      path: '/acceso/credencial-caducada',
+      allowedRoles: ['ROL-001', 'ROL-002', 'ROL-003'],
+    },
+    {
+      label: 'Permisos Actualizados',
+      path: '/avisos/permisos-actualizados',
+      allowedRoles: ['ROL-001', 'ROL-002', 'ROL-003'],
+    },
+    {
+      label: 'Versión no Soportada',
+      path: '/avisos/version-no-soportada',
+      allowedRoles: ['ROL-001', 'ROL-002', 'ROL-003'],
+    },
   ];
 
   constructor(
