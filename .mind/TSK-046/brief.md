@@ -1363,52 +1363,66 @@ Comprueba `.mind/TSK-046/env.json`: si su `status` es `unavailable` o `degraded`
 
 La sesión previa **no entregó**. Corrige la causa antes de ampliar alcance:
 
-> agent-runtime timeout (http://localhost:8086):
+> delivery-gate/build: la verificación bloqueó la entrega.
+client-contract: lo que el front LLAMA no está fijado contra lo que el back PUBLICA. El contrato de API es un artefacto compartido y versionado: el cliente se genera desde él, no se escribe a mano.
+- deuda de URL declarada y entregada: playwright-report/trace/assets/inspectorTab-DdpLd2bb.js: `//")||n.source.startsWith(".."))&&(i=!1);const s=i?n.name+"=":"";return`${r===e.capture?"*":""}${s}${n.source}`}).join(" >> ")}function t0(e,t){const n=(r,i)=>{for(const s of r.parts)t(s,i),Il.has(s.name)&&n(s.body.parsed,!0)};n(e,!1)}function n0(e){let t=0,n,r=0;const i={parts:[]},s=()=>{const l=e.substring(r,t).trim(),a=l.indexOf("=");let u,c;a!==-1&&l.substring(0,a).trim().match(/^[a-zA-Z_0-9-+:*]+$/)?(u=l.substring(0,a).trim(),c=l.substring(a+1)):l.length>1&&l[0]==='"'&&l[l.length-1]==='"'||l.length>1&&l[0]==="'"&&l[l.length-1]==="'"?(u="text",c=l):/^\(*\/\//.test(l)||l.startsWith("..")?(u="xpath",c=l):(u="css",c=l);let f=!1;if(u[0]==="*"&&(f=!0,u=u.substring(1)),i.parts.push({name:u,body:c}),f){if(i.capture!==void 0)throw new be("Only one of the selectors can capture using * modifier");i.capture=i.parts.length-1}};if(!e.includes(">>"))return t=e.length,s(),i;const o=()=>{const a=e.substring(r,t).match(/^\s*text\s*=(.*)$/);return!!a&&!!a[1]};for(;t<e.length;){const l=e[t];l==="\\"&&t+1<e.length?t+=2:l===n?(n=void 0,t++):!n&&(l==='"'||l==="'"||l==="`")&&!o()?(n=l,t++):!n&&l===">"&&e[t+1]===">"?(s(),t+=2,r=t):t++}return s(),i}function on(e,t){let n=0,r=e.length===0;const i=()=>e[n]||"",s=()=>{const _=i();return++n,r=n>=e.length,_},o=_=>{throw r?new be(`Unexpected end of selector while parsing selector \`${e}\``):new be(`Error while parsing selector \`${e}\` - unexpected symbol "${i()}" at position ${n}`+(_?" during "+_:""))};function l(){for(;!r&&/\s/.test(i());)s()}function a(_){return _>=""||_>="0"&&_<="9"||_>="A"&&_<="Z"||_>="a"&&_<="z"||_>="0"&&_<="9"||_==="_"||_==="-"}function u(){let _="";for(l();!r&&a(i());)_+=s
 
 Acciones:
 - Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
 
-## Código ya presente en la zona (zone-extend) — OBLIGATORIO
+## Estado del build al cerrar el intento anterior
 
-En el tip actual del workspace YA hay código bajo tus `zone_paths` (típicamente de una TSK predecesora mergeada). **Léelo antes de escribir.**
+El intento anterior dejó el módulo **SIN COMPILAR**. Reprodúcelo lo PRIMERO de todo, antes de añadir nada nuevo, y no entregues hasta que compile.
 
-Ficheros presentes (muestra):
-- `apps/app/src/app/features/auth/pages/account-locked/account-locked.page.html`
-- `apps/app/src/app/features/auth/pages/account-locked/account-locked.page.scss`
-- `apps/app/src/app/features/auth/pages/account-locked/account-locked.page.ts`
-- `apps/app/src/app/features/auth/pages/change-password-forced/change-password-forced.page.html`
-- `apps/app/src/app/features/auth/pages/change-password-forced/change-password-forced.page.scss`
-- `apps/app/src/app/features/auth/pages/change-password-forced/change-password-forced.page.spec.ts`
-- `apps/app/src/app/features/auth/pages/change-password-forced/change-password-forced.page.ts`
-- `apps/app/src/app/features/auth/pages/expired-credential/expired-credential.page.html`
-- `apps/app/src/app/features/auth/pages/expired-credential/expired-credential.page.scss`
-- `apps/app/src/app/features/auth/pages/expired-credential/expired-credential.page.spec.ts`
-- `apps/app/src/app/features/auth/pages/expired-credential/expired-credential.page.ts`
-- `apps/app/src/app/features/auth/pages/home/home.page.html`
-- `apps/app/src/app/features/auth/pages/home/home.page.scss`
-- `apps/app/src/app/features/auth/pages/home/home.page.ts`
-- `apps/app/src/app/features/auth/pages/login/login.page.html`
-- `apps/app/src/app/features/auth/pages/login/login.page.scss`
-- `apps/app/src/app/features/auth/pages/login/login.page.spec.ts`
-- `apps/app/src/app/features/auth/pages/login/login.page.ts`
-- `apps/app/src/app/features/auth/pages/permissions-changed/permissions-changed.page.html`
-- `apps/app/src/app/features/auth/pages/permissions-changed/permissions-changed.page.scss`
-- `apps/app/src/app/features/auth/pages/permissions-changed/permissions-changed.page.ts`
-- `apps/app/src/app/features/auth/pages/session-ended/session-ended.page.html`
-- `apps/app/src/app/features/auth/pages/session-ended/session-ended.page.scss`
-- `apps/app/src/app/features/auth/pages/session-ended/session-ended.page.ts`
-- `apps/app/src/app/features/profile/pages/change-password/change-password.page.html`
-- `apps/app/src/app/features/profile/pages/change-password/change-password.page.scss`
-- `apps/app/src/app/features/profile/pages/change-password/change-password.page.ts`
-- `apps/app/src/app/features/profile/pages/change-password-confirmation/change-password-confirmation.page.html`
-- `apps/app/src/app/features/profile/pages/change-password-confirmation/change-password-confirmation.page.scss`
-- `apps/app/src/app/features/profile/pages/change-password-confirmation/change-password-confirmation.page.ts`
-- `apps/app/src/app/features/profile/pages/my-profile/my-profile.page.html`
-- `apps/app/src/app/features/profile/pages/my-profile/my-profile.page.scss`
-- `apps/app/src/app/features/profile/pages/my-profile/my-profile.page.ts`
-- `apps/app/src/app/app.routes.ts`
+- El comando es el mismo que usa la plataforma: `mvn -B -ntp -f <pom> test-compile` (o el equivalente de la toolchain del arquetipo).
+- Si lo que impide compilar viene de la rama BASE y no de tu trabajo, arréglalo igual —es parte de dejar el módulo compilable— y decláralo como `health_check` de severidad Warning indicando el fichero y por qué lo tocaste.
 
-Disciplina:
-1. **EDIT/EXTIENDE** símbolos existentes (`class`/`def`/exports) — **PROHIBIDO** una segunda declaración con el mismo nombre en el mismo fichero.
-2. Añade routers/handlers nuevos en ficheros dedicados o ampliando el existente sin redefinir tipos ya presentes.
-3. Si el DoD pide API pública sobre el mismo dominio, reutiliza servicios/modelos del CRUD previo; no copies otra `MembershipPlanService`.
+### Lo que reportó la verificación (literal)
+
+```
+          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
+[1m[31m    Error occurs in the template of component ChangePasswordPage.[39m[22m
+[1m[31m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/profile/pages/change-password/change-password.page.ts[0m:[93m15[0m:[93m40[0m - [91merror[0m[90m TS2307: [0mCannot find module '../../../../core/validators/password-match.validator' or its corresponding type declarations.[39m[22m
+[1m[31m[39m[22m
+[1m[31m[7m15[0m import { passwordMatchValidator } from '../../../../core/validators/password-match.validator';[39m[22m
+[1m[31m[7m  [0m [91m                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/profile/pages/my-profile/my-profile.page.html[0m:[93m1[0m:[93m1[0m - [91merror[0m[90m NG8001: [0m'b2b-container' is not a known element:[39m[22m
+[1m[31m1. If 'b2b-container' is an Angular component, then verify that it is included in the '@Component.imports' of this component.[39m[22m
+[1m[31m2. If 'b2b-container' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component t[39m[22m[1m[31mo suppress this message.[39m[22m
+[1m[31m[39m[22m
+[1m[31m[7m1[0m <b2b-container>[39m[22m
+[1m[31m[7m [0m [91m~~~~~~~~~~~~~~~[0m[39m[22m
+[1m[31m[39m[22m
+[1m[31m  [96mapps/app/src/app/features/profile/pages/my-profile/my-profile.page.ts[0m:[93m20[0m:[93m16[0m[39m[22m
+[1m[31m    [7m20[0m   templateUrl: './my-profile.page.html',[39m[22m
+[1m[31m    [7m  [0m [96m               ~~~~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
+[1m[31m    Error occurs in the template of component MyProfilePage.[39m[22m
+[1m[31m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/user/pages/role-initial-page/role-initial-page.page.html[0m:[93m13[0m:[93m7[0m - [91merror[0m[90m NG8008: [0mRequired input 'title' from component B2bSidebarItemComponent must be specified.[39m[22m
+[1m[31m[39m[22m
+[1m[31m[7m13[0m       <b2b-sidebar-item *ngFor="let item of menuItems">[39m[22m
+[1m[31m[7m  [0m [91m      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
+[1m[31m[39m[22m
+[1m[31m  [96mapps/app/src/app/features/user/pages/role-initial-page/role-initial-page.page.ts[0m:[93m30[0m:[93m16[0m[39m[22m
+[1m[31m    [7m30[0m   templateUrl: './role-initial-page.page.html',[39m[22m
+[1m[31m    [7m  [0m [96m               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
+[1m[31m    Error occurs in the template of component RoleInitialPage.[39m[22m
+[1m[31m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[39m[22m
+
+
+
+ NX   Running target build for project app failed
+
+Failed tasks:
+
+- app:build:production
+
+Hint: run the command with --verbose for more details.
+```
