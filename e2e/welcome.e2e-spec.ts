@@ -12,8 +12,8 @@ test.describe('@smoke welcome shell', () => {
     test.setTimeout(30_000);
     const errors: string[] = [];
     page.on('pageerror', (err) => errors.push(String(err)));
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('app-root')).toBeVisible({ timeout: 15_000 });
+    await page.goto('/acceso/credencial-caducada', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('h1')).toContainText('Credencial caducada', { timeout: 15_000 });
     expect(errors, `pageerrors: ${errors.join('; ')}`).toEqual([]);
   });
 });
