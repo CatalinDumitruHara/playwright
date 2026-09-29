@@ -11,6 +11,7 @@ import {
   B2bButtonComponent,
   B2bInputComponent,
   B2bPasswordFieldComponent,
+  B2bContainerComponent,
 } from '@mapfre-tech/b2b-components';
 import { passwordMatchValidator } from '../../../../core/validators/password-match.validator';
 
@@ -24,6 +25,7 @@ import { passwordMatchValidator } from '../../../../core/validators/password-mat
     B2bButtonComponent,
     B2bInputComponent,
     B2bPasswordFieldComponent,
+    B2bContainerComponent,
   ],
   templateUrl: './change-password.page.html',
   styleUrl: './change-password.page.scss',
