@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import {
   B2bButtonComponent,
   B2bNotificationInlineComponent,
+  B2bContainerComponent,
 } from '@mapfre-tech/b2b-components';
 
 @Component({
@@ -14,6 +15,7 @@ import {
     RouterModule,
     B2bButtonComponent,
     B2bNotificationInlineComponent,
+    B2bContainerComponent,
   ],
   templateUrl: './session-ended.page.html',
   styleUrl: './session-ended.page.scss',
