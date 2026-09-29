@@ -1,1 +1,17 @@
-<h1>My Profile</h1>
+<b2b-container>
+  <div b2b-card-primary>
+    <b2b-read-data label="Nombre">{{ userName }}</b2b-read-data>
+    <b2b-read-data label="Correo electrónico">{{ userEmail }}</b2b-read-data>
+    <b2b-read-data label="Rol">{{ userRole }}</b2b-read-data>
+    <b2b-read-data label="Estado de la cuenta">{{
+      accountStatus
+    }}</b2b-read-data>
+    <b2b-read-data label="Última actualización de contraseña">{{
+      lastPasswordUpdate | date : 'medium'
+    }}</b2b-read-data>
+
+    <button b2b-button routerLink="/mi-perfil/contrasena">
+      Cambiar contraseña
+    </button>
+  </div>
+</b2b-container>
