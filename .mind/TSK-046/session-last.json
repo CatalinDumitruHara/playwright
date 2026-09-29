@@ -1,7 +1,7 @@
 {
   "task_code": "TSK-046",
-  "attempt": 1,
-  "at": "2026-09-29T15:14:48.186122+00:00",
+  "attempt": 2,
+  "at": "2026-09-29T16:06:07.025794+00:00",
   "construction_id": "f873afad-5ba0-4d41-88c6-813c8e4313b3",
   "status": "timeout",
   "delivered": false,
