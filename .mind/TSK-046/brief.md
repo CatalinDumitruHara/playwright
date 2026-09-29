@@ -1360,64 +1360,49 @@ Comprueba `.mind/TSK-046/env.json`: si su `status` es `unavailable` o `degraded`
 
 La sesión previa **no entregó**. Corrige la causa antes de ampliar alcance:
 
-> delivery-gate/build: la verificación bloqueó la entrega.
-arquetipo 'frontend-application-spa' esperaba un proyecto construible (package.json/pom.xml/pyproject.toml) pero no se encontró ninguno en el repo
+> delivery-gate/browser: la verificación bloqueó la entrega.
+Running 1 test using 1 worker
+
+  ✘  1 [chromium] › welcome.e2e-spec.ts:8:7 › @smoke welcome shell › home loads without pageerror (6.2s)
+
+
+  1) [chromium] › welcome.e2e-spec.ts:8:7 › @smoke welcome shell › home loads without pageerror ────
+
+    Error: [31mTimed out 5000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+    Locator: locator('body')
+    Expected: visible
+    Received: hidden
+    Call log:
+    [2m  - expect.toBeVisible with timeout 5000ms[22m
+    [2m  - waiting for locator('body')[22m
+    [2m    9 × locator resolved to <body>…</body>[22m
+    [2m      - unexpected value "hidden"[22m
+
+
+      10 |     page.on('pageerror', (err) => errors.push(String(err)));
+      11 |     await page.goto('/');
+    > 12 |     await expect(page.locator('body')).toBeVisible();
+         |                                        ^
+      13 |     expect(errors, `pageerrors: ${errors.join('; ')}`).toEqual([]);
+      14 |   });
+      15 | });
+        at /workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-046--feature-TSK-046/e2e/welcome.e2e-spec.ts:12:40
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/welcome.e2e-spec.ts--smoke-a14fd-ome-loads-without-pageerror-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/welcome.e2e-spec.ts--smoke-a14fd-ome-loads-without-pageerror-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/welcome.e2e-spec.ts--smoke-a14fd-ome-loads-without-pageerror-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › welcome.e2e-spec.ts:8:7 › @smoke welcome shell › home loa
 
 Acciones:
 - Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
-
-## Estado del build al cerrar el intento anterior
-
-El intento anterior dejó el módulo **SIN COMPILAR**. Reprodúcelo lo PRIMERO de todo, antes de añadir nada nuevo, y no entregues hasta que compile.
-
-- El comando es el mismo que usa la plataforma: `mvn -B -ntp -f <pom> test-compile` (o el equivalente de la toolchain del arquetipo).
-- Si lo que impide compilar viene de la rama BASE y no de tu trabajo, arréglalo igual —es parte de dejar el módulo compilable— y decláralo como `health_check` de severidad Warning indicando el fichero y por qué lo tocaste.
-
-### Lo que reportó la verificación (literal)
-
-```
-arquetipo 'frontend-application-spa' esperaba un proyecto construible (package.json/pom.xml/pyproject.toml) pero no se encontró ninguno en el repo
-```
-
-## Código ya presente en la zona (zone-extend) — OBLIGATORIO
-
-En el tip actual del workspace YA hay código bajo tus `zone_paths` (típicamente de una TSK predecesora mergeada). **Léelo antes de escribir.**
-
-Ficheros presentes (muestra):
-- `apps/app/src/app/features/auth/pages/account-locked/account-locked.page.html`
-- `apps/app/src/app/features/auth/pages/account-locked/account-locked.page.scss`
-- `apps/app/src/app/features/auth/pages/account-locked/account-locked.page.ts`
-- `apps/app/src/app/features/auth/pages/change-password-forced/change-password-forced.page.html`
-- `apps/app/src/app/features/auth/pages/change-password-forced/change-password-forced.page.scss`
-- `apps/app/src/app/features/auth/pages/change-password-forced/change-password-forced.page.ts`
-- `apps/app/src/app/features/auth/pages/expired-credential/expired-credential.page.html`
-- `apps/app/src/app/features/auth/pages/expired-credential/expired-credential.page.scss`
-- `apps/app/src/app/features/auth/pages/expired-credential/expired-credential.page.ts`
-- `apps/app/src/app/features/auth/pages/home/home.page.html`
-- `apps/app/src/app/features/auth/pages/home/home.page.scss`
-- `apps/app/src/app/features/auth/pages/home/home.page.ts`
-- `apps/app/src/app/features/auth/pages/login/login.page.html`
-- `apps/app/src/app/features/auth/pages/login/login.page.scss`
-- `apps/app/src/app/features/auth/pages/login/login.page.spec.ts`
-- `apps/app/src/app/features/auth/pages/login/login.page.ts`
-- `apps/app/src/app/features/auth/pages/permissions-changed/permissions-changed.page.html`
-- `apps/app/src/app/features/auth/pages/permissions-changed/permissions-changed.page.scss`
-- `apps/app/src/app/features/auth/pages/permissions-changed/permissions-changed.page.ts`
-- `apps/app/src/app/features/auth/pages/session-ended/session-ended.page.html`
-- `apps/app/src/app/features/auth/pages/session-ended/session-ended.page.scss`
-- `apps/app/src/app/features/auth/pages/session-ended/session-ended.page.ts`
-- `apps/app/src/app/features/profile/pages/change-password/change-password.page.html`
-- `apps/app/src/app/features/profile/pages/change-password/change-password.page.scss`
-- `apps/app/src/app/features/profile/pages/change-password/change-password.page.ts`
-- `apps/app/src/app/features/profile/pages/change-password-confirmation/change-password-confirmation.page.html`
-- `apps/app/src/app/features/profile/pages/change-password-confirmation/change-password-confirmation.page.scss`
-- `apps/app/src/app/features/profile/pages/change-password-confirmation/change-password-confirmation.page.ts`
-- `apps/app/src/app/features/profile/pages/my-profile/my-profile.page.html`
-- `apps/app/src/app/features/profile/pages/my-profile/my-profile.page.scss`
-- `apps/app/src/app/features/profile/pages/my-profile/my-profile.page.ts`
-- `apps/app/src/app/app.routes.ts`
-
-Disciplina:
-1. **EDIT/EXTIENDE** símbolos existentes (`class`/`def`/exports) — **PROHIBIDO** una segunda declaración con el mismo nombre en el mismo fichero.
-2. Añade routers/handlers nuevos en ficheros dedicados o ampliando el existente sin redefinir tipos ya presentes.
-3. Si el DoD pide API pública sobre el mismo dominio, reutiliza servicios/modelos del CRUD previo; no copies otra `MembershipPlanService`.
