@@ -1360,8 +1360,7 @@ Comprueba `.mind/TSK-046/env.json`: si su `status` es `unavailable` o `degraded`
 
 La sesión previa **no entregó**. Corrige la causa antes de ampliar alcance:
 
-> agent-runtime no responde (http://localhost:8086): Server error '500 Internal Server Error' for url 'http://localhost:8086/invocations'
-For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500
+> unblocked after node-restart race; ready for clean sequential visual test
 
 Acciones:
 - Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
