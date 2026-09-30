@@ -42,7 +42,7 @@ describe('IncidentDetailPage', () => {
     })
     .overrideComponent(IncidentDetailPage, {
       set: {
-        template: '', // Provide an empty template to avoid template compilation errors
+        template: '<div></div>', // Use a minimal valid template
       },
     })
     .compileComponents();
