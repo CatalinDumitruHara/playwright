@@ -19,4 +19,11 @@ describe('NotFoundPage', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should display the not found message', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('h1')?.textContent).toContain(
+      'Incidencia no encontrada'
+    );
+  });
 });

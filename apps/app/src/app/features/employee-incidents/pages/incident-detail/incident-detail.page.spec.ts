@@ -1,18 +1,53 @@
 
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  TestBed,
+  fakeAsync,
+  tick,
+} from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { IncidentDetailPage } from './incident-detail.page';
 import { IncidentService } from '../../services/incident.service';
 import { CommonModule } from '@angular/common';
+import { Component, Directive, Input } from '@angular/core';
+import { By } from '@angular/platform-browser';
+
+@Component({
+  selector: 'b2b-read-data',
+  template: '<p><ng-content></ng-content></p>',
+  standalone: true,
+})
+class MockReadDataComponent {
+  @Input() label: string = '';
+}
+
+@Component({
+  selector: 'b2b-spinner',
+  template: '<div></div>',
+  standalone: true,
+})
+class MockSpinnerComponent {}
+
+@Directive({
+  selector: '[b2b-card-primary]',
+  standalone: true,
+})
+class MockCardPrimaryDirective {}
 
 describe('IncidentDetailPage', () => {
   let component: IncidentDetailPage;
   let fixture: ComponentFixture<IncidentDetailPage>;
-  let incidentService: any; // Use 'any' to avoid type checking issues with the mock
+  let incidentService: any;
   let activatedRoute: any;
 
-  const mockIncident = { id: '1', category: 'Test', creationDate: new Date(), status: 'Open', description: 'Test incident' };
+  const mockIncident = {
+    id: '1',
+    category: 'Test',
+    creationDate: new Date(),
+    status: 'Open',
+    description: 'Test incident',
+  };
   const mockHistory = [{ timestamp: new Date(), description: 'History item' }];
   const mockPhoto = { url: 'http://example.com/photo.jpg' };
 
@@ -21,10 +56,6 @@ describe('IncidentDetailPage', () => {
       getIncidentDetail: jest.fn().mockReturnValue(of(mockIncident)),
       getIncidentHistory: jest.fn().mockReturnValue(of(mockHistory)),
       getIncidentPhoto: jest.fn().mockReturnValue(of(mockPhoto)),
-      createIncident: jest.fn(),
-      getMyIncidents: jest.fn(),
-      getIncidentCategories: jest.fn(),
-      getRooms: jest.fn(),
     };
 
     activatedRoute = {
@@ -40,12 +71,17 @@ describe('IncidentDetailPage', () => {
         { provide: ActivatedRoute, useValue: activatedRoute },
       ],
     })
-    .overrideComponent(IncidentDetailPage, {
-      set: {
-        template: '<div></div>', // Use a minimal valid template
-      },
-    })
-    .compileComponents();
+      .overrideComponent(IncidentDetailPage, {
+        set: {
+          imports: [
+            CommonModule,
+            MockReadDataComponent,
+            MockSpinnerComponent,
+            MockCardPrimaryDirective,
+          ],
+        },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(IncidentDetailPage);
     component = fixture.componentInstance;
@@ -59,8 +95,10 @@ describe('IncidentDetailPage', () => {
   it('should get incidentId from route and show loading state initially', fakeAsync(() => {
     fixture.detectChanges();
     tick();
-    expect(activatedRoute.paramMap.source.value.get).toHaveBeenCalledWith('incidentId');
-    expect(component.loading()).toBe(false); // It becomes false after the first tick
+    expect(activatedRoute.paramMap.source.value.get).toHaveBeenCalledWith(
+      'incidentId'
+    );
+    expect(component.loading()).toBe(false);
   }));
 
   it('should call incident service methods with the correct incidentId', fakeAsync(() => {
@@ -81,7 +119,9 @@ describe('IncidentDetailPage', () => {
   }));
 
   it('should show error state when incident service fails', fakeAsync(() => {
-    incidentService.getIncidentDetail.mockReturnValue(throwError(() => new Error('Failed to load')));
+    incidentService.getIncidentDetail.mockReturnValue(
+      throwError(() => new Error('Failed to load'))
+    );
     fixture.detectChanges();
     tick();
     expect(component.error()).toBe(true);
@@ -98,12 +138,26 @@ describe('IncidentDetailPage', () => {
     expect(component.loading()).toBe(false);
   }));
 
-  // Pending tests that require DOM interaction
-  xit('should display incident data after loading', fakeAsync(() => {
-    // This test requires a valid template
+  it('should display incident data after loading', fakeAsync(() => {
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+    const incidentCategory = fixture.debugElement.query(
+      By.css('[data-testid="incident-category"]')
+    );
+    expect(incidentCategory).toBeTruthy();
   }));
 
-  xit('should display error message on failure', fakeAsync(() => {
-    // This test requires a valid template
+  it('should display error message on failure', fakeAsync(() => {
+    incidentService.getIncidentDetail.mockReturnValue(
+      throwError(() => new Error('Failed to load'))
+    );
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+    const errorContainer = fixture.debugElement.query(
+      By.css('[data-testid="error-container"]')
+    );
+    expect(errorContainer).toBeTruthy();
   }));
 });

@@ -1,14 +1,13 @@
-
 <div class="container mx-auto my-8">
   <h1 class="text-2xl font-bold mb-4">Mis Incidencias</h1>
 
   <ng-container *ngIf="loading">
-    <mt-spinner></mt-spinner>
+    <b2b-spinner></b2b-spinner>
   </ng-container>
 
   <ng-container *ngIf="!loading && !error">
     <ng-container *ngIf="(incidents$ | async) as incidents">
-      <div mt-table-container *ngIf="incidents.length > 0; else noIncidents">
+      <b2b-table-container *ngIf="incidents.length > 0; else noIncidents">
         <table class="min-w-full">
           <thead>
             <tr>
@@ -55,15 +54,15 @@
             </tr>
           </tbody>
         </table>
-      </div>
+      </b2b-table-container>
 
       <ng-template #noIncidents>
-        <mt-alert message="No se han encontrado incidencias." type="info"></mt-alert>
+        <b2b-notification-inline message="No se han encontrado incidencias." type="info"></b2b-notification-inline>
       </ng-template>
     </ng-container>
   </ng-container>
 
   <ng-container *ngIf="error">
-    <mt-alert message="Error al cargar las incidencias. Por favor, inténtelo de nuevo más tarde." type="error"></mt-alert>
+    <b2b-notification-inline message="Error al cargar las incidencias. Por favor, inténtelo de nuevo más tarde." type="error"></b2b-notification-inline>
   </ng-container>
 </div>

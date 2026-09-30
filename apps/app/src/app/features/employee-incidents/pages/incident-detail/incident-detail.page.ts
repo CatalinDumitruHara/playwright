@@ -1,14 +1,15 @@
-
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { IncidentService } from '../../services/incident.service';
 import { forkJoin, of } from 'rxjs';
-import { catchError, finalize, map, switchMap, tap } from 'rxjs/operators';
-import { ReadDataComponent } from '@mapfre-tech/b2b-components/read-data';
-import { SpinnerComponent } from '@mapfre-tech/b2b-components/spinner';
-import { CardPrimaryDirective } from '@mapfre-tech/b2b-components/card';
+import { catchError, map } from 'rxjs/operators';
+import {
+  B2bReadDataComponent,
+  B2bSpinnerComponent,
+  B2bCardPrimaryComponent,
+} from '@mapfre-tech/b2b-components';
 
 interface IncidentState {
   incident: any;
@@ -24,13 +25,14 @@ interface IncidentState {
   standalone: true,
   imports: [
     CommonModule,
-    ReadDataComponent,
-    SpinnerComponent,
-    CardPrimaryDirective,
+    B2bReadDataComponent,
+    B2bSpinnerComponent,
+    B2bCardPrimaryComponent,
   ],
 })
 export class IncidentDetailPage {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private incidentService = inject(IncidentService);
 
   private state = signal<IncidentState>({
@@ -56,12 +58,6 @@ export class IncidentDetailPage {
       const incidentId = this.incidentId$();
       if (incidentId) {
         this.loadIncidentData(incidentId);
-      } else {
-        this.state.set({
-          ...this.state(),
-          loading: false,
-          error: true,
-        });
       }
     });
   }
@@ -76,11 +72,7 @@ export class IncidentDetailPage {
     })
       .pipe(
         catchError(() => {
-          this.state.set({
-            ...this.state(),
-            error: true,
-            loading: false,
-          });
+          this.router.navigate(['/incidencias/no-encontrada']);
           return of(null);
         })
       )

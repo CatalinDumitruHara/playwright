@@ -3,7 +3,8 @@
   "compilerOptions": {
     "module": "esnext",
     "outDir": "../../dist/out-tsc",
-    "types": []
+    "types": [],
+    "experimentalDecorators": true
   },
   "files": ["src/main.ts", "src/polyfills.ts"],
   "include": ["src/**/*.d.ts"],

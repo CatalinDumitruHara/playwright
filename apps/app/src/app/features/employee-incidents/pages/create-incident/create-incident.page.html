@@ -1,39 +1,41 @@
-
 <div class="container">
   <h1>Nueva incidencia</h1>
   <form [formGroup]="incidentForm" (ngSubmit)="onSubmit()">
-    <b2b-select-field
+    <b2b-dropdown-select
       label="Sala"
       formControlName="roomId"
-      [options]="rooms$ | async"
+      [options]="(rooms$ | async) ?? []"
       optionValue="id"
       optionText="name"
       [required]="true"
-    ></b2b-select-field>
+    ></b2b-dropdown-select>
 
-    <b2b-select-field
+    <b2b-dropdown-select
       label="Categoría"
       formControlName="categoryCode"
-      [options]="categories$ | async"
+      [options]="(categories$ | async) ?? []"
       optionValue="code"
       optionText="name"
       [required]="true"
-    ></b2b-select-field>
+    ></b2b-dropdown-select>
 
-    <b2b-textarea-field
+    <b2b-text-area
       label="Descripción"
       formControlName="description"
       [required]="true"
-    ></b2b-textarea-field>
+    ></b2b-text-area>
 
-    <b2b-file-upload-field
+    <b2b-file-uploader
       label="Foto"
       formControlName="photo"
-    ></b2b-file-upload-field>
+    ></b2b-file-uploader>
 
-    <b2b-button-field
-      text="Enviar"
+    <button
+      type="submit"
+      class="btn btn-primary"
       [disabled]="incidentForm.invalid"
-    ></b2b-button-field>
+    >
+      Enviar
+    </button>
   </form>
 </div>

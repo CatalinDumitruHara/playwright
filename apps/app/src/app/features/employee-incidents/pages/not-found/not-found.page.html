@@ -1,8 +1,9 @@
-<div class="not-found-container">
-  <b2b-notification-inline [visible]="true" type="error">
-    No hemos encontrado esa incidencia.
-  </b2b-notification-inline>
-  <div class="actions">
-    <a routerLink="/mis-incidencias" b2b-button>Volver a mis incidencias</a>
-  </div>
+<div class="container mx-auto my-8 text-center">
+  <h1 class="text-4xl font-bold mb-4">Incidencia no encontrada</h1>
+  <p class="text-lg">
+    La incidencia que buscas no existe o ha sido eliminada.
+  </p>
+  <a routerLink="/mis-incidencias" class="text-indigo-600 hover:text-indigo-900 mt-4 inline-block">
+    Volver a Mis Incidencias
+  </a>
 </div>
