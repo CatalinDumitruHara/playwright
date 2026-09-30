@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import {
@@ -7,6 +7,7 @@ import {
   B2bReadDataComponent,
   B2bContainerComponent,
   B2bTagComponent,
+  B2bNotificationInlineComponent,
 } from '@mapfre-tech/b2b-components';
 import { AuthenticationService } from '../../../../core/auth/authentication.service';
 import { SessionDetail } from '@api-types';
@@ -22,6 +23,7 @@ import { SessionDetail } from '@api-types';
     B2bReadDataComponent,
     B2bContainerComponent,
     B2bTagComponent,
+    B2bNotificationInlineComponent,
   ],
   templateUrl: './my-profile.page.html',
   styleUrl: './my-profile.page.scss',
@@ -29,11 +31,25 @@ import { SessionDetail } from '@api-types';
 export class MyProfilePage implements OnInit {
   private authService = inject(AuthenticationService);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   session: SessionDetail | null = null;
+  errorMessage: string | null = null;
 
   ngOnInit(): void {
     this.session = this.authService.getSession();
+    if (!this.session) {
+      this.authService.getSessionContext().subscribe({
+        next: () => {
+          this.session = this.authService.getSession();
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.errorMessage = 'No ha sido posible cargar tus datos';
+          this.cdr.markForCheck();
+        },
+      });
+    }
   }
 
   goToChangePassword(): void {

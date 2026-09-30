@@ -1,13 +1,8 @@
-.profile-card {
-  max-width: 600px;
-  margin: 2rem auto;
-}
-
 .profile-data {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.5rem;
-  margin-bottom: 2rem;
+  margin: 1.5rem 0 2rem;
 }
 
 .profile-actions {

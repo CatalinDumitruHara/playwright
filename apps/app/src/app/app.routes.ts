@@ -53,7 +53,7 @@ export const appRoutes: Route[] = [
       },
       {
         path: '',
-        redirectTo: 'home',
+        redirectTo: 'inicio',
         pathMatch: 'full',
       },
     ],
