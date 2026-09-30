@@ -22,6 +22,11 @@ async function stubSession(page: Page) {
 }
 
 test.describe('@smoke @screen:ARC-072 cambiar contraseña', () => {
+  // Salta el selector de entorno de ngx-multienvironment (igual que el smoke de la plataforma: 'dev').
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('OKCD_APPLICATION_ENVIRONMENT', 'dev'));
+  });
+
   test('carga sin pageerror y muestra el título', async ({ page }) => {
     test.setTimeout(30_000);
     const errors: string[] = [];

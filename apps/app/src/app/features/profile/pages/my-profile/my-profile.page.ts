@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import {
   B2bButtonComponent,
-  B2bCardPrimaryComponent,
   B2bReadDataComponent,
   B2bContainerComponent,
   B2bTagComponent,
@@ -19,7 +18,6 @@ import { SessionDetail } from '@api-types';
     CommonModule,
     RouterModule,
     B2bButtonComponent,
-    B2bCardPrimaryComponent,
     B2bReadDataComponent,
     B2bContainerComponent,
     B2bTagComponent,

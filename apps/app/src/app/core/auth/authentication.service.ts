@@ -9,7 +9,7 @@ import {
   ChangePasswordForcedRequest,
   ChangePasswordRequest,
 } from '@api-types';
-import { ENVIRONMENT } from '@mapfre-tech/ngx-multienvironment/core';
+import { ENVIRONMENT_CONFIG } from '@mapfre-tech/ngx-multienvironment/core';
 
 @Injectable({
   providedIn: 'root',
@@ -17,8 +17,8 @@ import { ENVIRONMENT } from '@mapfre-tech/ngx-multienvironment/core';
 export class AuthenticationService {
   private http = inject(HttpClient);
   private router = inject(Router);
-  private environment = inject(ENVIRONMENT);
-  private apiBaseUrl = (this.environment as any).apiBaseUrl;
+  private environment = inject(ENVIRONMENT_CONFIG);
+  private apiBaseUrl = this.environment['apiBaseUrl'] as string;
   private session: SessionDetail | null = null;
 
   login(loginRequest: LoginRequest): Observable<SessionDetail> {

@@ -2,6 +2,11 @@ import { test, expect } from '@playwright/test';
 
 /** ARC-066 — Acceso (login). Consume EP-001 POST /auth/sessions (stub local). */
 test.describe('@smoke @screen:ARC-066 acceso', () => {
+  // Salta el selector de entorno de ngx-multienvironment (igual que el smoke de la plataforma: 'dev').
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('OKCD_APPLICATION_ENVIRONMENT', 'dev'));
+  });
+
   test('carga /acceso sin pageerror y muestra el título', async ({ page }) => {
     test.setTimeout(30_000);
     const errors: string[] = [];
