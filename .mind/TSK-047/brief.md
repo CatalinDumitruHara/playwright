@@ -1513,137 +1513,19 @@ Si tu pantalla necesita un cuerpo concreto, añádelo tú por el admin API (`POS
 ### Si el entorno no está disponible
 Comprueba `.mind/TSK-047/env.json`: si su `status` es `unavailable` o `degraded`, la plataforma no pudo darte (todo) el entorno. En ese caso ESCRIBE igualmente los tests de integración y déjalos en el entregable, y repórtalo como health check **Warning** con `check: entorno-de-prueba` — NO como Blocker: no es un defecto de tu tarea, y la verificación queda diferida al CI. Reserva el Blocker para cuando el entorno SÍ estaba y los tests fallan por el código o por el brief.
 
-## Fallo del intento anterior (OBLIGATORIO corregir)
-
-La sesión previa **no entregó**. Corrige la causa antes de ampliar alcance:
-
-> delivery-gate/build: la verificación bloqueó la entrega.
-stub-delivery: hay features marcadas como entregadas cuyo cuerpo no hace nada. `TODO`, `not implemented` y un retorno vacío como cuerpo único son bloqueantes de entrega, no notas.
-- 1 de 17 rutas registradas que ninguna plantilla enlaza: `/incidencias/no-encontrada`. Una pantalla a la que sólo se llega escribiendo la URL no está entregada: móntala en el menú del shell con la `sección de menú` que declara su spec de UI
-- servicio(s) de producción que FABRICAN su respuesta en vez de pedirla: `apps/app/src/app/features/employee-incidents/pages/my-incidents/my-incidents.page.ts::ngOnInit` (Observable/Promise resuelto con un literal). Un doble en el árbol de producto es un bloqueante: la pantalla se ve llena y no hay nada detrás — los dobles solo valen en tests
-rom '@mapfre-tech/b2b-components';[39m[22m
-[1m[31m[7m [0m [91m                                         ~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/employee-incidents/pages/my-incidents/my-incidents.page.ts[0m:[93m13[0m:[93m12[0m - [91merror[0m[90m NG1010: [0m'imports' must be an array of components, directives, pipes, or NgModules.[39m[22m
-[1m[31m  Value is of type '[CommonModule, RouterModule, (not statically analyzable), (not statically analyzable), (not statically analyzable)]'.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[7m 13[0m   imports: [[39m[22m
-[1m[31m[7m   [0m [91m           ~[0m[39m[22m
-[1m[31m[7m 14[0m     CommonModule,[39m[22m
-[1m[31m[7m   [0m [91m~~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m[7m...[0m [39m[22m
-[1m[31m[7m 18[0m     MtAlertModule,[39m[22m
-[1m[31m[7m   [0m [91m~~~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m[7m 19[0m   ],[39m[22m
-[1m[31m[7m  [39m[22m[1m[31m [0m [91m~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/
-
-Acciones:
-- Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
-
 ## Estado del build al cerrar el intento anterior
 
-El intento anterior dejó el módulo **SIN COMPILAR**. Reprodúcelo lo PRIMERO de todo, antes de añadir nada nuevo, y no entregues hasta que compile.
+El intento anterior dejó el módulo COMPILANDO, pero el artefacto entregado **no arrancaría** (o incumple el contrato que declara). El compilador está en VERDE: **no busques ahí y no pierdas el intento intentando reproducir un fallo de compilación que no existe**. Lo que falla es exactamente lo que dice el informe de abajo, y es lo PRIMERO que tienes que arreglar, antes de añadir nada nuevo.
 
-- El comando es el mismo que usa la plataforma: `mvn -B -ntp -f <pom> test-compile` (o el equivalente de la toolchain del arquetipo).
-- Si lo que impide compilar viene de la rama BASE y no de tu trabajo, arréglalo igual —es parte de dejar el módulo compilable— y decláralo como `health_check` de severidad Warning indicando el fichero y por qué lo tocaste.
+- Arregla lo que nombra el informe, en el sitio que nombra. No hace falta reproducirlo con el compilador: ya compila.
+- Si el defecto viene de la rama BASE y no de tu trabajo, arréglalo igual y decláralo como `health_check` de severidad Warning indicando el fichero y por qué lo tocaste.
+- **No borres ni desactives tests para que el informe calle.** Si crees que el informe se equivoca, entrégalo con un `health_check` Blocker explicando por qué; quitar cobertura para tapar una señal es peor que la señal.
 
 ### Lo que reportó la verificación (literal)
 
 ```
- ],[39m[22m
-[1m[31m[7m  [39m[22m[1m[31m [0m [91m~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/employee-incidents/pages/my-incidents/my-incidents.page.ts[0m:[93m13[0m:[93m12[0m - [91merror[0m[90m NG1010: [0m'imports' must be an array of components, directives, pipes, or NgModules.[39m[22m
-[1m[31m  Value is of type '[CommonModule, RouterModule, (not statically analyzable), (not statically analyzable), (not statically analyzable)]'.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[7m 13[0m   imports: [[39m[22m
-[1m[31m[7m   [0m [91m           ~[0m[39m[22m
-[1m[31m[7m 14[0m     CommonModule,[39m[22m
-[1m[31m[7m   [0m [91m~~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m[7m...[0m [39m[22m
-[1m[31m[7m 18[0m     MtAlertModule,[39m[22m
-[1m[31m[7m   [0m [91m~~~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m[7m 19[0m   ],[39m[22m
-[1m[31m[7m   [0m [91m~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/employee-incidents/pages/my-incidents/my-incidents.page.ts[0m:[93m13[0m:[93m12[0m - [91merror[0m[90m NG1010: [0m'imports' must be an array of components, directives, pipes, or NgModules.[39m[22m
-[1m[31m  Value is of type '[CommonModule, RouterModule, (not statically analyzable), (not statically analyzable), (not statically analyzable)]'.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[7m 13[0m   imports: [[39m[22m
-[1m[31m[7m   [0m [91m           ~[0m[39m[22m
-[1m[31m[7m 14[0m     CommonModule,[39m[22m
-[1m[31m[7m   [0m [91m~~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m[7m...[0m [39m[22m
-[1m[31m[7m 18[0m     MtAlertModule,[39m[22m
-[1m[31m[7m   [0m [91m~~~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m[7m 19[0m   ],[39m[22m
-[1m[31m[7m   [0m [91m~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/employee-incidents/pages/my-incidents/my-incidents.page.ts[0m:[93m25[0m:[93m3[0m - [91merror[0m[90m TS2564: [0mProperty 'incidents$' has no initializer and is not definitely assigned in the constructor.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[7m25[0m   incidents$: Observable<Incident[]>;[39m[22m
-[1m[31m[7m  [0m [91m  ~~~~~~~~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/employee-incidents/services/incident.service.ts[0m:[93m14[0m:[93m5[0m - [91merror[0m[90m TS1206: [0mDecorators are not valid here.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[7m14[0m     @Inject(API_BASE_URL) private apiBaseUrl: string[39m[22m
-[1m[31m[7m  [0m [91m    ~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-
-
-
- NX   Running target build for project app failed
-
-Failed tasks:
-
-- app:build:production
-
-Hint: run the command with --verbose for more details.
+design-system: la UI entregada se desvía del design system corporativo en cosas que el compilador no ve y el usuario sí (avisos que no se pintan, títulos sin escala, iconos en 404, directivas escritas como elementos). Corrige contra el bloque «Design system corporativo» del brief:
+- `apps/app/src/app/features/employee-incidents/pages/create-incident/create-incident.page.html`: `<b2b-text-area>` escrito como ELEMENTO — es una directiva (`<button b2b-text-area>`, `<input b2b-text-area>`, `<a b2b-text-area>`); así no pinta nada ni falla
+stub-delivery: hay features marcadas como entregadas cuyo cuerpo no hace nada. `TODO`, `not implemented` y un retorno vacío como cuerpo único son bloqueantes de entrega, no notas.
+- servicio(s) de producción que FABRICAN su respuesta en vez de pedirla: `apps/app/src/app/features/employee-incidents/pages/my-incidents/my-incidents.page.ts::ngOnInit` (Observable/Promise resuelto con un literal). Un doble en el árbol de producto es un bloqueante: la pantalla se ve llena y no hay nada detrás — los dobles solo valen en tests
 ```
-
-## Código ya presente en la zona (zone-extend) — OBLIGATORIO
-
-En el tip actual del workspace YA hay código bajo tus `zone_paths` (típicamente de una TSK predecesora mergeada). **Léelo antes de escribir.**
-
-Ficheros presentes (muestra):
-- `apps/app/src/app/features/employee-incidents/models/incident-category.model.ts`
-- `apps/app/src/app/features/employee-incidents/models/incident.model.ts`
-- `apps/app/src/app/features/employee-incidents/models/room.model.ts`
-- `apps/app/src/app/features/employee-incidents/pages/create-incident/confirmation/confirmation.page.html`
-- `apps/app/src/app/features/employee-incidents/pages/create-incident/confirmation/confirmation.page.scss`
-- `apps/app/src/app/features/employee-incidents/pages/create-incident/confirmation/confirmation.page.spec.ts`
-- `apps/app/src/app/features/employee-incidents/pages/create-incident/confirmation/confirmation.page.ts`
-- `apps/app/src/app/features/employee-incidents/pages/create-incident/create-incident.page.html`
-- `apps/app/src/app/features/employee-incidents/pages/create-incident/create-incident.page.scss`
-- `apps/app/src/app/features/employee-incidents/pages/create-incident/create-incident.page.spec.ts`
-- `apps/app/src/app/features/employee-incidents/pages/create-incident/create-incident.page.ts`
-- `apps/app/src/app/features/employee-incidents/pages/incident-detail/incident-detail.page.html`
-- `apps/app/src/app/features/employee-incidents/pages/incident-detail/incident-detail.page.scss`
-- `apps/app/src/app/features/employee-incidents/pages/incident-detail/incident-detail.page.spec.ts`
-- `apps/app/src/app/features/employee-incidents/pages/incident-detail/incident-detail.page.ts`
-- `apps/app/src/app/features/employee-incidents/pages/my-incidents/my-incidents.page.html`
-- `apps/app/src/app/features/employee-incidents/pages/my-incidents/my-incidents.page.scss`
-- `apps/app/src/app/features/employee-incidents/pages/my-incidents/my-incidents.page.spec.ts`
-- `apps/app/src/app/features/employee-incidents/pages/my-incidents/my-incidents.page.ts`
-- `apps/app/src/app/features/employee-incidents/pages/not-found/not-found.page.html`
-- `apps/app/src/app/features/employee-incidents/pages/not-found/not-found.page.scss`
-- `apps/app/src/app/features/employee-incidents/pages/not-found/not-found.page.spec.ts`
-- `apps/app/src/app/features/employee-incidents/pages/not-found/not-found.page.ts`
-- `apps/app/src/app/features/employee-incidents/services/incident.service.spec.ts`
-- `apps/app/src/app/features/employee-incidents/services/incident.service.ts`
-- `apps/app/src/app/app.routes.ts`
-
-Disciplina:
-1. **EDIT/EXTIENDE** símbolos existentes (`class`/`def`/exports) — **PROHIBIDO** una segunda declaración con el mismo nombre en el mismo fichero.
-2. Añade routers/handlers nuevos en ficheros dedicados o ampliando el existente sin redefinir tipos ya presentes.
-3. Si el DoD pide API pública sobre el mismo dominio, reutiliza servicios/modelos del CRUD previo; no copies otra `MembershipPlanService`.
