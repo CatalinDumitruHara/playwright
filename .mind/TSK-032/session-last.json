@@ -1,23 +1,23 @@
 {
   "task_code": "TSK-032",
-  "attempt": 1,
-  "at": "2026-09-30T14:44:06.032328+00:00",
-  "construction_id": "37ee78e1-7d09-43bc-aa1f-9a0c7dcbe46f",
+  "attempt": 2,
+  "at": "2026-09-30T15:08:54.042314+00:00",
+  "construction_id": "43093eb9-6138-481d-a6d9-b0ddfc8ef230",
   "status": "delivered",
   "delivered": true,
   "error": null,
-  "summary": "TSK-032 · Shell de la SPA (ARC-011) sobre Angular 17.3 y @mapfre-tech/b2b-components 3.12.17.\n\nConstruido:\n- core/config/api-base-url.token.ts: base única de API leída de ENVIRONMENT_CONFIG.apiBaseUrl (assets/environments.json → '/api'). Arregla un bug previo: el servicio leía `apiBaseUrl` del token ENVIRONMENT, que solo es el nombre del entorno, y todas las URLs salían 'undefined/...'.\n- core/auth/session.model.ts: RoleCode ROL-001/002/003 (con normalización de EMPLEADO / TECNICO_MANTENIMIENTO ",
+  "summary": "TSK-032 · Shell de la SPA (ARC-011), intento 2. El shell del intento 1 (commits 8c1f09b y 6c69649) sigue igual y vuelve a verificarse en este intento:\n- core/config/api-base-url.token.ts: una sola base de API, que sale de ENVIRONMENT_CONFIG.apiBaseUrl (assets/environments.json → '/api').\n- core/auth/authentication.service.ts: pide el contexto de sesión a EP-003 GET /auth/sessions/current. Si la respuesta no trae rol, la sesión se da por inválida (REQ-010). Cierra sesión con EP-002 DELETE /auth/s",
   "model": "claude-opus-5-5",
-  "input_tokens": 10054975,
-  "output_tokens": 54974,
-  "llm_calls": 230,
-  "cost_usd": 6.9243777999999985,
+  "input_tokens": 1363394,
+  "output_tokens": 7839,
+  "llm_calls": 28,
+  "cost_usd": 1.1830980000000002,
   "build_status": "artifact_red",
   "build_output": "stub-delivery: hay features marcadas como entregadas cuyo cuerpo no hace nada. `TODO`, `not implemented` y un retorno vacío como cuerpo único son bloqueantes de entrega, no notas.\n- 3 de 12 rutas registradas que ninguna plantilla enlaza: `/acceso/credencial-caducada`, `/avisos/permisos-actualizados`, `/avisos/version-no-soportada`. Una pantalla a la que sólo se llega escribiendo la URL no está entregada: móntala en el menú del shell con la `sección de menú` que declara su spec de UI",
-  "environment_status": "unavailable",
-  "environment_detail": "el runtime no tiene proveedor de entorno configurado (ENVIRONMENT_PROVIDER=none): la verificación de integración queda diferida al CI",
+  "environment_status": "realized",
+  "environment_detail": "wiremock=wiremock/wiremock:3.13.1",
   "schema_status": "skipped",
-  "commit_sha": "6c69649",
+  "commit_sha": "4f81271",
   "browser_status": "green",
   "browser_coverage": {
     "mapped": [
@@ -35,8 +35,12 @@
       }
     ],
     "unmapped": [],
-    "tagged_specs_found": [],
+    "tagged_specs_found": [
+      "e2e/ARC-069.inicio.e2e-spec.ts",
+      "e2e/ARC-070.sesion-finalizada.e2e-spec.ts",
+      "e2e/ARC-092.acceso-no-autorizado.e2e-spec.ts"
+    ],
     "canonical_ran": true,
-    "selection_strategy": "smoke-canonical"
+    "selection_strategy": "hybrid"
   }
 }
