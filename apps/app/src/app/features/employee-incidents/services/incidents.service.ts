@@ -24,8 +24,13 @@ export class IncidentsService {
     return this.http.post<IncidentDetail>(`${this.apiUrl}/incidents`, data);
   }
 
-  getMyIncidents(): Observable<IncidentListPage> {
-    return this.http.get<IncidentListPage>(`${this.apiUrl}/my-incidents`);
+  getMyIncidents(params?: {
+    page?: number;
+    search?: string;
+  }): Observable<IncidentListPage> {
+    return this.http.get<IncidentListPage>(`${this.apiUrl}/my-incidents`, {
+      params: { ...params },
+    });
   }
 
   getIncidentDetail(incidentId: string): Observable<IncidentDetail> {

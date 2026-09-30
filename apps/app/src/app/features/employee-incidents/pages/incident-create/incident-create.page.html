@@ -1,27 +1,27 @@
 <b2b-container>
   <b2b-grid-layout>
-    <div b2b-grid-item [gridColumn]="'2 / span 10'">
+    <div b2b-grid-item gridColumn="2 / span 10">
       <h1 class="b2b-heading-1">Crear nueva incidencia</h1>
     </div>
 
-    <div b2b-grid-item [gridColumn]="'2 / span 10'">
+    <div b2b-grid-item gridColumn="2 / span 10">
       <form [formGroup]="incidentForm" (ngSubmit)="onSubmit()">
-        <div class="form-group">
+        <div class="form-group" *ngIf="rooms$ | async as rooms">
           <b2b-dropdown-select
             formControlName="room_id"
             label="Sala"
             placeholder="Selecciona una sala"
-            [options]="rooms$ | async"
+            [options]="rooms"
           >
           </b2b-dropdown-select>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" *ngIf="categories$ | async as categories">
           <b2b-dropdown-select
             formControlName="category_code"
             label="Categoría"
             placeholder="Selecciona una categoría"
-            [options]="categories$ | async"
+            [options]="categories"
           >
           </b2b-dropdown-select>
         </div>

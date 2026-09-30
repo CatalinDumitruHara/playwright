@@ -1,35 +1,41 @@
 import { CommonModule, Location } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { IncidentHistoryPage as IncidentHistory } from '../../../../../libs/api-types/src/lib';
-import { Observable } from 'rxjs';
+import { IncidentHistoryPage as IncidentHistory } from '@api-types';
+import { Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { IncidentsService } from '../../services/incidents.service';
+import {
+  B2bButtonComponent,
+  B2bTableContainerComponent,
+} from '@mapfre-tech/b2b-components';
 
 @Component({
   selector: 'app-incident-history-page',
   templateUrl: './incident-history.page.html',
   styleUrls: [],
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, B2bTableContainerComponent, B2bButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IncidentHistoryPage implements OnInit {
-  history$: Observable<IncidentHistory>;
+  private readonly route = inject(ActivatedRoute);
+  private readonly incidentsService = inject(IncidentsService);
+  private readonly location = inject(Location);
 
-  constructor(
-    private readonly route: ActivatedRoute,
-    private readonly incidentsService: IncidentsService,
-    private readonly location: Location
-  ) {}
+  history$!: Observable<IncidentHistory>;
 
   ngOnInit(): void {
     this.history$ = this.route.paramMap.pipe(
-      switchMap((params) => {
+      switchMap(params => {
         const incidentId = params.get('id');
         if (!incidentId) {
-          // o redirigir, o lanzar error
-          return new Observable<IncidentHistory>();
+          return of({ items: [] });
         }
         return this.incidentsService.getIncidentHistory(incidentId);
       })

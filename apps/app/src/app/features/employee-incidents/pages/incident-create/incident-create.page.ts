@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -21,7 +21,7 @@ import {
   IncidentCreateRequest,
   Room,
   RoomList,
-} from '../../../../../libs/api-types/src/lib';
+} from '@api-types';
 
 @Component({
   selector: 'app-incident-create',
@@ -30,6 +30,7 @@ import {
   standalone: true,
   imports: [
     ReactiveFormsModule,
+    CommonModule,
     B2bButtonComponent,
     B2bContainerComponent,
     B2bDropDownSelectComponent,
@@ -78,9 +79,9 @@ export class IncidentCreatePage implements OnInit {
   private loadDropdownData(): void {
     this.rooms$ = this.incidentsService
       .getRooms()
-      .pipe(map((response: RoomList) => response.items));
+      .pipe(map((response: RoomList) => response.rooms));
     this.categories$ = this.incidentsService
       .getIncidentCategories()
-      .pipe(map((response: IncidentCategoryList) => response.items));
+      .pipe(map((response: IncidentCategoryList) => response.categories));
   }
 }

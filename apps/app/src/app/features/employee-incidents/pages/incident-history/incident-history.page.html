@@ -1,13 +1,13 @@
 <div class="ion-padding">
-  <button (click)="goBack()">Volver al detalle</button>
+  <button b2b-button (click)="goBack()">Volver al detalle</button>
 
   <ng-container *ngIf="history$ | async as history">
     <ul b2b-list *ngIf="history.items.length > 0; else noHistory">
       <li *ngFor="let item of history.items">
-        <p><strong>De:</strong> {{ item.fromState }}</p>
-        <p><strong>A:</strong> {{ item.toState }}</p>
-        <p><strong>Autor:</strong> {{ item.author }}</p>
-        <p><strong>Fecha:</strong> {{ item.timestamp | date: 'dd/MM/yyyy HH:mm' }}</p>
+        <p><strong>De:</strong> {{ item.status_from || 'Inicio' }}</p>
+        <p><strong>A:</strong> {{ item.status_to }}</p>
+        <p><strong>Autor:</strong> {{ item.changed_by.full_name }}</p>
+        <p><strong>Fecha:</strong> {{ item.changed_at | date: 'dd/MM/yyyy HH:mm' }}</p>
       </li>
     </ul>
     <ng-template #noHistory>

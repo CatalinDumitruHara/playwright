@@ -7,15 +7,11 @@ import {
   B2bSearchComponent,
   B2bTableContainerComponent,
   B2bTagComponent,
+  B2bButtonComponent,
 } from '@mapfre-tech/b2b-components';
 import { IncidentListPage, IncidentSummary } from '@api-types';
 import { Observable, of } from 'rxjs';
 import { IncidentsService } from '../../services/incidents.service';
-
-interface B2bTableModel<T> {
-  headers: { id: keyof T | string; label: string; type?: string }[];
-  data: T[];
-}
 
 @Component({
   selector: 'app-my-incidents-page',
@@ -30,6 +26,7 @@ interface B2bTableModel<T> {
     B2bSearchComponent,
     B2bNotificationInlineComponent,
     B2bTagComponent,
+    B2bButtonComponent,
   ],
 })
 export class MyIncidentsPage implements OnInit {
@@ -38,43 +35,38 @@ export class MyIncidentsPage implements OnInit {
 
   incidentsData$: Observable<IncidentListPage> = of({
     items: [],
-    page: 1,
-    per_page: 10,
     total: 0,
-    total_pages: 1,
   });
 
-  tableModel: B2bTableModel<IncidentSummary> = {
+  tableModel = {
     headers: [
       { id: 'reference_code', label: 'Código' },
-      { id: 'room_name', label: 'Sala' },
-      { id: 'office_name', label: 'Oficina' },
-      { id: 'category_name', label: 'Categoría' },
-      { id: 'created_at', label: 'Fecha de alta', type: 'date' },
-      { id: 'status_code', label: 'Estado', type: 'tag' },
-      { id: 'assigned_technician_name', label: 'Técnico asignado' },
-      { id: 'updated_at', label: 'Última actualización', type: 'date' },
+      { id: 'room', label: 'Sala' },
+      { id: 'category', label: 'Categoría' },
+      { id: 'created_at', label: 'Fecha de alta' },
+      { id: 'status', label: 'Estado' },
+      { id: 'assigned_to', label: 'Técnico asignado' },
     ],
-    data: [],
   };
 
   ngOnInit(): void {
     this.loadIncidents();
   }
 
-  loadIncidents(): void {
-    this.incidentsData$ = this.incidentsService.getMyIncidents();
+  loadIncidents(page = 1, query?: string): void {
+    this.incidentsData$ = this.incidentsService.getMyIncidents({
+      page,
+      search: query,
+    });
   }
 
   onSearch(event: Event): void {
     const query = (event as CustomEvent).detail;
-    // TODO: Implement search logic
-    console.log('Search query:', query);
+    this.loadIncidents(1, query);
   }
 
-  onPageChange(page: number): void {
-    // TODO: Implement pagination logic
-    console.log('Page changed:', page);
+  onPageChange(pageIndex: number): void {
+    this.loadIncidents(pageIndex + 1); // Paginator is 0-based, API is 1-based
   }
 
   goToNewIncident(): void {

@@ -1,32 +1,44 @@
 <div class="my-incidents-page">
-  <div class="header-controls">
-    <b2b-search (search)="onSearch($event)"></b2b-search>
-    <button class="b2b-button" (click)="goToNewIncident()">
-      Nueva incidencia
-    </button>
-  </div>
+  <b2b-table-container>
+    <div b2b-table-header>
+      <b2b-search (search)="onSearch($event)"></b2b-search>
+      <button b2b-button (click)="goToNewIncident()">
+        Nueva incidencia
+      </button>
+    </div>
 
-  <ng-container *ngIf="incidentsData$ | async as incidentsData">
-    <ng-container *ngIf="incidentsData.items.length > 0; else noIncidents">
-      <b2b-table-container
-        [headers]="tableModel.headers"
-        [data]="incidentsData.items"
-        (rowClicked)="goToIncidentDetail($event)"
-      >
-      </b2b-table-container>
+    <ng-container *ngIf="incidentsData$ | async as incidentsData">
+      <table *ngIf="incidentsData.items.length > 0; else noIncidents">
+        <thead>
+          <tr>
+            <th *ngFor="let header of tableModel.headers">{{ header.label }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of incidentsData.items" (click)="goToIncidentDetail(item)">
+            <td>{{ item.reference_code }}</td>
+            <td>{{ item.room }}</td>
+            <td>{{ item.category }}</td>
+            <td>{{ item.created_at | date }}</td>
+            <td><b2b-tag>{{ item.status }}</b2b-tag></td>
+            <td>{{ item.assigned_to || 'Sin asignar' }}</td>
+          </tr>
+        </tbody>
+      </table>
+
       <b2b-paginator
-        [totalElements]="incidentsData.total"
-        [pageSize]="incidentsData.per_page"
-        (pageChange)="onPageChange($event)"
+        *ngIf="incidentsData.items.length > 0"
+        [length]="incidentsData.total"
+        (pageIndexChange)="onPageChange($event)"
       ></b2b-paginator>
-    </ng-container>
 
-    <ng-template #noIncidents>
-      <b2b-notification-inline
-        [visible]="true"
-        type="info"
-        message="No se han encontrado incidencias."
-      ></b2b-notification-inline>
-    </ng-template>
-  </ng-container>
+      <ng-template #noIncidents>
+        <b2b-notification-inline
+          [visible]="true"
+          type="info"
+          message="No se han encontrado incidencias."
+        ></b2b-notification-inline>
+      </ng-template>
+    </ng-container>
+  </b2b-table-container>
 </div>

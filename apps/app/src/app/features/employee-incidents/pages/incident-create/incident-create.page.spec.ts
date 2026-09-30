@@ -20,7 +20,7 @@ describe('IncidentCreatePage', () => {
   });
 
   it('should have a form with the required controls', () => {
-    const form = spectator.component.form;
+    const form = spectator.component.incidentForm;
     expect(form.get('title')).toBeTruthy();
     expect(form.get('description')).toBeTruthy();
   });
