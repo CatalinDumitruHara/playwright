@@ -863,3 +863,12 @@ Reglas de negocio: las operaciones de avance de estado (REQ-119 abierta→en cur
 NO se levanta ningún servicio de respaldo para esta tarea: verifica con tests unitarios y dobles en memoria. No intentes arrancar contenedores por tu cuenta ni asumas que hay una BBDD disponible.
 
 **dod-oracles:** «dobles en memoria» aplica a **tests**, no al entregable. Si el DoD pide email/BBDD/evento, implementa el puerto/cliente real aunque no haya contenedor en esta sesión (Warning `entorno-de-prueba`).
+
+## Fallo del intento anterior (OBLIGATORIO corregir)
+
+La sesión previa **no entregó**. Corrige la causa antes de ampliar alcance:
+
+> entrega vacía: no aterrizó ningún cambio de código fuera de `.mind/` (solo brief o sin commits nuevos)
+
+Acciones:
+- Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
