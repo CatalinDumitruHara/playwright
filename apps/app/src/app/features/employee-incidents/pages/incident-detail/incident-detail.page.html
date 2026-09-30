@@ -1,36 +1,14 @@
+<div class="container">
+  <h1>Detalle de incidencia</h1>
 
-@if (loading()) {
-  <b2b-spinner />
-} @else if (error()) {
-  <p data-testid="error-container">Error al cargar los datos de la incidencia.</p>
-} @else {
-  @if (incident(); as incident) {
-    <div b2b-card-primary>
-      <h2>Detalle de la Incidencia</h2>
+  <b2b-spinner *ngIf="loading"></b2b-spinner>
 
-      <b2b-read-data data-testid="incident-category" label="ID de Incidencia">{{ incident.id }}</b2b-read-data>
-      <b2b-read-data label="Categoría">{{ incident.category }}</b2b-read-data>
-      <b2b-read-data label="Fecha de Creación">{{ incident.creationDate | date: 'dd/MM/yyyy HH:mm' }}</b2b-read-data>
-      <b2b-read-data label="Estado">{{ incident.status }}</b2b-read-data>
-      <b2b-read-data label="Descripción">{{ incident.description }}</b2b-read-data>
-
-      @if (history(); as history) {
-        @if(history.length > 0) {
-          <h3>Historial</h3>
-          <ul>
-            @for (item of history; track item.timestamp) {
-              <li>
-                {{ item.timestamp | date: 'dd/MM/yyyy HH:mm' }} - {{ item.description }}
-              </li>
-            }
-          </ul>
-        }
-      }
-
-      @if (photo(); as photo) {
-        <h3>Foto</h3>
-        <img [src]="photo.url" alt="Foto de la incidencia" />
-      }
-    </div>
-  }
-}
+  <div *ngIf="incident$ | async as incident">
+    <h2>{{ incident.reference }}</h2>
+    <div><strong>Sala:</strong> {{ incident.room }}</div>
+    <div><strong>Categoría:</strong> {{ incident.category }}</div>
+    <div><strong>Estado:</strong> {{ incident.status }}</div>
+    <div><strong>Descripción:</strong> {{ incident.description }}</div>
+    <div><strong>Fecha:</strong> {{ incident.createdAt | date:'short' }}</div>
+  </div>
+</div>

@@ -1,1 +1,41 @@
-<div class="containe...(argument truncated)
+<div class="container">
+  <h1>Mis incidencias</h1>
+
+  <b2b-spinner *ngIf="loading"></b2b-spinner>
+
+  <b2b-notification-inline *ngIf="error" [visible]="true" type="error">
+    No se han podido cargar las incidencias.
+  </b2b-notification-inline>
+
+  <div *ngIf="!loading && !error">
+    <b2b-table-container *ngIf="(incidents$ | async) as incidents">
+      <table *ngIf="incidents.length > 0; else noIncidents">
+        <thead>
+          <tr>
+            <th>Referencia</th>
+            <th>Sala</th>
+            <th>Categoría</th>
+            <th>Estado</th>
+            <th>Fecha</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let incident of incidents">
+            <td>{{ incident.reference }}</td>
+            <td>{{ incident.room }}</td>
+            <td>{{ incident.category }}</td>
+            <td>{{ incident.status }}</td>
+            <td>{{ incident.createdAt | date:'short' }}</td>
+            <td><a [routerLink]="['/mis-incidencias', incident.id]">Ver</a></td>
+          </tr>
+        </tbody>
+      </table>
+      <ng-template #noIncidents>
+        <b2b-notification-inline [visible]="true" type="info">
+          No tienes ninguna incidencia reportada.
+        </b2b-notification-inline>
+      </ng-template>
+    </b2b-table-container>
+  </div>
+</div>

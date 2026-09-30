@@ -1538,3 +1538,40 @@ Acciones:
 - NO stages ni commits de `node_modules/`, `dist/`, `.angular/`, caches ni blobs concatenados; solo código de producto bajo las zonas / composition root.
 - Si instalaste deps en el workspace, deja `node_modules` fuera de git (`.gitignore`). Reescribe el path canónico con `write_file` (pisa, no concatenes).
 - El runtime hace el push: no inventes `git add -A` de basura para «arreglar» el finalize.
+
+## Código ya presente en la zona (zone-extend) — OBLIGATORIO
+
+En el tip actual del workspace YA hay código bajo tus `zone_paths` (típicamente de una TSK predecesora mergeada). **Léelo antes de escribir.**
+
+Ficheros presentes (muestra):
+- `apps/app/src/app/features/employee-incidents/models/incident-category.model.ts`
+- `apps/app/src/app/features/employee-incidents/models/incident.model.ts`
+- `apps/app/src/app/features/employee-incidents/models/room.model.ts`
+- `apps/app/src/app/features/employee-incidents/pages/create-incident/confirmation/confirmation.page.html`
+- `apps/app/src/app/features/employee-incidents/pages/create-incident/confirmation/confirmation.page.scss`
+- `apps/app/src/app/features/employee-incidents/pages/create-incident/confirmation/confirmation.page.spec.ts`
+- `apps/app/src/app/features/employee-incidents/pages/create-incident/confirmation/confirmation.page.ts`
+- `apps/app/src/app/features/employee-incidents/pages/create-incident/create-incident.page.html`
+- `apps/app/src/app/features/employee-incidents/pages/create-incident/create-incident.page.scss`
+- `apps/app/src/app/features/employee-incidents/pages/create-incident/create-incident.page.spec.ts`
+- `apps/app/src/app/features/employee-incidents/pages/create-incident/create-incident.page.ts`
+- `apps/app/src/app/features/employee-incidents/pages/incident-detail/incident-detail.page.html`
+- `apps/app/src/app/features/employee-incidents/pages/incident-detail/incident-detail.page.scss`
+- `apps/app/src/app/features/employee-incidents/pages/incident-detail/incident-detail.page.spec.ts`
+- `apps/app/src/app/features/employee-incidents/pages/incident-detail/incident-detail.page.ts`
+- `apps/app/src/app/features/employee-incidents/pages/my-incidents/my-incidents.page.html`
+- `apps/app/src/app/features/employee-incidents/pages/my-incidents/my-incidents.page.scss`
+- `apps/app/src/app/features/employee-incidents/pages/my-incidents/my-incidents.page.spec.ts`
+- `apps/app/src/app/features/employee-incidents/pages/my-incidents/my-incidents.page.ts`
+- `apps/app/src/app/features/employee-incidents/pages/not-found/not-found.page.html`
+- `apps/app/src/app/features/employee-incidents/pages/not-found/not-found.page.scss`
+- `apps/app/src/app/features/employee-incidents/pages/not-found/not-found.page.spec.ts`
+- `apps/app/src/app/features/employee-incidents/pages/not-found/not-found.page.ts`
+- `apps/app/src/app/features/employee-incidents/services/incident.service.spec.ts`
+- `apps/app/src/app/features/employee-incidents/services/incident.service.ts`
+- `apps/app/src/app/app.routes.ts`
+
+Disciplina:
+1. **EDIT/EXTIENDE** símbolos existentes (`class`/`def`/exports) — **PROHIBIDO** una segunda declaración con el mismo nombre en el mismo fichero.
+2. Añade routers/handlers nuevos en ficheros dedicados o ampliando el existente sin redefinir tipos ya presentes.
+3. Si el DoD pide API pública sobre el mismo dominio, reutiliza servicios/modelos del CRUD previo; no copies otra `MembershipPlanService`.

@@ -1,44 +1,35 @@
-import { Injectable, Inject, InjectionToken } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-
-export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
+import { Observable, of } from 'rxjs';
+import { Incident } from '../models/incident.model';
+import { Room } from '../models/room.model';
+import { IncidentCategory } from '../models/incident-category.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class IncidentService {
+  private apiUrl = '/api';
 
-  constructor(
-    private http: HttpClient,
-    @Inject(API_BASE_URL) private apiBaseUrl: string
-  ) { }
+  constructor(private http: HttpClient) {}
 
-  createIncident(incidentData: any): Observable<any> {
-    return this.http.post(`${this.apiBaseUrl}/incidents`, incidentData);
+  getMyIncidents(): Observable<Incident[]> {
+    return this.http.get<Incident[]>(`${this.apiUrl}/my-incidents`);
   }
 
-  getMyIncidents(): Observable<any> {
-    return this.http.get(`${this.apiBaseUrl}/my-incidents`);
+  getIncidentById(id: string): Observable<Incident> {
+    return this.http.get<Incident>(`${this.apiUrl}/incidents/${id}`);
   }
 
-  getIncidentDetail(incidentId: string): Observable<any> {
-    return this.http.get(`${this.apiBaseUrl}/incidents/${incidentId}`);
+  createIncident(incident: Partial<Incident>): Observable<Incident> {
+    return this.http.post<Incident>(`${this.apiUrl}/incidents`, incident);
   }
 
-  getIncidentHistory(incidentId: string): Observable<any> {
-    return this.http.get(`${this.apiBaseUrl}/incidents/${incidentId}/history`);
+  getRooms(): Observable<Room[]> {
+    return this.http.get<Room[]>(`${this.apiUrl}/rooms`);
   }
 
-  getIncidentPhoto(incidentId: string): Observable<any> {
-    return this.http.get(`${this.apiBaseUrl}/incidents/${incidentId}/photo`);
-  }
-
-  getIncidentCategories(): Observable<any> {
-    return this.http.get(`${this.apiBaseUrl}/incident-categories`);
-  }
-
-  getRooms(): Observable<any> {
-    return this.http.get(`${this.apiBaseUrl}/rooms`);
+  getIncidentCategories(): Observable<IncidentCategory[]> {
+    return this.http.get<IncidentCategory[]>(`${this.apiUrl}/incident-categories`);
   }
 }

@@ -4,8 +4,6 @@
     "module": "esnext",
     "outDir": "../../dist/out-tsc",
     "types": [],
-    "experimentalDecorators": true,
-    "experimentalDecorators": true,
     "experimentalDecorators": true
   },
   "files": ["src/main.ts", "src/polyfills.ts"],
