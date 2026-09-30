@@ -1,24 +1,24 @@
 {
   "task_code": "TSK-033",
-  "attempt": 1,
-  "at": "2026-09-30T15:38:10.910606+00:00",
-  "construction_id": "06b5f424-078e-417a-912e-06925f685146",
-  "status": "failed",
-  "delivered": false,
-  "error": "provider.quota_exceeded: cuota del proveedor agotada — reintentar antes del reset no puede funcionar; reanuda cuando la ventana haya reseteado. Detalle: You've hit your session limit · resets 3:50pm (UTC) (detalle del proveedor: RateLimitInfo(status='rejected', resets_at=1790783400, rate_limit_type='five_hour', utilization=None, overage_status='rejected', overage_resets_at=None, overage_disabled_reason='org_level_disabled', raw={'status': 'rejected', 'resetsAt': 1790783400, 'rateLimitType': 'five_hour', 'overageStatus': 'rejected', 'overageDisabledReason': 'org_level_disabled', 'isUsingOverage': False, 'unifiedWindows': {'five_hour': {'utilization': 1, 'resetsAt': 1790783400}, 'seven_day': {'utilization': 0.11, 'resetsAt': 1790794800}}}))",
-  "summary": "",
+  "attempt": 2,
+  "at": "2026-09-30T16:23:38.337651+00:00",
+  "construction_id": "fdea1a49-a1e4-4fce-903f-4839018b60b3",
+  "status": "delivered",
+  "delivered": true,
+  "error": null,
+  "summary": "TSK-033 (intento 2). Las 7 pantallas de acceso y perfil usan @mapfre-tech/b2b-components y están montadas en app.routes.ts: /acceso, /acceso/cambio-obligatorio-contrasena, /acceso/credencial-caducada, /acceso/cuenta-bloqueada, /mi-perfil, /mi-perfil/contrasena y /mi-perfil/contrasena/confirmacion. Consumen EP-001 (login), EP-005 (cambio de contraseña) y EP-006 (contraseña de primer acceso).\n\nCorrecciones de este intento:\n1) Pantallas en blanco. b2b-container solo muestra el contenido marcado con",
   "model": "claude-opus-5-5",
-  "input_tokens": 6753600,
-  "output_tokens": 3843,
-  "llm_calls": 124,
-  "cost_usd": 0.0,
+  "input_tokens": 6190913,
+  "output_tokens": 31171,
+  "llm_calls": 254,
+  "cost_usd": 5.416589999999999,
   "build_status": "green",
   "build_output": "",
   "environment_status": "realized",
   "environment_detail": "wiremock=wiremock/wiremock:3.13.1",
   "schema_status": "skipped",
-  "commit_sha": null,
-  "browser_status": "red",
+  "commit_sha": "3b5d262",
+  "browser_status": "green",
   "browser_coverage": {
     "mapped": [
       {
@@ -51,8 +51,16 @@
       }
     ],
     "unmapped": [],
-    "tagged_specs_found": [],
+    "tagged_specs_found": [
+      "e2e/ARC-066.login.e2e-spec.ts",
+      "e2e/ARC-067.cambio-obligatorio.e2e-spec.ts",
+      "e2e/ARC-068.credencial-caducada.e2e-spec.ts",
+      "e2e/ARC-071.mi-perfil.e2e-spec.ts",
+      "e2e/ARC-072.cambiar-contrasena.e2e-spec.ts",
+      "e2e/ARC-073.confirmacion-cambio.e2e-spec.ts",
+      "e2e/ARC-076.cuenta-bloqueada.e2e-spec.ts"
+    ],
     "canonical_ran": true,
-    "selection_strategy": "smoke-canonical"
+    "selection_strategy": "hybrid"
   }
 }
