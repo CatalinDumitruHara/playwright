@@ -1514,17 +1514,27 @@ Comprueba `.mind/TSK-047/env.json`: si su `status` es `unavailable` o `degraded`
 La sesión previa **no entregó**. Corrige la causa antes de ampliar alcance:
 
 > delivery-gate/build: la verificación bloqueó la entrega.
-design-system: la UI entregada se desvía del design system corporativo en cosas que el compilador no ve y el usuario sí (avisos que no se pintan, títulos sin escala, iconos en 404, directivas escritas como elementos). Corrige contra el bloque «Design system corporativo» del brief:
-- `apps/app/src/app/features/employee-incidents/pages/incident-create-confirmation/incident-create-confirmation.page.html`: `<b2b-notification-inline>` sin `[visible]` — arranca `visible=false` y el aviso NO se pinta nunca
-- `apps/app/src/app/features/employee-incidents/pages/incident-not-found/incident-not-found.page.html`: `<b2b-notification-inline>` sin `[visible]` — arranca `visible=false` y el aviso NO se pinta nunca
-- `apps/app/src/app/features/employee-incidents/pages/incident-photo/incident-photo.page.html`: `<b2b-notification-inline>` sin `[visible]` — arranca `visible=false` y el aviso NO se pinta nunca
-- `apps/app/src/app/features/employee-incidents/pages/my-incidents/my-incidents.page.html`: `<b2b-notification-inline>` sin `[visible]` — arranca `visible=false` y el aviso NO se pinta nunca
 stub-delivery: hay features marcadas como entregadas cuyo cuerpo no hace nada. `TODO`, `not implemented` y un retorno vacío como cuerpo único son bloqueantes de entrega, no notas.
 - 9 de 16 rutas registradas que ninguna plantilla enlaza: `/acceso/cambio-obligatorio-contrasena`, `/acceso/credencial-caducada`, `/acceso/cuenta-bloqueada`, `/admin`, `/avisos/permisos-actualizados`, `/avisos/version-no-soportada` (+3 más). Una pantalla a la que sólo se llega escribiendo la URL no está entregada: móntala en el menú del shell con la `sección de menú` que declara su spec de UI
-Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@NgModule.schemas' of this component to suppress this message.[39m[22m
-[1m[31m3. To allow any property add 'NO_ERRORS_SCHEMA' to the '@NgModule.schemas' of this component.[39m[22m
+11[0m:[93m10[0m - [91merror[0m[90m TS2305: [0mModule '"@api-types"' has no exported member 'IncidentListPage'.[39m[22m
 [1m[31m[39m[22m
-[1m[31m[
+[1m[31m[7m11[0m import { IncidentListPage, IncidentSummary } from '@api-types';[39m[22m
+[1m[31m[7m  [0m [91m         ~~~~~~~~~~~~~~~~[0m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/employee-incidents/pages/my-incidents/my-incidents.page.ts[0m:[93m11[0m:[93m28[0m - [91merror[0m[90m TS2305: [0mModule '"@api-types"' has no exported member 'IncidentSummary'.[39m[22m
+[1m[31m[39m[22m
+[1m[31m[7m11[0m import { IncidentListPage, IncidentSummary } from '@api-types';[39m[22m
+[1m[31m[7m  [0m [91m                           ~~~~~~~~~~~~~~~[0m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/employee-incidents/services/incidents.service.ts[0m:[93m5[0m:[93m3[0m - [91merror[0m[90m TS2305: [0mModule '"@api-types"' has no exported member 'IncidentCategoryList'.[39m[22m
+[1m[31m[39m[22m
+[1m[31m[7m5[0m   IncidentCategoryList,[39m[22m
+[1m[31m[7m [0m [91m  ~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/employee-incident
 
 Acciones:
 - Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
@@ -1539,36 +1549,46 @@ El intento anterior dejó el módulo **SIN COMPILAR**. Reprodúcelo lo PRIMERO d
 ### Lo que reportó la verificación (literal)
 
 ```
- - [91merror[0m[90m NG8002: [0mCan't bind to 'showIcon' since it isn't a known property of 'b2b-notification-inline'.[39m[22m
-[1m[31m1. If 'b2b-notification-inline' is an Angular component and it has 'showIcon' input, then verify that it is included in the '@Component.imports' of this component.[39m[22m
-[1m[31m2. If 'b2b-notification-inline' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.[39m[22m
-[1m[31m3. To allow any property add 'NO_ERRORS_SCHEMA' to the '@Component.schemas' of this component.[39m[22m
+1merror[0m[90m TS2305: [0mModule '"@api-types"' has no exported member 'IncidentCategoryList'.[39m[22m
 [1m[31m[39m[22m
-[1m[31m[7m9[0m     [showIcon]="true"[39m[22m
-[1m[31m[7m [0m [39m[22m[1m[31m[91m    ~~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m  [96mapps/app/src/app/features/employee-incidents/pages/incident-photo/incident-photo.page.ts[0m:[93m13[0m:[93m16[0m[39m[22m
-[1m[31m    [7m13[0m   templateUrl: './incident-photo.page.html',[39m[22m
-[1m[31m    [7m  [0m [96m               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m    Error occurs in the template of component IncidentPhotoPage.[39m[22m
+[1m[31m[7m5[0m   IncidentCategoryList,[39m[22m
+[1m[31m[7m [0m [91m  ~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
 [1m[31m[39m[22m
 [1m[31m[39m[22m
-[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/employee-incidents/pages/my-incidents/my-incidents.page.ts[0m:[93m11[0m:[93m51[0m - [91merror[0m[90m TS2307: [0mCannot find module '../../../../../libs/api-types/src/lib' or its corresponding type declarations.[39m[22m
+[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/employee-incidents/services/incidents.service.ts[0m:[93m6[0m:[93m3[0m - [91merror[0m[90m TS2305: [0mModule '"@api-types"' has no exported member 'IncidentCreateRequest'.[39m[22m
 [1m[31m[39m[22m
-[1m[31m[7m11[0m import { IncidentListPage, IncidentSummary } from '../../../../../libs/api-types/src/lib';[39m[22m
-[1m[31m[7m  [0m [91m                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/employee-incidents/pages/my-incidents/my-incidents.page.ts[0m:[93m22[0m:[93m16[0m - [91merror[0m[90m NG2008: [0mCould not find template file './my-incidents-page.component.html'.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[7m22[0m   templateUrl: './my-incidents-page.component.html',[39m[22m
-[1m[31m[7m  [0m [91m               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
+[1m[31m[7m6[0m   IncidentCreateRequest,[39m[22m
+[1m[31m[7m [0m [91m  ~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
 [1m[31m[39m[22m
 [1m[31m[39m[22m
-[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/employee-incidents/services/incidents.service.ts[0m:[93m12[0m:[93m8[0m - [91merror[0m[90m TS2307: [0mCannot find module '../../../../../libs/api-types/src/lib' or its corresponding type declarations.[39m[22m
+[1m[31m[39m[22m[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/employee-incidents/services/incidents.service.ts[0m:[93m7[0m:[93m3[0m - [91merror[0m[90m TS2305: [0mModule '"@api-types"' has no exported member 'IncidentDetail'.[39m[22m
 [1m[31m[39m[22m
-[1m[31m[7m12[0m } from '../../../../../libs/api-types/src/lib';[39m[22m
-[1m[31m[7m  [0m [91m       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
+[1m[31m[7m7[0m   IncidentDetail,[39m[22m
+[1m[31m[7m [0m [91m  ~~~~~~~~~~~~~~[0m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/employee-incidents/services/incidents.service.ts[0m:[93m8[0m:[93m3[0m - [91merror[0m[90m TS2305: [0mModule '"@api-types"' has no exported member 'IncidentHistoryPage'.[39m[22m
+[1m[31m[39m[22m
+[1m[31m[7m8[0m   IncidentHistoryPage,[39m[22m
+[1m[31m[7m [0m [91m  ~~~~~~~~~~~~~~~~~~~[0m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/employee-incidents/services/incidents.service.ts[0m:[93m9[0m:[93m3[0m - [91merror[0m[90m TS2305: [0mModule '"@api-types"' has no exported member 'IncidentListPage'.[39m[22m
+[1m[31m[39m[22m
+[1m[31m[7m9[0m   IncidentListPage,[39m[22m
+[1m[31m[7m [0m [91m  ~~~~~~~~~~~~~~~~[0m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/employee-incidents/services/incidents.service.ts[0m:[93m10[0m:[93m3[0m - [91merror[0m[90m TS2305: [0mModule '"@api-types"' has no exported member 'IncidentPhotoContent'.[39m[22m
+[1m[31m[39m[22m
+[1m[31m[7m10[0m   IncidentPhotoContent,[39m[22m
+[1m[31m[7m  [0m [91m  ~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[39m[22m
+[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/employee-incidents/services/incidents.service.ts[0m:[93m11[0m:[93m3[0m - [91merror[0m[90m TS2305: [0mModule '"@api-types"' has no exported member 'RoomList'.[39m[22m
+[1m[31m[39m[22m
+[1m[31m[7m11[0m   RoomList,[39m[22m
+[1m[31m[7m  [0m [91m  ~~~~~~~~[0m[39m[22m
 [1m[31m[39m[22m
 [1m[31m[39m[22m
 [1m[31m[39m[22m
