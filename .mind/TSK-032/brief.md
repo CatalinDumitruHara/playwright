@@ -1656,3 +1656,18 @@ Si tu pantalla necesita un cuerpo concreto, añádelo tú por el admin API (`POS
 
 ### Si el entorno no está disponible
 Comprueba `.mind/TSK-032/env.json`: si su `status` es `unavailable` o `degraded`, la plataforma no pudo darte (todo) el entorno. En ese caso ESCRIBE igualmente los tests de integración y déjalos en el entregable, y repórtalo como health check **Warning** con `check: entorno-de-prueba` — NO como Blocker: no es un defecto de tu tarea, y la verificación queda diferida al CI. Reserva el Blocker para cuando el entorno SÍ estaba y los tests fallan por el código o por el brief.
+
+## Estado del build al cerrar el intento anterior
+
+El intento anterior dejó el módulo COMPILANDO, pero el artefacto entregado **no arrancaría** (o incumple el contrato que declara). El compilador está en VERDE: **no busques ahí y no pierdas el intento intentando reproducir un fallo de compilación que no existe**. Lo que falla es exactamente lo que dice el informe de abajo, y es lo PRIMERO que tienes que arreglar, antes de añadir nada nuevo.
+
+- Arregla lo que nombra el informe, en el sitio que nombra. No hace falta reproducirlo con el compilador: ya compila.
+- Si el defecto viene de la rama BASE y no de tu trabajo, arréglalo igual y decláralo como `health_check` de severidad Warning indicando el fichero y por qué lo tocaste.
+- **No borres ni desactives tests para que el informe calle.** Si crees que el informe se equivoca, entrégalo con un `health_check` Blocker explicando por qué; quitar cobertura para tapar una señal es peor que la señal.
+
+### Lo que reportó la verificación (literal)
+
+```
+stub-delivery: hay features marcadas como entregadas cuyo cuerpo no hace nada. `TODO`, `not implemented` y un retorno vacío como cuerpo único son bloqueantes de entrega, no notas.
+- 3 de 12 rutas registradas que ninguna plantilla enlaza: `/acceso/credencial-caducada`, `/avisos/permisos-actualizados`, `/avisos/version-no-soportada`. Una pantalla a la que sólo se llega escribiendo la URL no está entregada: móntala en el menú del shell con la `sección de menú` que declara su spec de UI
+```
