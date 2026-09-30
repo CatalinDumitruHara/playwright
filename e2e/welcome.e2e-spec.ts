@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { ensureEnvironment } from './mind-env';
 
 /**
  * @smoke — app boots and the default route mounts without a fatal page error.
@@ -13,6 +14,7 @@ test.describe('@smoke welcome shell', () => {
     const errors: string[] = [];
     page.on('pageerror', (err) => errors.push(String(err)));
     await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await ensureEnvironment(page);
     await expect(page.locator('app-root')).toBeAttached({ timeout: 15_000 });
     expect(errors, `pageerrors: ${errors.join('; ')}`).toEqual([]);
   });
