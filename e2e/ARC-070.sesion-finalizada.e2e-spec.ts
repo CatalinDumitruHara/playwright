@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { ensureEnvironment } from './mind-env';
 
 /** ARC-070 · Sesión finalizada (/acceso/sesion-finalizada) — FLOW-019 SCR-003. */
-test.describe('@smoke @functional @screen:SCR-003 Sesión finalizada', () => {
+test.describe('@smoke @functional @screen:ARC-070 @screen:SCR-003 Sesión finalizada', () => {
   test('informa de la finalización y vuelve al formulario de acceso', async ({ page }) => {
     await page.goto('/acceso/sesion-finalizada?returnUrl=%2Fmi-perfil');
     await ensureEnvironment(page);

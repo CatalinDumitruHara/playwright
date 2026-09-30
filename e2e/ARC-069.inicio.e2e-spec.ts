@@ -3,7 +3,7 @@ import { ensureEnvironment } from './mind-env';
 import { mockNoSession, mockSession } from './shell-session';
 
 /** ARC-069 · Pantalla inicial del rol (/inicio) — FLOW-018 SCR-004, FLOW-019 SCR-002, FLOW-028 SCR-001. */
-test.describe('@smoke @functional @screen:SCR-001 @screen:SCR-002 @screen:SCR-004 Pantalla inicial del rol', () => {
+test.describe('@smoke @functional @screen:ARC-069 @screen:SCR-001 @screen:SCR-002 @screen:SCR-004 Pantalla inicial del rol', () => {
   test('muestra usuario, rol vigente, menú y accesos directos', async ({ page }) => {
     await mockSession(page, 'EMPLEADO');
     await page.goto('/inicio');

@@ -3,7 +3,7 @@ import { ensureEnvironment } from './mind-env';
 import { mockSession } from './shell-session';
 
 /** ARC-092 · Acceso no autorizado (/acceso-no-autorizado) — FLOW-028 SCR-003. */
-test.describe('@smoke @functional @screen:SCR-003 Acceso no autorizado', () => {
+test.describe('@smoke @functional @screen:ARC-092 @screen:SCR-003 Acceso no autorizado', () => {
   test('muestra ruta solicitada y rol vigente y vuelve a la pantalla inicial', async ({ page }) => {
     await mockSession(page, 'EMPLEADO');
     await page.goto('/acceso-no-autorizado?ruta=%2Fusuarios');
