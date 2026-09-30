@@ -40,12 +40,7 @@ class MockB2bSidebarItemComponent {
   @Input() icon?: string;
 }
 
-@Component({
-  selector: 'b2b-mapfre-logo',
-  template: '',
-  standalone: true,
-})
-class MockB2bMapfreLogoComponent {}
+
 
 describe('MainLayoutComponent', () => {
   let spectator: Spectator<MainLayoutComponent>;
@@ -56,28 +51,11 @@ describe('MainLayoutComponent', () => {
 
   const createComponent = createRoutingFactory({
     component: MainLayoutComponent,
-    overrideComponents: [
-      [
-        MainLayoutComponent,
-        {
-          remove: {
-            imports: [
-              B2bHeaderDesktopComponent,
-              B2bSidebarComponent,
-              B2bSidebarItemComponent,
-              B2bMapfreLogoComponent,
-            ],
-          },
-          add: {
-            imports: [
-              MockB2bHeaderDesktopComponent,
-              MockB2bSidebarComponent,
-              MockB2bSidebarItemComponent,
-              MockB2bMapfreLogoComponent,
-            ],
-          },
-        },
-      ],
+    imports: [
+      B2bHeaderDesktopComponent,
+      B2bSidebarComponent,
+      B2bSidebarItemComponent,
+      B2bMapfreLogoComponent,
     ],
     mocks: [AuthenticationService],
     routes: [{ path: 'home', component: HomeComponent }],
@@ -99,8 +77,8 @@ describe('MainLayoutComponent', () => {
 
   it('should display user name when authenticated', () => {
     const session: SessionContext = {
-      user: { name: 'John Doe', email: 'john.doe@example.com' },
-      permissions: ['ROL-001'],
+      session: { user: { name: 'John Doe', role: 'user' } },
+      token: 'test_token',
     };
     authenticationServiceMock.sessionContext.set(session);
     spectator.detectChanges();
@@ -109,8 +87,8 @@ describe('MainLayoutComponent', () => {
 
   it('should display menu options based on user role', () => {
     const session: SessionContext = {
-      user: { name: 'John Doe', email: 'john.doe@example.com' },
-      permissions: ['ROL-001', 'ROL-002'],
+      session: { user: { name: 'John Doe', role: 'user' } },
+      token: 'test_token',
     };
     authenticationServiceMock.sessionContext.set(session);
     spectator.detectChanges();
@@ -123,8 +101,8 @@ describe('MainLayoutComponent', () => {
 
   it('should call logout when logout button is clicked', () => {
     const session: SessionContext = {
-      user: { name: 'John Doe', email: 'john.doe@example.com' },
-      permissions: ['ROL-001'],
+      session: { user: { name: 'John Doe', role: 'user' } },
+      token: 'test_token',
     };
     authenticationServiceMock.sessionContext.set(session);
     spectator.detectChanges();

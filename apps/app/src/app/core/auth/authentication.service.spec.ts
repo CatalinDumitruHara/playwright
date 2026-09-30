@@ -1,7 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { AuthenticationService } from './authentication.service';
-import { SessionContext } from '@api-types';
+import { AuthenticationService, SessionContext, SessionDetail } from './authentication.service';
 
 describe('AuthenticationService', () => {
   let service: AuthenticationService;
@@ -25,96 +24,104 @@ describe('AuthenticationService', () => {
   });
 
   it('getSessionContext should fetch and store session context', () => {
-    const mockSession: SessionContext = {
-      user: { name: 'Test User', email: 'test@test.com' },
-      permissions: ['user']
+    const mockSessionDetail: SessionDetail = {
+      token: 'abc',
+      session_context: {
+        user: { name: 'Test User', email: 'test@test.com', role_code: 'test-role' },
+        permissions: ['user']
+      }
     };
 
     service.getSessionContext().subscribe();
 
     const req = httpMock.expectOne('/auth/sessions/current');
     expect(req.request.method).toBe('GET');
-    req.flush(mockSession);
+    req.flush(mockSessionDetail);
 
-    expect(service.sessionContext()).toEqual(mockSession);
+    expect(service.sessionContext()).toEqual(mockSessionDetail.session_context);
   });
 
-  it('isAuthenticated should be true when session context exists', () => {
-    const mockSession: SessionContext = {
-      user: { name: 'Test User', email: 'test@test.com' },
-      permissions: ['user']
-    };
+  it('isAuthenticated should be true when session context exists', (done) => {
+    const mockSessionDetail: SessionDetail = {
+        token: 'abc',
+        session_context: {
+          user: { name: 'Test User', email: 'test@test.com', role_code: 'test-role' },
+          permissions: ['user']
+        }
+      };
 
-    service.getSessionContext().subscribe();
+    service.getSessionContext().subscribe(() => {
+        expect(service.isAuthenticated()).toBe(true);
+        done();
+    });
 
     const req = httpMock.expectOne('/auth/sessions/current');
-    req.flush(mockSession);
-
-    expect(service.isAuthenticated()).toBe(true);
+    req.flush(mockSessionDetail);
   });
 
   it('isAuthenticated should be false when session context is null', () => {
     expect(service.isAuthenticated()).toBe(false);
   });
 
-  // NOTE: hasRole is implemented incorrectly in the service (uses computed property with a parameter)
-  // and uses `roles` instead of `permissions`.
-  // This test is adapted to what the implementation *should* be.
-  // A finding will be reported.
   it('hasRole should return true for an existing role', (done) => {
-    const mockSession: SessionContext = {
-      user: { name: 'Test User', email: 'test@test.com' },
-      permissions: ['admin']
+    const mockSessionDetail: SessionDetail = {
+        token: 'abc',
+        session_context: {
+            user: { name: 'Test User', email: 'test@test.com', role_code: 'test-role' },
+            permissions: ['admin']
+        }
     };
 
     service.getSessionContext().subscribe(() => {
-      // This is how hasRole should be called, but it's a computed property
-      // expect(service.hasRole('admin')()).toBe(true);
-      
-      // Let's test the faulty implementation to see it fail as expected
-      const hasRoleFn = service.hasRole('admin');
-      expect(hasRoleFn()).toBe(true);
+      expect(service.hasRole('admin')).toBe(true);
       done();
     });
 
     const req = httpMock.expectOne('/auth/sessions/current');
-    req.flush(mockSession);
+    req.flush(mockSessionDetail);
   });
 
   it('hasRole should return false for a non-existing role', (done) => {
-    const mockSession: SessionContext = {
-      user: { name: 'Test User', email: 'test@test.com' },
-      permissions: ['user']
+    const mockSessionDetail: SessionDetail = {
+        token: 'abc',
+        session_context: {
+            user: { name: 'Test User', email: 'test@test.com', role_code: 'test-role' },
+            permissions: ['user']
+        }
     };
 
     service.getSessionContext().subscribe(() => {
-      const hasRoleFn = service.hasRole('admin');
-      expect(hasRoleFn()).toBe(false);
+      expect(service.hasRole('admin')).toBe(false);
       done();
     });
 
     const req = httpMock.expectOne('/auth/sessions/current');
-    req.flush(mockSession);
+    req.flush(mockSessionDetail);
   });
 
-  it('logout should clear session context', () => {
-    const mockSession: SessionContext = {
-      user: { name: 'Test User', email: 'test@test.com' },
-      permissions: ['user']
-    };
+  it('logout should clear session context', (done) => {
+    const mockSessionDetail: SessionDetail = {
+        token: 'abc',
+        session_context: {
+          user: { name: 'Test User', email: 'test@test.com', role_code: 'test-role' },
+          permissions: ['user']
+        }
+      };
 
-    service.getSessionContext().subscribe();
+    service.getSessionContext().subscribe(() => {
+        expect(service.sessionContext()).toBeTruthy();
+
+        service.logout().subscribe(() => {
+            expect(service.sessionContext()).toBeNull();
+            done();
+        });
+
+        const deleteReq = httpMock.expectOne('/auth/sessions/current');
+        expect(deleteReq.request.method).toBe('DELETE');
+        deleteReq.flush({});
+    });
+
     const getReq = httpMock.expectOne('/auth/sessions/current');
-    getReq.flush(mockSession);
-
-    expect(service.sessionContext()).toEqual(mockSession);
-
-    service.logout().subscribe();
-
-    const delReq = httpMock.expectOne('/auth/sessions/current');
-    expect(delReq.request.method).toBe('DELETE');
-    delReq.flush({});
-
-    expect(service.sessionContext()).toBeNull();
+    getReq.flush(mockSessionDetail);
   });
 });

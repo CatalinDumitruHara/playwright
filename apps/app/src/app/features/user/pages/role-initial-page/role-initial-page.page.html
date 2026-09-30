@@ -1,0 +1,30 @@
+<b2b-container>
+  <b2b-header-desktop>
+    <b2b-mapfre-logo b2b-header-logo></b2b-mapfre-logo>
+    <div b2b-header-functions>
+      <span>Usuario: {{ userName }}</span>
+      <span>Rol: {{ userRole }}</span>
+      <button b2b-button (click)="logout()">Cerrar sesión</button>
+    </div>
+  </b2b-header-desktop>
+
+  <b2b-grid-layout>
+    <b2b-sidebar>
+      <b2b-sidebar-item *ngFor="let item of menuItems" [title]="item.label">
+        <a [routerLink]="item.path">{{ item.label }}</a>
+      </b2b-sidebar-item>
+    </b2b-sidebar>
+
+    <main>
+      <h1 style="font-size: var(--b2b-titles-04-font-size)">
+        Pantalla inicial
+      </h1>
+      <p>Accesos directos:</p>
+      <ul>
+        <li *ngFor="let item of shortcutItems">
+          <a b2b-link [routerLink]="item.path">{{ item.label }}</a>
+        </li>
+      </ul>
+    </main>
+  </b2b-grid-layout>
+</b2b-container>

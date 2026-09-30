@@ -33,7 +33,7 @@ describe('roleGuard', () => {
   });
 
   it('should return true if user has an allowed role', () => {
-    const session = { role_code: 'ROL-003' } as SessionContext;
+    const session = { user: { name: 'test', role: 'ROL-003' } } as SessionContext;
     authServiceMock.sessionContext.mockReturnValue(signal(session)());
     const route = { data: { roles: ['ROL-003'] } } as unknown as ActivatedRouteSnapshot;
 
@@ -42,7 +42,7 @@ describe('roleGuard', () => {
   });
 
   it('should redirect to /unauthorized and return false if user does not have an allowed role', () => {
-    const session = { role_code: 'ROL-001' } as SessionContext;
+    const session = { user: { name: 'test', role: 'ROL-001' } } as SessionContext;
     authServiceMock.sessionContext.mockReturnValue(signal(session)());
     const navigateSpy = jest.spyOn(router, 'navigate');
     const route = { data: { roles: ['ROL-003'] } } as unknown as ActivatedRouteSnapshot;
@@ -50,7 +50,7 @@ describe('roleGuard', () => {
     const canActivate = executeGuard(route, {} as RouterStateSnapshot);
 
     expect(canActivate).toBe(false);
-    expect(navigateSpy).toHaveBeenCalledWith(['/unauthorized']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/acceso-no-autorizado']);
   });
 
   it('should redirect to /unauthorized and return false if there is no session', () => {
@@ -61,6 +61,6 @@ describe('roleGuard', () => {
     const canActivate = executeGuard(route, {} as RouterStateSnapshot);
 
     expect(canActivate).toBe(false);
-    expect(navigateSpy).toHaveBeenCalledWith(['/unauthorized']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/acceso-no-autorizado']);
   });
 });

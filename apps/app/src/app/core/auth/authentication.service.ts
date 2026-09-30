@@ -1,34 +1,91 @@
-import { computed, Injectable, signal } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, tap, map } from 'rxjs';
 import { Router } from '@angular/router';
-import { SessionContext } from '@api-types';
+import {
+  SessionContext,
+  LoginRequest,
+  SessionDetail,
+  ChangePasswordForcedRequest,
+  ChangePasswordRequest,
+} from '@api-types';
+import { ENVIRONMENT } from '@mapfre-tech/ngx-multienvironment/core';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthenticationService {
-  private _sessionContext = signal<SessionContext | null>(null);
-  public sessionContext = this._sessionContext.asReadonly();
+  private http = inject(HttpClient);
+  private router = inject(Router);
+  private environment = inject(ENVIRONMENT);
+  private apiBaseUrl = (this.environment as any).apiBaseUrl;
+  private session: SessionDetail | null = null;
 
-  constructor(private router: Router) {
-    // Simulate a logged-in user for development
-    if (this.isAuthenticated()) {
-      this._sessionContext.set({
-        user: { name: 'John Doe', email: 'john.doe@example.com' },
-        permissions: ['ROL-001', 'ROL-002'],
-      });
-    }
+  login(loginRequest: LoginRequest): Observable<SessionDetail> {
+    return this.http
+      .post<SessionDetail>(`${this.apiBaseUrl}/auth/sessions`, loginRequest)
+      .pipe(
+        tap((sessionDetail: SessionDetail) => {
+          this.session = sessionDetail;
+          localStorage.setItem('sessionToken', sessionDetail.token);
+        })
+      );
   }
 
-  logout(): void {
-    // Remove the session token from local storage
-    localStorage.removeItem('sessionToken');
-    this._sessionContext.set(null);
-    // Redirect to the login page
-    this.router.navigate(['/login']);
+  changePasswordForced(
+    changePasswordForcedRequest: ChangePasswordForcedRequest
+  ): Observable<void> {
+    return this.http.put<void>(
+      `${this.apiBaseUrl}/auth/initial-password`,
+      changePasswordForcedRequest
+    );
+  }
+
+  changePassword(
+    changePasswordRequest: ChangePasswordRequest
+  ): Observable<void> {
+    return this.http.put<void>(
+      `${this.apiBaseUrl}/auth/password`,
+      changePasswordRequest
+    );
+  }
+
+  logout(): Observable<void> {
+    return this.http.delete<void>(`${this.apiBaseUrl}/auth/sessions/current`).pipe(
+      tap(() => {
+        localStorage.removeItem('sessionToken');
+        this.session = null;
+        this.router.navigate(['/login']);
+      })
+    );
+  }
+
+  getSession(): SessionDetail | null {
+    return this.session;
   }
 
   isAuthenticated(): boolean {
-    // Check if the session token exists in local storage
-    return !!localStorage.getItem('sessionToken');
+    return !!this.session;
+  }
+
+  getSessionContext(): Observable<SessionContext | null> {
+    return this.http.get<SessionDetail>(`${this.apiBaseUrl}/auth/sessions/current`).pipe(
+      tap(sessionDetail => {
+        this.session = sessionDetail;
+        localStorage.setItem('sessionToken', sessionDetail.token);
+      }),
+      map(sessionDetail => sessionDetail as unknown as SessionContext)
+    );
+  }
+
+  sessionContext(): SessionContext | null {
+    return this.session as unknown as SessionContext;
+  }
+
+  hasRole(role: string): boolean {
+    if (!this.session) {
+      return false;
+    }
+    return (this.session as unknown as SessionContext).user.role === role;
   }
 }

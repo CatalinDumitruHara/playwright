@@ -1,25 +1,23 @@
 <b2b-header-desktop>
   <b2b-mapfre-logo b2b-header-logo></b2b-mapfre-logo>
   <div b2b-header-functions>
-    <div class="user-info" *ngIf="session()">
-      <span>{{ userName }}</span>
-      <button b2b-button variant="secondary" (click)="logout()">Cerrar sesión</button>
+    <div class="user-info" *ngIf="session">
+      <span>{{ session.user.name }}</span>
+      <button b2b-button variant="secondary" (click)="logout()">
+        Cerrar sesión
+      </button>
     </div>
   </div>
 </b2b-header-desktop>
-
 <b2b-sidebar>
   <b2b-sidebar-item
-    *ngFor="let option of menuOptions()"
-    [title]="option.label"
-    [routerLink]="option.routerLink"
+    *ngFor="let option of filteredMenu"
+    [routerLink]="option.path"
     routerLinkActive="active"
-    [icon]="option.icon"
+    [title]="option.label"
+    >{{ option.label }}</b2b-sidebar-item
   >
-    {{ option.label }}
-  </b2b-sidebar-item>
 </b2b-sidebar>
-
 <b2b-container>
   <router-outlet></router-outlet>
 </b2b-container>
