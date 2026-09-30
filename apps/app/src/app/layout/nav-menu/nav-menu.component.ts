@@ -1,12 +1,58 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs';
+import {
+  B2bSidebarComponent,
+  B2bSidebarItemComponent,
+} from '@mapfre-tech/b2b-components';
+import { AuthenticationService } from '../../core/auth/authentication.service';
+import {
+  NAV_ITEMS,
+  NavItem,
+  navItemsForRole,
+} from '../../core/navigation/navigation.model';
 
 @Component({
   selector: 'app-nav-menu',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [B2bSidebarComponent, B2bSidebarItemComponent],
   templateUrl: './nav-menu.component.html',
-  styleUrls: ['./nav-menu.component.scss'],
+  styleUrl: './nav-menu.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { role: 'navigation', 'aria-label': 'Menú principal' },
 })
-export class NavMenuComponent {}
+export class NavMenuComponent {
+  private readonly auth = inject(AuthenticationService);
+  private readonly router = inject(Router);
+  private readonly items = inject(NAV_ITEMS);
+
+  readonly menu = computed(() =>
+    navItemsForRole(this.items, this.auth.currentUser()?.roleCode)
+  );
+
+  readonly currentUrl = signal(this.router.url);
+
+  constructor() {
+    this.router.events
+      .pipe(
+        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+        takeUntilDestroyed()
+      )
+      .subscribe((e) => this.currentUrl.set(e.urlAfterRedirects));
+  }
+
+  isActive(item: NavItem): boolean {
+    return this.currentUrl().split('?')[0].split('#')[0] === item.path;
+  }
+
+  go(item: NavItem): void {
+    void this.router.navigateByUrl(item.path);
+  }
+}

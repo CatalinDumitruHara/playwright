@@ -1,38 +1,39 @@
-
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { AuthenticationService } from '../../core/auth/authentication.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   B2bButtonComponent,
   B2bNotificationInlineComponent,
+  B2bReadDataComponent,
 } from '@mapfre-tech/b2b-components';
+import { AuthenticationService } from '../../core/auth/authentication.service';
+import { isInternalPath } from '../../core/auth/session.model';
 
 @Component({
-  selector: 'b2b-unauthorized-access',
+  selector: 'app-unauthorized-access-page',
   standalone: true,
   imports: [
-    CommonModule,
     B2bButtonComponent,
     B2bNotificationInlineComponent,
+    B2bReadDataComponent,
   ],
   templateUrl: './unauthorized-access.page.html',
   styleUrls: ['./unauthorized-access.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UnauthorizedAccessPage {
-  protected readonly userRole: string;
-  protected readonly requestedUrl: string;
-
   private readonly router = inject(Router);
-  private readonly authService = inject(AuthenticationService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly auth = inject(AuthenticationService);
 
-  constructor() {
-    this.userRole = this.authService.sessionContext()?.permissions[0] || 'N/A';
-    this.requestedUrl = this.router.url;
+  readonly user = this.auth.currentUser;
+  readonly requestedPath: string = this.resolveRequestedPath();
+
+  back(): void {
+    void this.router.navigate(['/inicio']);
   }
 
-  onBack(): void {
-    this.router.navigate(['/']);
+  private resolveRequestedPath(): string {
+    const raw = this.route.snapshot.queryParamMap.get('ruta');
+    return isInternalPath(raw) ? raw : '—';
   }
 }

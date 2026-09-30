@@ -1,11 +1,11 @@
-<ul>
-  <li><a routerLink="/acceso/login">Login</a></li>
-  <li><a routerLink="/acceso/change-password-forced">Change Password Forced</a></li>
-  <li><a routerLink="/acceso/expired-credential">Expired Credential</a></li>
-  <li><a routerLink="/acceso/account-locked">Account Locked</a></li>
-  <li><a routerLink="/acceso/permissions-changed">Permissions Changed</a></li>
-  <li><a routerLink="/acceso/sesion-finalizada">Session Ended</a></li>
-  <li><a routerLink="/profile/my-profile">My Profile</a></li>
-  <li><a routerLink="/profile/change-password">Change Password</a></li>
-  <li><a routerLink="/profile/change-password-confirmation">Change Password Confirmation</a></li>
-</ul>
+<b2b-sidebar>
+  @for (item of menu(); track item.path) {
+    <b2b-sidebar-item
+      [title]="item.label"
+      [selected]="isActive(item)"
+      (clicked)="go(item)"
+      [attr.data-testid]="'nav-' + item.path"
+      >{{ item.label }}</b2b-sidebar-item
+    >
+  }
+</b2b-sidebar>

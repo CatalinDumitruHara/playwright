@@ -1,14 +1,24 @@
 <b2b-container>
-  <div class="container-fluid">
-    <div class="row justify-content-center">
-      <div class="col-md-6">
-        <h1 style="font-size: var(--b2b-titles-04-font-size)">Sesión Finalizada</h1>
-        <b2b-notification-inline [visible]="true" type="info">
-          <p data-testid="reason">{{ reason }}</p>
-          <p data-testid="datetime">Fecha y hora: {{ endedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</p>
-        </b2b-notification-inline>
-        <button b2b-button (click)="goToLogin()" data-testid="back-button" class="mt-3">Volver a acceder</button>
-      </div>
-    </div>
-  </div>
+  <h1 style="font-size: var(--b2b-titles-04-font-size)">Sesión finalizada</h1>
+  <b2b-notification-inline
+    [visible]="true"
+    state="info"
+    type="info"
+    [title]="title"
+    [description]="message"
+    data-testid="reason"
+  ></b2b-notification-inline>
+  <b2b-read-data>
+    <span b2b-read-data-label>Fecha y hora de finalización</span>
+    <span b2b-read-data-value data-testid="datetime">{{ endedAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+  </b2b-read-data>
+  <button
+    b2b-button
+    type="button"
+    class="b2b--primary"
+    data-testid="back-button"
+    (click)="goToLogin()"
+  >
+    Volver al formulario de acceso
+  </button>
 </b2b-container>

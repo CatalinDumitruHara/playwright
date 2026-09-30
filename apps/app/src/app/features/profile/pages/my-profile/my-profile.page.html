@@ -2,9 +2,9 @@
   <div b2b-card-primary>
     <h2>Mi perfil</h2>
     <div *ngIf="session">
-      <b2b-read-data label="Nombre">{{session.user.name}}</b2b-read-data>
-      <b2b-read-data label="Correo corporativo">{{session.user.email}}</b2b-read-data>
-      <b2b-read-data label="Rol vigente">{{session.user.role}}</b2b-read-data>
+      <b2b-read-data label="Nombre">{{session.fullName}}</b2b-read-data>
+      <b2b-read-data label="Correo corporativo">{{session.email}}</b2b-read-data>
+      <b2b-read-data label="Rol vigente">{{session.roleLabel}}</b2b-read-data>
     </div>
     <button b2b-button (click)="goToChangePassword()">
       Cambiar contraseña

@@ -1,8 +1,17 @@
-/* Estilos para la página de inicio */
-.user-info {
-  margin-bottom: 20px;
+.home-identity {
+  display: grid;
+  gap: 1rem;
+  margin-block: 1.5rem;
 }
 
-.shortcuts {
-  margin-bottom: 20px;
+.home-shortcuts {
+  margin-block: 1.5rem;
+}
+
+.home-shortcut {
+  padding-block: 0.75rem;
+}
+
+.shortcut-description {
+  font-size: var(--b2b-text-caption-m-font-size);
 }

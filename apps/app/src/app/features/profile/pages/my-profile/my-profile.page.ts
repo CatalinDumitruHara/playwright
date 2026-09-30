@@ -9,7 +9,7 @@ import {
   B2bTagComponent,
 } from '@mapfre-tech/b2b-components';
 import { AuthenticationService } from '../../../../core/auth/authentication.service';
-import { SessionDetail } from '@api-types';
+import { CurrentUser } from '../../../../core/auth/session.model';
 
 @Component({
   selector: 'app-my-profile',
@@ -30,7 +30,7 @@ export class MyProfilePage implements OnInit {
   private authService = inject(AuthenticationService);
   private router = inject(Router);
 
-  session: SessionDetail | null = null;
+  session: CurrentUser | null = null;
 
   ngOnInit(): void {
     this.session = this.authService.getSession();
