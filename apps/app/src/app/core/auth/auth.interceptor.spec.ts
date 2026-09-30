@@ -70,7 +70,7 @@ describe('AuthInterceptor', () => {
     req.flush({});
   });
 
-  it('should redirect to /login on 401 error', () => {
+  it('should redirect to /acceso on 401 error', () => {
     const token = 'test-token';
     (authService.isAuthenticated as jest.Mock).mockReturnValue(true);
     getItemSpy.mockReturnValue(token);
@@ -84,7 +84,7 @@ describe('AuthInterceptor', () => {
     const req = httpMock.expectOne('/test');
     req.flush({}, { status: 401, statusText: 'Unauthorized' });
 
-    expect(router.navigate).toHaveBeenCalledWith(['/login']);
+    expect(router.navigate).toHaveBeenCalledWith(['/acceso']);
   });
 
   it('should call logout on 401 error', () => {
