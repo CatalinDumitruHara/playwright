@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-incident-create-confirmation',
   templateUrl: './incident-create-confirmation.page.html',
-  styleUrls: ['./incident-create-confirmation.page.scss'],
+  styleUrls: [],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

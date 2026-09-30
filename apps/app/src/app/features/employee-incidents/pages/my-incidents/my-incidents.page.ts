@@ -8,7 +8,7 @@ import {
   B2bTableContainerComponent,
   B2bTagComponent,
 } from '@mapfre-tech/b2b-components';
-import { IncidentListPage, IncidentSummary } from '../../../../../libs/api-types/src/lib';
+import { IncidentListPage, IncidentSummary } from '@api-types';
 import { Observable, of } from 'rxjs';
 import { IncidentsService } from '../../services/incidents.service';
 
@@ -19,8 +19,8 @@ interface B2bTableModel<T> {
 
 @Component({
   selector: 'app-my-incidents-page',
-  templateUrl: './my-incidents-page.component.html',
-  styleUrls: ['./my-incidents-page.component.scss'],
+  templateUrl: './my-incidents.page.html',
+  styleUrls: [],
   standalone: true,
   imports: [
     CommonModule,
@@ -66,7 +66,8 @@ export class MyIncidentsPage implements OnInit {
     this.incidentsData$ = this.incidentsService.getMyIncidents();
   }
 
-  onSearch(query: string): void {
+  onSearch(event: Event): void {
+    const query = (event as CustomEvent).detail;
     // TODO: Implement search logic
     console.log('Search query:', query);
   }

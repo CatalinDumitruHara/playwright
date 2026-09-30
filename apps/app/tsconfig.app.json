@@ -3,7 +3,13 @@
   "compilerOptions": {
     "module": "esnext",
     "outDir": "../../dist/out-tsc",
-    "types": []
+    "types": [],
+    "baseUrl": ".",
+    "paths": {
+      "@api-types": ["../../libs/api-types/src/index.ts"],
+      "@mapfre-tech/b2b-components": ["../../node_modules/@mapfre-tech/b2b-components/index"],
+      "@mapfre-tech/ngx-multienvironment/core": ["../../node_modules/@mapfre-tech/ngx-multienvironment/core/index"]
+    }
   },
   "files": ["src/main.ts", "src/polyfills.ts"],
   "include": ["src/**/*.d.ts"],

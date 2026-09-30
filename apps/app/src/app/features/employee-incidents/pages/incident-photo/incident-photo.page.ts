@@ -11,7 +11,7 @@ import {
 @Component({
   selector: 'app-incident-photo-page',
   templateUrl: './incident-photo.page.html',
-  styleUrls: ['./incident-photo.page.scss'],
+  styleUrls: [],
   standalone: true,
   imports: [CommonModule, B2bNotificationInlineComponent, B2bButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -26,7 +26,7 @@ import {
 @Component({
   selector: 'app-incident-create',
   templateUrl: './incident-create.page.html',
-  styleUrls: ['./incident-create.page.scss'],
+  styleUrls: [],
   standalone: true,
   imports: [
     ReactiveFormsModule,

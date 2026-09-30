@@ -9,7 +9,7 @@ import { IncidentsService } from '../../services/incidents.service';
 @Component({
   selector: 'app-incident-history-page',
   templateUrl: './incident-history.page.html',
-  styleUrls: ['./incident-history.page.scss'],
+  styleUrls: [],
   standalone: true,
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,

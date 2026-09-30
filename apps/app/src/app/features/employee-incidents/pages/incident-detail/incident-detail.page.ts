@@ -6,7 +6,7 @@ import {
   B2bLinkComponent,
   B2bReadDataComponent,
 } from '@mapfre-tech/b2b-components';
-import { IncidentDetail } from '../../../../../libs/api-types/src/lib';
+import { IncidentDetail } from '@api-types';
 import { Observable, catchError, of } from 'rxjs';
 
 import { IncidentsService } from '../../services/incidents.service';
@@ -14,7 +14,7 @@ import { IncidentsService } from '../../services/incidents.service';
 @Component({
   selector: 'app-incident-detail-page',
   templateUrl: './incident-detail.page.html',
-  styleUrls: ['./incident-detail.page.scss'],
+  styleUrls: [],
   standalone: true,
   imports: [CommonModule, RouterModule, B2bReadDataComponent, B2bLinkComponent, B2bButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -24,7 +24,7 @@ export class IncidentDetailPage implements OnInit {
   private readonly router = inject(Router);
   private readonly incidentsService = inject(IncidentsService);
 
-  incident$: Observable<IncidentDetail | null>;
+  incident$: Observable<IncidentDetail | null> = of(null);
 
   ngOnInit(): void {
     const incidentId = this.route.snapshot.paramMap.get('incidentId');

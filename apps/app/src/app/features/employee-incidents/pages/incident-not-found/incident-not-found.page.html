@@ -1,11 +1,12 @@
 <div class="incident-not-found-page">
   <b2b-notification-inline
-    [text]="'No hemos encontrado esa incidencia'"
-    [type]="'info'"
+    [visible]="true"
+    text="No hemos encontrado esa incidencia"
+    type="info"
   ></b2b-notification-inline>
 
   <button
-    class="b2b-button-primary"
+    b2b-button
     (click)="navigateToMyIncidents()"
   >
     Volver a mis incidencias

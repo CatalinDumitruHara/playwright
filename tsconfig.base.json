@@ -4,7 +4,7 @@
     "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
-      "@api-types": ["libs/api-types/src/lib/index.ts"],
+      "@api-types": ["libs/api-types/src/index.ts"],
       "@mapfre-tech/b2b-components": ["node_modules/@mapfre-tech/b2b-components/index"],
       "@mapfre-tech/ngx-multienvironment/core": ["node_modules/@mapfre-tech/ngx-multienvironment/core/index"]
     }

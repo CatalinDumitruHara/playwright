@@ -9,7 +9,7 @@ import {
   IncidentListPage,
   IncidentPhotoContent,
   RoomList,
-} from '../../../../../libs/api-types/src/lib';
+} from '@api-types';
 import { Observable } from 'rxjs';
 
 @Injectable({
