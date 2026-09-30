@@ -35,7 +35,8 @@ large_tool_results/
 *_2.py
 tmp/
 
-# Playwright
+# Playwright / coverage (construction browser validation)
 /test-results/
 /playwright-report/
 /blob-report/
+/coverage/
