@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -54,12 +54,17 @@ export class IncidentDetailPage {
   );
 
   constructor() {
-    effect(() => {
-      const incidentId = this.incidentId$();
-      if (incidentId) {
-        this.loadIncidentData(incidentId);
-      }
-    });
+    const incidentId = this.incidentId$();
+    if (incidentId) {
+      this.loadIncidentData(incidentId);
+    } else {
+      this.state.set({
+        ...this.state(),
+        loading: false,
+        error: true,
+      });
+      this.router.navigate(['/incidencias/no-encontrada']);
+    }
   }
 
   private loadIncidentData(id: string): void {
@@ -72,6 +77,11 @@ export class IncidentDetailPage {
     })
       .pipe(
         catchError(() => {
+          this.state.set({
+            ...this.state(),
+            error: true,
+            loading: false,
+          });
           this.router.navigate(['/incidencias/no-encontrada']);
           return of(null);
         })

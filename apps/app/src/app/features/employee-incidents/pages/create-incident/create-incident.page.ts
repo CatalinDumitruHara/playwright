@@ -10,7 +10,6 @@ import {
   B2bDropDownSelectComponent,
   B2bTextAreaComponent,
   B2bFileUploaderComponent,
-  B2bButtonComponent,
 } from '@mapfre-tech/b2b-components';
 
 @Component({
@@ -22,7 +21,6 @@ import {
     B2bDropDownSelectComponent,
     B2bTextAreaComponent,
     B2bFileUploaderComponent,
-    B2bButtonComponent,
   ],
   templateUrl: './create-incident.page.html',
 })
