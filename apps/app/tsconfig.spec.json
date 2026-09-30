@@ -6,6 +6,12 @@
     "target": "es2016",
     "experimentalDecorators": true,
     "types": ["jest", "node"],
+    "baseUrl": ".",
+    "paths": {
+      "@mapfre-tech/b2b-components/*": [
+        "src/__mocks__/@mapfre-tech/b2b-components/*.ts"
+      ]
+    },
     "strictPropertyInitialization": false
   },
   "files": ["src/test-setup.ts"],

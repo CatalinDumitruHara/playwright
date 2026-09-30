@@ -38,6 +38,41 @@ export const appRoutes: Route[] = [
           ).then((p) => p.ChangePasswordConfirmationPage),
       },
       {
+        path: 'incidencias/nueva',
+        loadComponent: () =>
+          import(
+            './features/employee-incidents/pages/create-incident/create-incident.page'
+          ).then((p) => p.CreateIncidentPage),
+      },
+      {
+        path: 'incidencias/nueva/confirmacion',
+        loadComponent: () =>
+          import(
+            './features/employee-incidents/pages/create-incident/confirmation/confirmation.page'
+          ).then((p) => p.ConfirmationPage),
+      },
+      {
+        path: 'mis-incidencias',
+        loadComponent: () =>
+          import(
+            './features/employee-incidents/pages/my-incidents/my-incidents.page'
+          ).then((p) => p.MyIncidentsPage),
+      },
+      {
+        path: 'mis-incidencias/:id',
+        loadComponent: () =>
+          import(
+            './features/employee-incidents/pages/incident-detail/incident-detail.page'
+          ).then((p) => p.IncidentDetailPage),
+      },
+      {
+        path: 'incidencias/no-encontrada',
+        loadComponent: () =>
+          import(
+            './features/employee-incidents/pages/not-found/not-found.page'
+          ).then((p) => p.NotFoundPage),
+      },
+      {
         path: 'incidents',
         loadComponent: () =>
           import('./pages/welcome/welcome.page').then((p) => p.WelcomePage), // Placeholder
