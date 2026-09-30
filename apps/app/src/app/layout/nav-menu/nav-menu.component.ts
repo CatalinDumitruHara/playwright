@@ -37,6 +37,9 @@ export class NavMenuComponent {
     navItemsForRole(this.items, this.auth.currentUser()?.roleCode)
   );
 
+  /** Estado de apertura del sidebar; el output de la librería marca la vista OnPush. */
+  readonly expanded = signal(true);
+
   readonly currentUrl = signal(this.router.url);
 
   constructor() {

@@ -1,11 +1,10 @@
-<b2b-sidebar>
+<b2b-sidebar [expanded]="expanded()" (expandedChange)="expanded.set($event)">
   @for (item of menu(); track item.path) {
     <b2b-sidebar-item
       [title]="item.label"
       [selected]="isActive(item)"
       (clicked)="go(item)"
       [attr.data-testid]="'nav-' + item.path"
-      >{{ item.label }}</b2b-sidebar-item
-    >
+    ></b2b-sidebar-item>
   }
 </b2b-sidebar>
