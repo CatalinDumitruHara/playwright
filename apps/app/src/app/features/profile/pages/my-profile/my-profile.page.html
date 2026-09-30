@@ -1,57 +1,59 @@
 <b2b-container>
-  <div b2b-card-primary>
-    <h1 style="font-size: var(--b2b-titles-04-font-size)">Mi perfil</h1>
+  <div b2b-container-body b2b-card-primary>
+    <div b2b-card-placeholder-upper>
+      <h1 style="font-size: var(--b2b-titles-04-font-size)">Mi perfil</h1>
 
-    <b2b-notification-inline
-      *ngIf="errorMessage"
-      [visible]="true"
-      state="error"
-      type="error"
-      [title]="errorMessage"
-      data-testid="profile-error"
-    ></b2b-notification-inline>
+      <b2b-notification-inline
+        *ngIf="errorMessage"
+        [visible]="true"
+        state="error"
+        type="error"
+        [title]="errorMessage"
+        data-testid="profile-error"
+      ></b2b-notification-inline>
 
-    <div *ngIf="session?.user as user" class="profile-data">
-      <b2b-read-data>
-        <span b2b-read-data-label>Nombre y apellidos</span>
-        <span b2b-read-data-value data-testid="profile-name">{{ user.name }}</span>
-      </b2b-read-data>
-      <b2b-read-data>
-        <span b2b-read-data-label>Correo corporativo</span>
-        <span b2b-read-data-value data-testid="profile-email">{{ user.email }}</span>
-      </b2b-read-data>
-      <b2b-read-data>
-        <span b2b-read-data-label>Rol vigente</span>
-        <span b2b-read-data-value data-testid="profile-role">{{ user.role }}</span>
-      </b2b-read-data>
-      <b2b-read-data>
-        <span b2b-read-data-label>Estado de la cuenta</span>
-        <span b2b-read-data-value>
-          <b2b-tag data-testid="profile-status">{{ user.status }}</b2b-tag>
-        </span>
-      </b2b-read-data>
-      <b2b-read-data>
-        <span b2b-read-data-label>Última actualización de contraseña</span>
-        <span b2b-read-data-value data-testid="profile-password-updated">{{
-          user.password_last_updated | date: 'dd/MM/yyyy HH:mm'
-        }}</span>
-      </b2b-read-data>
-    </div>
+      <div *ngIf="session?.user as user" class="profile-data">
+        <b2b-read-data>
+          <span b2b-read-data-label>Nombre y apellidos</span>
+          <span b2b-read-data-value data-testid="profile-name">{{ user.name }}</span>
+        </b2b-read-data>
+        <b2b-read-data>
+          <span b2b-read-data-label>Correo corporativo</span>
+          <span b2b-read-data-value data-testid="profile-email">{{ user.email }}</span>
+        </b2b-read-data>
+        <b2b-read-data>
+          <span b2b-read-data-label>Rol vigente</span>
+          <span b2b-read-data-value data-testid="profile-role">{{ user.role }}</span>
+        </b2b-read-data>
+        <b2b-read-data>
+          <span b2b-read-data-label>Estado de la cuenta</span>
+          <span b2b-read-data-value>
+            <b2b-tag data-testid="profile-status">{{ user.status }}</b2b-tag>
+          </span>
+        </b2b-read-data>
+        <b2b-read-data>
+          <span b2b-read-data-label>Última actualización de contraseña</span>
+          <span b2b-read-data-value data-testid="profile-password-updated">{{
+            user.password_last_updated | date: 'dd/MM/yyyy HH:mm'
+          }}</span>
+        </b2b-read-data>
+      </div>
 
-    <div class="profile-actions">
-      <button b2b-button type="button" data-testid="go-change-password" (click)="goToChangePassword()">
-        Cambiar contraseña
-      </button>
-      <button
-        b2b-button
-        type="button"
-        class="b2b--secondary"
-        variant="secondary"
-        data-testid="go-home"
-        (click)="goToHome()"
-      >
-        Volver a la pantalla inicial
-      </button>
+      <div class="profile-actions">
+        <button b2b-button type="button" data-testid="go-change-password" (click)="goToChangePassword()">
+          Cambiar contraseña
+        </button>
+        <button
+          b2b-button
+          type="button"
+          class="b2b--secondary"
+          variant="secondary"
+          data-testid="go-home"
+          (click)="goToHome()"
+        >
+          Volver a la pantalla inicial
+        </button>
+      </div>
     </div>
   </div>
 </b2b-container>
