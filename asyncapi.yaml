@@ -5,6 +5,11 @@ info:
   description: 'Catálogo de eventos generado por MIND desde T.3 (PR #0). Los canales
     con x-mind-audience: client son el contrato cliente↔servidor en tiempo real; los
     payloads marcados x-mind-placeholder los completa la construcción.'
+servers:
+  webhooks:
+    url: /api/webhooks
+    protocol: https
+    description: Webhooks entrantes
 channels:
   facilities.avisos.solicitado.v1:
     description: 'AvisoSolicitado · productor: ARC-013 → consumidor: ARC-014'
@@ -40,34 +45,40 @@ channels:
   facilities.avisos.alta-incidencia-entregado.v1:
     description: 'AvisoAltaIncidenciaEntregado · productor: ARC-005 → consumidor:
       ARC-003'
-    x-mind-transport: internal
-    x-mind-audience: internal
+    x-mind-transport: webhook
+    x-mind-audience: client
     publish:
       message: &id004
         $ref: '#/components/messages/AvisoAltaIncidenciaEntregado'
       operationId: EVT-004
     subscribe:
       message: *id004
+    servers:
+    - webhooks
   facilities.avisos.cambio-estado-entregado.v1:
     description: 'AvisoCambioEstadoEntregado · productor: ARC-005 → consumidor: ARC-002'
-    x-mind-transport: internal
-    x-mind-audience: internal
+    x-mind-transport: webhook
+    x-mind-audience: client
     publish:
       message: &id005
         $ref: '#/components/messages/AvisoCambioEstadoEntregado'
       operationId: EVT-005
     subscribe:
       message: *id005
+    servers:
+    - webhooks
   facilities.avisos.credencial-entregada.v1:
     description: 'CredencialInicialEntregada · productor: ARC-005 → consumidor: ARC-004'
-    x-mind-transport: internal
-    x-mind-audience: internal
+    x-mind-transport: webhook
+    x-mind-audience: client
     publish:
       message: &id006
         $ref: '#/components/messages/CredencialInicialEntregada'
       operationId: EVT-006
     subscribe:
       message: *id006
+    servers:
+    - webhooks
 components:
   messages:
     AvisoAltaIncidenciaEntregado:
