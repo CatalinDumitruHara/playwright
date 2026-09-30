@@ -1502,21 +1502,13 @@ Si tu pantalla necesita un cuerpo concreto, añádelo tú por el admin API (`POS
 - Tests que sí hacen HTTP real: inyecta la URL base en el arranque del test desde la variable de entorno (p. ej. `define`/`env` de la configuración de Vitest o Karma leyendo `process.env.MIND_ENV_WIREMOCK_URL`), y que el servicio la reciba por su token de configuración. NUNCA `localhost:puerto` en el código ni en `environment.ts`.
 - E2E (Playwright/Cypress): la misma variable como URL base del API en su fichero de configuración.
 
-**Playwright — la plataforma lo EJECUTA** cuando la `PlaywrightTriggerPolicy` detecta impacto UI (templates/CSS/rutas/componentes compartidos ≥2 imports/shell). In-session: tags `@smoke`/`@functional` en `e2e/*.e2e-spec.ts`. Post-PR: `@visual` con capturas efímeras (sin baselines en el repo). Extiende esas specs; no las renombres a `*.spec.ts` (chocan con Jest/Karma).
+**Playwright — la plataforma lo EJECUTA** cuando la `PlaywrightTriggerPolicy` detecta impacto UI (templates/CSS/rutas/componentes compartidos ≥2 imports/shell).
+
+- **Automático (plataforma):** navega las **rutas** de cada `screen_code` de esta tarea (smoke in-session + visual post-PR) con bypass del selector de entorno (`dev`). No dependas solo del seed `welcome`.
+- **Tu parte:** por cada pantalla del DoD, añade `e2e/<CODE>.*.e2e-spec.ts` con tags `@smoke` (y `@visual` si aplica) **y** `@screen:<CODE>` (p.ej. `@screen:SCR-066`) para asserts de negocio. Extiende; no renombres a `*.spec.ts` (chocan con Jest/Karma).
+- Sin baselines pixel en el repo (`toHaveScreenshot` prohibido aquí).
 
 **Navegador para los tests**: el runtime trae Chromium y `CHROME_BIN` ya apunta a él, así que NO lo instales ni lo descargues. Pero corre en un contenedor sin privilegios, así que su sandbox no puede activarse: usa un launcher headless con `--no-sandbox` (en Karma, un `customLaunchers` que extienda `ChromeHeadless`; en Playwright, `args: ['--no-sandbox']`). Sin eso el navegador está pero no arranca, y el síntoma no lo dice.
 
 ### Si el entorno no está disponible
 Comprueba `.mind/TSK-047/env.json`: si su `status` es `unavailable` o `degraded`, la plataforma no pudo darte (todo) el entorno. En ese caso ESCRIBE igualmente los tests de integración y déjalos en el entregable, y repórtalo como health check **Warning** con `check: entorno-de-prueba` — NO como Blocker: no es un defecto de tu tarea, y la verificación queda diferida al CI. Reserva el Blocker para cuando el entorno SÍ estaba y los tests fallan por el código o por el brief.
-
-## Código ya presente en la zona (zone-extend) — OBLIGATORIO
-
-En el tip actual del workspace YA hay código bajo tus `zone_paths` (típicamente de una TSK predecesora mergeada). **Léelo antes de escribir.**
-
-Ficheros presentes (muestra):
-- `apps/app/src/app/app.routes.ts`
-
-Disciplina:
-1. **EDIT/EXTIENDE** símbolos existentes (`class`/`def`/exports) — **PROHIBIDO** una segunda declaración con el mismo nombre en el mismo fichero.
-2. Añade routers/handlers nuevos en ficheros dedicados o ampliando el existente sin redefinir tipos ya presentes.
-3. Si el DoD pide API pública sobre el mismo dominio, reutiliza servicios/modelos del CRUD previo; no copies otra `MembershipPlanService`.
