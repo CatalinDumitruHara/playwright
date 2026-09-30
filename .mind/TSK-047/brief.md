@@ -1502,30 +1502,18 @@ Si tu pantalla necesita un cuerpo concreto, añádelo tú por el admin API (`POS
 - Tests que sí hacen HTTP real: inyecta la URL base en el arranque del test desde la variable de entorno (p. ej. `define`/`env` de la configuración de Vitest o Karma leyendo `process.env.MIND_ENV_WIREMOCK_URL`), y que el servicio la reciba por su token de configuración. NUNCA `localhost:puerto` en el código ni en `environment.ts`.
 - E2E (Playwright/Cypress): la misma variable como URL base del API en su fichero de configuración.
 
-**Playwright — la plataforma lo EJECUTA** cuando la `PlaywrightTriggerPolicy` detecta impacto UI (templates/CSS/rutas/componentes compartidos ≥2 imports/shell).
-
-- **Automático (plataforma):** navega las **rutas** de cada `screen_code` de esta tarea (smoke in-session + visual post-PR) con bypass del selector de entorno (`dev`). No dependas solo del seed `welcome`.
-- **Tu parte:** por cada pantalla del DoD, añade `e2e/<CODE>.*.e2e-spec.ts` con tags `@smoke` (y `@visual` si aplica) **y** `@screen:<CODE>` (p.ej. `@screen:SCR-066`) para asserts de negocio. Extiende; no renombres a `*.spec.ts` (chocan con Jest/Karma).
-- Sin baselines pixel en el repo (`toHaveScreenshot` prohibido aquí).
+**Playwright — la plataforma lo EJECUTA** cuando la `PlaywrightTriggerPolicy` detecta impacto UI (templates/CSS/rutas/componentes compartidos ≥2 imports/shell). In-session: tags `@smoke`/`@functional` en `e2e/*.e2e-spec.ts`. Post-PR: `@visual` con capturas efímeras (sin baselines en el repo). Extiende esas specs; no las renombres a `*.spec.ts` (chocan con Jest/Karma).
 
 **Navegador para los tests**: el runtime trae Chromium y `CHROME_BIN` ya apunta a él, así que NO lo instales ni lo descargues. Pero corre en un contenedor sin privilegios, así que su sandbox no puede activarse: usa un launcher headless con `--no-sandbox` (en Karma, un `customLaunchers` que extienda `ChromeHeadless`; en Playwright, `args: ['--no-sandbox']`). Sin eso el navegador está pero no arranca, y el síntoma no lo dice.
 
 ### Si el entorno no está disponible
 Comprueba `.mind/TSK-047/env.json`: si su `status` es `unavailable` o `degraded`, la plataforma no pudo darte (todo) el entorno. En ese caso ESCRIBE igualmente los tests de integración y déjalos en el entregable, y repórtalo como health check **Warning** con `check: entorno-de-prueba` — NO como Blocker: no es un defecto de tu tarea, y la verificación queda diferida al CI. Reserva el Blocker para cuando el entorno SÍ estaba y los tests fallan por el código o por el brief.
 
-## Estado del build al cerrar el intento anterior
+## Fallo del intento anterior (OBLIGATORIO corregir)
 
-El intento anterior dejó el módulo COMPILANDO, pero el artefacto entregado **no arrancaría** (o incumple el contrato que declara). El compilador está en VERDE: **no busques ahí y no pierdas el intento intentando reproducir un fallo de compilación que no existe**. Lo que falla es exactamente lo que dice el informe de abajo, y es lo PRIMERO que tienes que arreglar, antes de añadir nada nuevo.
+La sesión previa **no entregó**. Corrige la causa antes de ampliar alcance:
 
-- Arregla lo que nombra el informe, en el sitio que nombra. No hace falta reproducirlo con el compilador: ya compila.
-- Si el defecto viene de la rama BASE y no de tu trabajo, arréglalo igual y decláralo como `health_check` de severidad Warning indicando el fichero y por qué lo tocaste.
-- **No borres ni desactives tests para que el informe calle.** Si crees que el informe se equivoca, entrégalo con un `health_check` Blocker explicando por qué; quitar cobertura para tapar una señal es peor que la señal.
+> agent-runtime timeout (http://localhost:8086):
 
-### Lo que reportó la verificación (literal)
-
-```
-design-system: la UI entregada se desvía del design system corporativo en cosas que el compilador no ve y el usuario sí (avisos que no se pintan, títulos sin escala, iconos en 404, directivas escritas como elementos). Corrige contra el bloque «Design system corporativo» del brief:
-- `apps/app/src/app/features/employee-incidents/pages/create-incident/create-incident.page.html`: `<b2b-text-area>` escrito como ELEMENTO — es una directiva (`<button b2b-text-area>`, `<input b2b-text-area>`, `<a b2b-text-area>`); así no pinta nada ni falla
-stub-delivery: hay features marcadas como entregadas cuyo cuerpo no hace nada. `TODO`, `not implemented` y un retorno vacío como cuerpo único son bloqueantes de entrega, no notas.
-- servicio(s) de producción que FABRICAN su respuesta en vez de pedirla: `apps/app/src/app/features/employee-incidents/pages/my-incidents/my-incidents.page.ts::ngOnInit` (Observable/Promise resuelto con un literal). Un doble en el árbol de producto es un bloqueante: la pantalla se ve llena y no hay nada detrás — los dobles solo valen en tests
-```
+Acciones:
+- Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
