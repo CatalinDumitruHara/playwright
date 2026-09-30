@@ -1,0 +1,39 @@
+
+<div class="container">
+  <h1>Nueva incidencia</h1>
+  <form [formGroup]="incidentForm" (ngSubmit)="onSubmit()">
+    <b2b-select-field
+      label="Sala"
+      formControlName="roomId"
+      [options]="rooms$ | async"
+      optionValue="id"
+      optionText="name"
+      [required]="true"
+    ></b2b-select-field>
+
+    <b2b-select-field
+      label="Categoría"
+      formControlName="categoryCode"
+      [options]="categories$ | async"
+      optionValue="code"
+      optionText="name"
+      [required]="true"
+    ></b2b-select-field>
+
+    <b2b-textarea-field
+      label="Descripción"
+      formControlName="description"
+      [required]="true"
+    ></b2b-textarea-field>
+
+    <b2b-file-upload-field
+      label="Foto"
+      formControlName="photo"
+    ></b2b-file-upload-field>
+
+    <b2b-button-field
+      text="Enviar"
+      [disabled]="incidentForm.invalid"
+    ></b2b-button-field>
+  </form>
+</div>
