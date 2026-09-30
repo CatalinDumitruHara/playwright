@@ -950,7 +950,6 @@ paths:
           description: Prohibido
       x-required-roles: &id038
       - ROL-002
-      - ROL-003
       security:
       - bearerAuth: *id038
   /incident-categories:
@@ -1390,8 +1389,13 @@ components:
       x-mind-placeholder: true
     AssignmentReleaseRequest:
       type: object
+      properties:
+        reason:
+          type: string
+          description: Motivo por el cual el técnico libera la incidencia.
+      required:
+      - reason
       description: Cuerpo de petición AssignmentReleaseRequest
-      x-mind-placeholder: true
     CredentialStatusPage:
       type: object
       description: Respuesta CredentialStatusPage
@@ -1426,16 +1430,39 @@ components:
       x-mind-placeholder: true
     IncidentClosureRequest:
       type: object
+      properties:
+        resolution_comment:
+          type: string
+          description: Comentario obligatorio explicando la resolución de la incidencia.
+      required:
+      - resolution_comment
       description: Cuerpo de petición IncidentClosureRequest
-      x-mind-placeholder: true
     IncidentCountSummary:
       type: object
       description: Respuesta IncidentCountSummary
       x-mind-placeholder: true
     IncidentCreateRequest:
       type: object
+      properties:
+        room_id:
+          type: integer
+          description: Identificador de la sala afectada.
+        category_code:
+          type: string
+          description: 'Código de la categoría de la incidencia. Valores: MOBILIARIO,
+            CLIMATIZACION, AUDIOVISUAL, LIMPIEZA, OTROS.'
+        description:
+          type: string
+          description: Descripción breve del problema.
+        photo:
+          type: string
+          format: binary
+          description: Fichero de imagen opcional adjunto a la incidencia (multipart/form-data).
+      required:
+      - room_id
+      - category_code
+      - description
       description: Cuerpo de petición IncidentCreateRequest
-      x-mind-placeholder: true
     IncidentDetail:
       type: object
       description: Respuesta IncidentDetail
@@ -1474,8 +1501,17 @@ components:
       x-mind-placeholder: true
     LoginRequest:
       type: object
+      properties:
+        username:
+          type: string
+          description: Nombre de usuario, que se corresponde con el correo corporativo.
+        password:
+          type: string
+          description: Contraseña del usuario.
+      required:
+      - username
+      - password
       description: Cuerpo de petición LoginRequest
-      x-mind-placeholder: true
     MailSettingsDetail:
       type: object
       description: Respuesta MailSettingsDetail
@@ -1518,8 +1554,21 @@ components:
       x-mind-placeholder: true
     PasswordChangeRequest:
       type: object
+      properties:
+        current_password:
+          type: string
+          description: Contraseña actual del usuario.
+        new_password:
+          type: string
+          description: Nueva contraseña que cumple la política de seguridad.
+        new_password_confirmation:
+          type: string
+          description: Confirmación de la nueva contraseña, debe ser idéntica.
+      required:
+      - current_password
+      - new_password
+      - new_password_confirmation
       description: Cuerpo de petición PasswordChangeRequest
-      x-mind-placeholder: true
     PasswordChangeResult:
       type: object
       description: Respuesta PasswordChangeResult
@@ -1598,8 +1647,22 @@ components:
       x-mind-placeholder: true
     UserCreateRequest:
       type: object
+      properties:
+        full_name:
+          type: string
+          description: Nombre completo del nuevo usuario.
+        corporate_email:
+          type: string
+          description: Correo corporativo del nuevo usuario, debe ser único.
+        role_code:
+          type: string
+          description: 'Rol a asignar al nuevo usuario. Valores: EMPLEADO, TECNICO_MANTENIMIENTO,
+            ADMINISTRADOR.'
+      required:
+      - full_name
+      - corporate_email
+      - role_code
       description: Cuerpo de petición UserCreateRequest
-      x-mind-placeholder: true
     UserDeactivationRequest:
       type: object
       description: Cuerpo de petición UserDeactivationRequest
@@ -1622,8 +1685,18 @@ components:
       x-mind-placeholder: true
     UserUpdateRequest:
       type: object
+      properties:
+        full_name:
+          type: string
+          description: Nuevo nombre completo del usuario.
+        corporate_email:
+          type: string
+          description: Nuevo correo corporativo del usuario. Debe ser único.
+        role_code:
+          type: string
+          description: 'Nuevo rol del usuario. Valores: EMPLEADO, TECNICO_MANTENIMIENTO,
+            ADMINISTRADOR.'
       description: Cuerpo de petición UserUpdateRequest
-      x-mind-placeholder: true
   securitySchemes:
     bearerAuth:
       type: http
