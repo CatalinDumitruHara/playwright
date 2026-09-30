@@ -1509,97 +1509,18 @@ Si tu pantalla necesita un cuerpo concreto, añádelo tú por el admin API (`POS
 ### Si el entorno no está disponible
 Comprueba `.mind/TSK-047/env.json`: si su `status` es `unavailable` o `degraded`, la plataforma no pudo darte (todo) el entorno. En ese caso ESCRIBE igualmente los tests de integración y déjalos en el entregable, y repórtalo como health check **Warning** con `check: entorno-de-prueba` — NO como Blocker: no es un defecto de tu tarea, y la verificación queda diferida al CI. Reserva el Blocker para cuando el entorno SÍ estaba y los tests fallan por el código o por el brief.
 
-## Fallo del intento anterior (OBLIGATORIO corregir)
-
-La sesión previa **no entregó**. Corrige la causa antes de ampliar alcance:
-
-> delivery-gate/build: la verificación bloqueó la entrega.
-stub-delivery: hay features marcadas como entregadas cuyo cuerpo no hace nada. `TODO`, `not implemented` y un retorno vacío como cuerpo único son bloqueantes de entrega, no notas.
-- 9 de 16 rutas registradas que ninguna plantilla enlaza: `/acceso/cambio-obligatorio-contrasena`, `/acceso/credencial-caducada`, `/acceso/cuenta-bloqueada`, `/admin`, `/avisos/permisos-actualizados`, `/avisos/version-no-soportada` (+3 más). Una pantalla a la que sólo se llega escribiendo la URL no está entregada: móntala en el menú del shell con la `sección de menú` que declara su spec de UI
-11[0m:[93m10[0m - [91merror[0m[90m TS2305: [0mModule '"@api-types"' has no exported member 'IncidentListPage'.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[7m11[0m import { IncidentListPage, IncidentSummary } from '@api-types';[39m[22m
-[1m[31m[7m  [0m [91m         ~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/employee-incidents/pages/my-incidents/my-incidents.page.ts[0m:[93m11[0m:[93m28[0m - [91merror[0m[90m TS2305: [0mModule '"@api-types"' has no exported member 'IncidentSummary'.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[7m11[0m import { IncidentListPage, IncidentSummary } from '@api-types';[39m[22m
-[1m[31m[7m  [0m [91m                           ~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/employee-incidents/services/incidents.service.ts[0m:[93m5[0m:[93m3[0m - [91merror[0m[90m TS2305: [0mModule '"@api-types"' has no exported member 'IncidentCategoryList'.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[7m5[0m   IncidentCategoryList,[39m[22m
-[1m[31m[7m [0m [91m  ~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/employee-incident
-
-Acciones:
-- Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
-
 ## Estado del build al cerrar el intento anterior
 
-El intento anterior dejó el módulo **SIN COMPILAR**. Reprodúcelo lo PRIMERO de todo, antes de añadir nada nuevo, y no entregues hasta que compile.
+El intento anterior dejó el módulo COMPILANDO, pero el artefacto entregado **no arrancaría** (o incumple el contrato que declara). El compilador está en VERDE: **no busques ahí y no pierdas el intento intentando reproducir un fallo de compilación que no existe**. Lo que falla es exactamente lo que dice el informe de abajo, y es lo PRIMERO que tienes que arreglar, antes de añadir nada nuevo.
 
-- El comando es el mismo que usa la plataforma: `mvn -B -ntp -f <pom> test-compile` (o el equivalente de la toolchain del arquetipo).
-- Si lo que impide compilar viene de la rama BASE y no de tu trabajo, arréglalo igual —es parte de dejar el módulo compilable— y decláralo como `health_check` de severidad Warning indicando el fichero y por qué lo tocaste.
+- Arregla lo que nombra el informe, en el sitio que nombra. No hace falta reproducirlo con el compilador: ya compila.
+- Si el defecto viene de la rama BASE y no de tu trabajo, arréglalo igual y decláralo como `health_check` de severidad Warning indicando el fichero y por qué lo tocaste.
+- **No borres ni desactives tests para que el informe calle.** Si crees que el informe se equivoca, entrégalo con un `health_check` Blocker explicando por qué; quitar cobertura para tapar una señal es peor que la señal.
 
 ### Lo que reportó la verificación (literal)
 
 ```
-1merror[0m[90m TS2305: [0mModule '"@api-types"' has no exported member 'IncidentCategoryList'.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[7m5[0m   IncidentCategoryList,[39m[22m
-[1m[31m[7m [0m [91m  ~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/employee-incidents/services/incidents.service.ts[0m:[93m6[0m:[93m3[0m - [91merror[0m[90m TS2305: [0mModule '"@api-types"' has no exported member 'IncidentCreateRequest'.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[7m6[0m   IncidentCreateRequest,[39m[22m
-[1m[31m[7m [0m [91m  ~~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/employee-incidents/services/incidents.service.ts[0m:[93m7[0m:[93m3[0m - [91merror[0m[90m TS2305: [0mModule '"@api-types"' has no exported member 'IncidentDetail'.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[7m7[0m   IncidentDetail,[39m[22m
-[1m[31m[7m [0m [91m  ~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/employee-incidents/services/incidents.service.ts[0m:[93m8[0m:[93m3[0m - [91merror[0m[90m TS2305: [0mModule '"@api-types"' has no exported member 'IncidentHistoryPage'.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[7m8[0m   IncidentHistoryPage,[39m[22m
-[1m[31m[7m [0m [91m  ~~~~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/employee-incidents/services/incidents.service.ts[0m:[93m9[0m:[93m3[0m - [91merror[0m[90m TS2305: [0mModule '"@api-types"' has no exported member 'IncidentListPage'.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[7m9[0m   IncidentListPage,[39m[22m
-[1m[31m[7m [0m [91m  ~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/employee-incidents/services/incidents.service.ts[0m:[93m10[0m:[93m3[0m - [91merror[0m[90m TS2305: [0mModule '"@api-types"' has no exported member 'IncidentPhotoContent'.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[7m10[0m   IncidentPhotoContent,[39m[22m
-[1m[31m[7m  [0m [91m  ~~~~~~~~~~~~~~~~~~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[0m[91mError: [39m[31m[0m[96mapps/app/src/app/features/employee-incidents/services/incidents.service.ts[0m:[93m11[0m:[93m3[0m - [91merror[0m[90m TS2305: [0mModule '"@api-types"' has no exported member 'RoomList'.[39m[22m
-[1m[31m[39m[22m
-[1m[31m[7m11[0m   RoomList,[39m[22m
-[1m[31m[7m  [0m [91m  ~~~~~~~~[0m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-[1m[31m[39m[22m
-
-
-
- NX   Running target build for project app failed
-
-Failed tasks:
-
-- app:build:production
-
-Hint: run the command with --verbose for more details.
+stub-delivery: hay features marcadas como entregadas cuyo cuerpo no hace nada. `TODO`, `not implemented` y un retorno vacío como cuerpo único son bloqueantes de entrega, no notas.
+- 8 de 16 rutas registradas que ninguna plantilla enlaza: `/acceso/cambio-obligatorio-contrasena`, `/acceso/credencial-caducada`, `/acceso/cuenta-bloqueada`, `/admin`, `/avisos/permisos-actualizados`, `/avisos/version-no-soportada` (+2 más). Una pantalla a la que sólo se llega escribiendo la URL no está entregada: móntala en el menú del shell con la `sección de menú` que declara su spec de UI
+- servicio(s) de producción que FABRICAN su respuesta en vez de pedirla: `apps/app/src/app/features/employee-incidents/pages/incident-history/incident-history.page.ts::if` (Observable/Promise resuelto con un literal), `apps/app/src/app/features/employee-incidents/pages/incident-history/incident-history.page.ts::ngOnInit` (Observable/Promise resuelto con un literal). Un doble en el árbol de producto es un bloqueante: la pantalla se ve llena y no hay nada detrás — los dobles solo valen en tests
 ```
