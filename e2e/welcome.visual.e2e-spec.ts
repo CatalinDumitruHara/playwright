@@ -1,6 +1,7 @@
 import { test } from '@playwright/test';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { ensureEnvironment } from './mind-env';
 
 /**
  * @visual — ephemeral screenshot only (NO toHaveScreenshot baselines in repo).
@@ -9,6 +10,7 @@ import * as path from 'node:path';
 test.describe('@visual welcome', () => {
   test('capture home screenshot artifact', async ({ page }) => {
     await page.goto('/');
+    await ensureEnvironment(page);
     await page.waitForLoadState('networkidle').catch(() => undefined);
     const outDir =
       process.env.MIND_BROWSER_ARTIFACT_DIR ||
