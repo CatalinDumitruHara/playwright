@@ -5,9 +5,9 @@ import {
   inject,
   OnInit,
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { IncidentHistoryPage as IncidentHistory } from '@api-types';
-import { Observable, of } from 'rxjs';
+import { EMPTY, Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { IncidentsService } from '../../services/incidents.service';
 import {
@@ -27,6 +27,7 @@ export class IncidentHistoryPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly incidentsService = inject(IncidentsService);
   private readonly location = inject(Location);
+  private readonly router = inject(Router);
 
   history$!: Observable<IncidentHistory>;
 
@@ -35,7 +36,8 @@ export class IncidentHistoryPage implements OnInit {
       switchMap(params => {
         const incidentId = params.get('id');
         if (!incidentId) {
-          return of({ items: [] });
+          this.router.navigate(['/incidents/not-found']);
+          return EMPTY;
         }
         return this.incidentsService.getIncidentHistory(incidentId);
       })
