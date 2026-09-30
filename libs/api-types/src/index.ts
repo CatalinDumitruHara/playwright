@@ -102,6 +102,10 @@ export interface IncidentHistoryPage {
   items: HistoryEntry[];
 }
 
+export interface IncidentHistoryPage {
+  items: HistoryEntry[];
+}
+
 export interface IncidentPhotoContent {
   content: Blob;
   mime_type: string;

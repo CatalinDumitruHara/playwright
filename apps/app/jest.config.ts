@@ -13,6 +13,7 @@ export default {
       },
     ],
   },
+
   transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$|@ionic|@stencil/core|swiper)'],
   snapshotSerializers: [
     'jest-preset-angular/build/serializers/no-ng-attributes',
@@ -21,6 +22,6 @@ export default {
   ],
   moduleNameMapper: {
     '@ionic/angular/standalone': '<rootDir>/src/__mocks__/index.ts',
-    '@api-types': '/workspaces/mind-719e3241-1fef-4810-8d97-699c0defcead-TSK-047--feature-TSK-047/libs/api-types/src/index.ts',
+    '@api-types': '<rootDir>/../../libs/api-types/src/index.ts'
   },
 };

@@ -1,3 +1,5 @@
 const { nxPreset } = require('@nx/jest/preset');
 
-module.exports = { ...nxPreset };
+module.exports = {
+  ...nxPreset,
+};

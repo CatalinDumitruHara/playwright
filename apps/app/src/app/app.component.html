@@ -1,1 +1,20 @@
-<router-outlet></router-outlet>
+<b2b-header-desktop>
+  <b2b-mapfre-logo />
+</b2b-header-desktop>
+<b2b-sidebar>
+  <b2b-sidebar-item
+    icon="b2b-icon-incident"
+    title="Mis Incidencias"
+    [routerLink]="['/my-incidents']"
+    routerLinkActive="active"
+  ></b2b-sidebar-item>
+  <b2b-sidebar-item
+    icon="b2b-icon-add-incident"
+    title="Nueva Incidencia"
+    [routerLink]="['/incidents/new']"
+    routerLinkActive="active"
+  ></b2b-sidebar-item>
+</b2b-sidebar>
+<b2b-container>
+  <router-outlet></router-outlet>
+</b2b-container>
