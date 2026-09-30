@@ -6,6 +6,7 @@
     "paths": {
       "@api-types": ["libs/api-types/src/index.ts"],
       "@angular/*": ["node_modules/@angular/*"],
+      "@b2b/shared/ui": ["libs/shared/ui/src/index.ts"],
       "@mapfre-tech/b2b-components": ["node_modules/@mapfre-tech/b2b-components"],
       "@mapfre-tech/ngx-multienvironment/core": ["node_modules/@mapfre-tech/ngx-multienvironment/core"]
     }

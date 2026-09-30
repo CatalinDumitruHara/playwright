@@ -1,0 +1,69 @@
+
+<div class="container mx-auto my-8">
+  <h1 class="text-2xl font-bold mb-4">Mis Incidencias</h1>
+
+  <ng-container *ngIf="loading">
+    <mt-spinner></mt-spinner>
+  </ng-container>
+
+  <ng-container *ngIf="!loading && !error">
+    <ng-container *ngIf="(incidents$ | async) as incidents">
+      <div mt-table-container *ngIf="incidents.length > 0; else noIncidents">
+        <table class="min-w-full">
+          <thead>
+            <tr>
+              <th class="px-6 py-3 border-b-2 border-gray-300 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                Referencia
+              </th>
+              <th class="px-6 py-3 border-b-2 border-gray-300 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                Sala
+              </th>
+              <th class="px-6 py-3 border-b-2 border-gray-300 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                Categoría
+              </th>
+              <th class="px-6 py-3 border-b-2 border-gray-300 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                Estado
+              </th>
+              <th class="px-6 py-3 border-b-2 border-gray-300 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                Fecha de Alta
+              </th>
+              <th class="px-6 py-3 border-b-2 border-gray-300"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let incident of incidents">
+              <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                {{ incident.reference }}
+              </td>
+              <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                {{ incident.room }}
+              </td>
+              <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                {{ incident.category }}
+              </td>
+              <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                {{ incident.status }}
+              </td>
+              <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                {{ incident.createdAt | date: 'dd/MM/yyyy' }}
+              </td>
+              <td class="px-6 py-4 whitespace-no-wrap text-right border-b border-gray-200 text-sm leading-5 font-medium">
+                <a [routerLink]="['/mis-incidencias', incident.id]" class="text-indigo-600 hover:text-indigo-900">
+                  Ver detalle
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ng-template #noIncidents>
+        <mt-alert message="No se han encontrado incidencias." type="info"></mt-alert>
+      </ng-template>
+    </ng-container>
+  </ng-container>
+
+  <ng-container *ngIf="error">
+    <mt-alert message="Error al cargar las incidencias. Por favor, inténtelo de nuevo más tarde." type="error"></mt-alert>
+  </ng-container>
+</div>

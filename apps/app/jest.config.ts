@@ -13,7 +13,7 @@ export default {
       },
     ],
   },
-  transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$|@ionic|@stencil/core|swiper)'],
+  transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$|@ionic|@stencil/core|swiper|@mapfre-tech/b2b-components)'],
   snapshotSerializers: [
     'jest-preset-angular/build/serializers/no-ng-attributes',
     'jest-preset-angular/build/serializers/ng-snapshot',
@@ -21,5 +21,7 @@ export default {
   ],
   moduleNameMapper: {
     '@ionic/angular/standalone': '<rootDir>/src/__mocks__/index.ts',
+    '@b2b/shared/ui': '<rootDir>/../../libs/shared/ui/src/index.ts',
+    '^@mapfre-tech/b2b-components/(.*)$': '<rootDir>/../../node_modules/@mapfre-tech/b2b-components/$1',
   },
 };
