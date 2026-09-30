@@ -1,23 +1,40 @@
 <b2b-header-desktop>
   <b2b-mapfre-logo b2b-header-logo></b2b-mapfre-logo>
-  <div b2b-header-functions>
-    <div class="user-info" *ngIf="session">
-      <span>{{ session.user.name }}</span>
-      <button b2b-button variant="secondary" (click)="logout()">
-        Cerrar sesión
-      </button>
-    </div>
+  <div b2b-header-functions class="header-user">
+    @if (user(); as u) {
+      <span class="header-user-name" data-testid="header-user-name">{{ u.fullName }}</span>
+      <b2b-tag data-testid="header-user-role">{{ u.roleLabel }}</b2b-tag>
+    }
+    <button
+      b2b-button
+      type="button"
+      class="b2b--secondary"
+      data-testid="logout-button"
+      [disabled]="loggingOut()"
+      (click)="logout()"
+    >
+      Cerrar sesión
+    </button>
   </div>
 </b2b-header-desktop>
-<b2b-sidebar>
-  <b2b-sidebar-item
-    *ngFor="let option of filteredMenu"
-    [routerLink]="option.path"
-    routerLinkActive="active"
-    [title]="option.label"
-    >{{ option.label }}</b2b-sidebar-item
-  >
-</b2b-sidebar>
-<b2b-container>
-  <router-outlet></router-outlet>
-</b2b-container>
+@if (logoutError(); as msg) {
+  <b2b-notification-inline
+    [visible]="true"
+    state="error"
+    type="error"
+    title="Cierre de sesión"
+    [description]="msg"
+    data-testid="logout-error"
+  ></b2b-notification-inline>
+}
+<div class="shell-body">
+  <app-nav-menu class="shell-nav"></app-nav-menu>
+  <main class="shell-content">
+    <b2b-container>
+      <div b2b-container-body>
+        <router-outlet></router-outlet>
+      </div>
+    </b2b-container>
+  </main>
+</div>
+<b2b-footer></b2b-footer>

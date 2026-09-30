@@ -1,48 +1,45 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import {
-  B2bButtonComponent,
-  B2bContainerComponent,
-  B2bSidebarComponent,
-  B2bSidebarItemComponent,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+} from '@angular/core';
+import { RouterLink } from '@angular/router';
+import {
+  B2bLinkComponent,
+  B2bListComponent,
+  B2bNotificationInlineComponent,
+  B2bReadDataComponent,
 } from '@mapfre-tech/b2b-components';
 import { AuthenticationService } from '../../../../core/auth/authentication.service';
-import { SessionContext } from '@api-types';
-import { Router } from '@angular/router';
+import {
+  NAV_ITEMS,
+  NavItem,
+  navItemsForRole,
+} from '../../../../core/navigation/navigation.model';
 
 @Component({
-  selector: 'app-home',
+  selector: 'app-home-page',
   standalone: true,
   imports: [
-    CommonModule,
-    B2bButtonComponent,
-    B2bSidebarComponent,
-    B2bSidebarItemComponent,
-    B2bContainerComponent,
+    RouterLink,
+    B2bReadDataComponent,
+    B2bListComponent,
+    B2bLinkComponent,
+    B2bNotificationInlineComponent,
   ],
   templateUrl: './home.page.html',
-  styleUrls: ['./home.page.scss'],
+  styleUrl: './home.page.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomePage implements OnInit {
-  user: SessionContext['user'] | null = null;
+export class HomePage {
+  private readonly auth = inject(AuthenticationService);
+  private readonly navItems = inject(NAV_ITEMS);
 
-  constructor(
-    private authService: AuthenticationService,
-    private router: Router
-  ) {}
-
-  ngOnInit(): void {
-    this.user = this.authService.sessionContext()?.user ?? null;
-  }
-
-  logout() {
-    this.authService.logout().subscribe({
-      next: () => {
-        this.router.navigate(['/acceso/sesion-finalizada']);
-      },
-      error: (error: any) => {
-        console.error('Error al cerrar sesión', error);
-      },
-    });
-  }
+  readonly user = this.auth.currentUser;
+  readonly shortcuts = computed<NavItem[]>(() =>
+    navItemsForRole(this.navItems, this.user()?.roleCode).filter(
+      (item) => item.shortcut
+    )
+  );
 }

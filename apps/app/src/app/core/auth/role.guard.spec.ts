@@ -1,66 +1,121 @@
 import { TestBed } from '@angular/core/testing';
-import { CanActivateFn, Router, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { roleGuard } from './role.guard';
-import { AuthenticationService } from './authentication.service';
-import { RouterTestingModule } from '@angular/router/testing';
+import {
+  ActivatedRouteSnapshot,
+  CanActivateFn,
+  Router,
+  RouterStateSnapshot,
+  UrlTree,
+  provideRouter,
+} from '@angular/router';
 import { signal } from '@angular/core';
-import { SessionContext } from '@api-types';
+import { of } from 'rxjs';
+import { roleGuard, roleGuardChild } from './role.guard';
+import { AuthenticationService } from './authentication.service';
+import { CurrentUser, RoleCode } from './session.model';
+import { API_BASE_URL } from '../config/api-base-url.token';
 
-describe('roleGuard', () => {
-  const executeGuard: CanActivateFn = (route, state) =>
-    TestBed.runInInjectionContext(() => roleGuard(route, state));
+const empleado: CurrentUser = {
+  userId: 'u-1',
+  fullName: 'Ana Pérez',
+  email: 'ana@example.com',
+  roleCode: 'ROL-001',
+  roleLabel: 'Empleado',
+  mustChangePassword: false,
+};
 
-  let authServiceMock: {
-    sessionContext: jest.Mock
-  };
+describe('roleGuard / roleGuardChild', () => {
   let router: Router;
+  let current: ReturnType<typeof signal<CurrentUser | null>>;
+  let auth: {
+    isAuthenticated: jest.Mock;
+    sessionContext: jest.Mock;
+    getSessionContext: jest.Mock;
+    clearSession: jest.Mock;
+    getToken: jest.Mock;
+    hasAnyRole: jest.Mock;
+  };
+
+  const routeWith = (data: Record<string, unknown> | undefined) =>
+    ({ data } as unknown as ActivatedRouteSnapshot);
+  const stateFor = (url: string) => ({ url } as RouterStateSnapshot);
 
   beforeEach(() => {
-    authServiceMock = {
-      sessionContext: jest.fn()
+    current = signal<CurrentUser | null>(null);
+    auth = {
+      isAuthenticated: jest.fn(() => current() !== null),
+      sessionContext: jest.fn(() => current()),
+      getSessionContext: jest.fn(() => of(current())),
+      clearSession: jest.fn(() => current.set(null)),
+      getToken: jest.fn().mockReturnValue(null),
+      hasAnyRole: jest.fn((roles: readonly RoleCode[]) => {
+        const u = current();
+        return u !== null && roles.includes(u.roleCode);
+      }),
     };
-
     TestBed.configureTestingModule({
-      imports: [RouterTestingModule],
       providers: [
-        {
-          provide: AuthenticationService,
-          useValue: authServiceMock,
-        },
+        provideRouter([]),
+        { provide: AuthenticationService, useValue: auth },
+        { provide: API_BASE_URL, useValue: '/api' },
       ],
     });
     router = TestBed.inject(Router);
   });
 
-  it('should return true if user has an allowed role', () => {
-    const session = { user: { name: 'test', role: 'ROL-003' } } as SessionContext;
-    authServiceMock.sessionContext.mockReturnValue(signal(session)());
-    const route = { data: { roles: ['ROL-003'] } } as unknown as ActivatedRouteSnapshot;
+  const guards: Array<[string, CanActivateFn]> = [
+    ['roleGuard', roleGuard],
+    ['roleGuardChild', roleGuardChild as unknown as CanActivateFn],
+  ];
 
-    const canActivate = executeGuard(route, {} as RouterStateSnapshot);
-    expect(canActivate).toBe(true);
+  describe.each(guards)('%s', (_name, guard) => {
+    const run = (data: Record<string, unknown> | undefined, url: string) =>
+      TestBed.runInInjectionContext(() => guard(routeWith(data), stateFor(url)));
+
+    it('data.roles [ROL-003] y hasAnyRole true → true', () => {
+      current.set({ ...empleado, roleCode: 'ROL-003', roleLabel: 'Administrador' });
+      expect(run({ roles: ['ROL-003'] }, '/admin')).toBe(true);
+      expect(auth.hasAnyRole).toHaveBeenCalledWith(['ROL-003']);
+    });
+
+    it('AC-PERM-04: rol no permitido (ROL-001) → UrlTree /acceso-no-autorizado?ruta=%2Fadmin', () => {
+      current.set(empleado);
+      const result = run({ roles: ['ROL-003'] }, '/admin');
+      expect(result).toBeInstanceOf(UrlTree);
+      expect(router.serializeUrl(result as UrlTree)).toBe(
+        '/acceso-no-autorizado?ruta=%2Fadmin'
+      );
+    });
+
+    it('deny-by-default: ruta sin data.roles → UrlTree a /acceso-no-autorizado', () => {
+      current.set({ ...empleado, roleCode: 'ROL-003', roleLabel: 'Administrador' });
+      for (const data of [undefined, {}, { roles: [] }]) {
+        const result = run(data, '/admin');
+        expect(result).toBeInstanceOf(UrlTree);
+        expect(router.serializeUrl(result as UrlTree)).toBe(
+          '/acceso-no-autorizado?ruta=%2Fadmin'
+        );
+      }
+      expect(auth.hasAnyRole).not.toHaveBeenCalled();
+    });
   });
 
-  it('should redirect to /unauthorized and return false if user does not have an allowed role', () => {
-    const session = { user: { name: 'test', role: 'ROL-001' } } as SessionContext;
-    authServiceMock.sessionContext.mockReturnValue(signal(session)());
-    const navigateSpy = jest.spyOn(router, 'navigate');
-    const route = { data: { roles: ['ROL-003'] } } as unknown as ActivatedRouteSnapshot;
-
-    const canActivate = executeGuard(route, {} as RouterStateSnapshot);
-
-    expect(canActivate).toBe(false);
-    expect(navigateSpy).toHaveBeenCalledWith(['/acceso-no-autorizado']);
-  });
-
-  it('should redirect to /unauthorized and return false if there is no session', () => {
-    authServiceMock.sessionContext.mockReturnValue(signal(null)());
-    const navigateSpy = jest.spyOn(router, 'navigate');
-    const route = { data: { roles: ['ROL-003'] } } as unknown as ActivatedRouteSnapshot;
-
-    const canActivate = executeGuard(route, {} as RouterStateSnapshot);
-
-    expect(canActivate).toBe(false);
-    expect(navigateSpy).toHaveBeenCalledWith(['/acceso-no-autorizado']);
+  it('roleGuardChild devuelve lo mismo que roleGuard para las mismas entradas', () => {
+    current.set(empleado);
+    const cases: Array<Record<string, unknown> | undefined> = [
+      { roles: ['ROL-001'] },
+      { roles: ['ROL-003'] },
+      undefined,
+    ];
+    for (const data of cases) {
+      const a = TestBed.runInInjectionContext(() =>
+        roleGuard(routeWith(data), stateFor('/admin'))
+      );
+      const b = TestBed.runInInjectionContext(() =>
+        roleGuardChild(routeWith(data), stateFor('/admin'))
+      );
+      const norm = (r: unknown) =>
+        r instanceof UrlTree ? router.serializeUrl(r) : r;
+      expect(norm(b)).toEqual(norm(a));
+    }
   });
 });

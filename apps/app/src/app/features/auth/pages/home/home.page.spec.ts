@@ -1,176 +1,91 @@
-import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
+import { signal } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { HomePage } from './home.page';
-import { AuthenticationService, SessionContext } from '../../../../core/auth/authentication.service';
-import { Router } from '@angular/router';
-import { of, throwError, BehaviorSubject } from 'rxjs';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { AuthenticationService } from '../../../../core/auth/authentication.service';
+import { CurrentUser, RoleCode } from '../../../../core/auth/session.model';
+import { NAV_ITEMS, NavItem } from '../../../../core/navigation/navigation.model';
 
-describe('HomePage', () => {
-  let spectator: Spectator<HomePage>;
-  const sessionContext$ = new BehaviorSubject<SessionContext | null>(null);
-  let authService: AuthenticationService;
-  let router: Router;
+const ALL: readonly RoleCode[] = ['ROL-001', 'ROL-002', 'ROL-003'];
 
-  const createComponent = createRoutingFactory({
-    component: HomePage,
-    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+const TEST_NAV: readonly NavItem[] = [
+  { label: 'Inicio', path: '/inicio', roles: ALL, shortcut: false },
+  { label: 'Mi perfil', path: '/mi-perfil', roles: ALL, shortcut: true },
+  { label: 'Bandeja', path: '/bandeja', roles: ['ROL-002'], shortcut: true },
+];
+
+function user(roleCode: RoleCode, roleLabel: string): CurrentUser {
+  return {
+    userId: 'u-1',
+    fullName: 'Ana García López',
+    email: 'ana@example.com',
+    roleCode,
+    roleLabel,
+    mustChangePassword: false,
+  };
+}
+
+function setup(
+  current: CurrentUser | null,
+  nav: readonly NavItem[] = TEST_NAV
+): ComponentFixture<HomePage> {
+  TestBed.configureTestingModule({
+    imports: [HomePage],
     providers: [
+      provideRouter([]),
+      { provide: NAV_ITEMS, useValue: nav },
       {
         provide: AuthenticationService,
-        useValue: {
-          logout: jest.fn().mockReturnValue(of(undefined)),
-          sessionContext: sessionContext$,
-        },
-      },
-      {
-        provide: Router,
-        useValue: {
-          navigate: jest.fn(),
-        },
+        useValue: { currentUser: signal<CurrentUser | null>(current) },
       },
     ],
   });
+  const fixture = TestBed.createComponent(HomePage);
+  fixture.detectChanges();
+  return fixture;
+}
 
-  beforeEach(() => {
-    spectator = createComponent();
-    authService = spectator.inject(AuthenticationService);
-    router = spectator.inject(Router);
-    sessionContext$.next(null); // Reset subject before each test
+function q(fixture: ComponentFixture<HomePage>, sel: string): HTMLElement | null {
+  return (fixture.nativeElement as HTMLElement).querySelector(sel);
+}
+
+describe('HomePage (ARC-069 /inicio)', () => {
+  it('ARC-069: muestra nombre y apellidos y rol vigente del usuario', () => {
+    const fixture = setup(user('ROL-001', 'Empleado'));
+    expect(q(fixture, '[data-testid="home-user-name"]')?.textContent?.trim()).toBe(
+      'Ana García López'
+    );
+    expect(q(fixture, '[data-testid="home-user-role"]')?.textContent?.trim()).toBe(
+      'Empleado'
+    );
   });
 
-  it('should create', () => {
-    expect(spectator.component).toBeTruthy();
+  it('ARC-069: ROL-001 solo ve el acceso directo /mi-perfil (no /bandeja ni Inicio)', () => {
+    const fixture = setup(user('ROL-001', 'Empleado'));
+    const perfil = q(fixture, '[data-testid="shortcut-/mi-perfil"]');
+    expect(perfil).not.toBeNull();
+    expect(perfil?.getAttribute('href')).toBe('/mi-perfil');
+    expect(q(fixture, '[data-testid="shortcut-/bandeja"]')).toBeNull();
+    expect(q(fixture, '[data-testid="shortcut-/inicio"]')).toBeNull();
+    expect(q(fixture, '[data-testid="home-no-shortcuts"]')).toBeNull();
   });
 
-  describe('AC1: Muestra el nombre del usuario logado', () => {
-    it('should display the user name when the user is logged in', () => {
-      sessionContext$.next({
-        session: { user: { name: 'John Doe', role: 'user' } },
-        token: 'test_token',
-      });
-      spectator.detectChanges();
-      const userNameElement = spectator.query('h2') as HTMLElement;
-      expect(userNameElement.textContent).toContain('John Doe');
-    });
-
-    it('should display the user role when the user is logged in', () => {
-      sessionContext$.next({
-        session: { user: { name: 'John Doe', role: 'admin' } },
-        token: 'test_token',
-      });
-      spectator.detectChanges();
-      const userRoleElement = spectator.query('p') as HTMLElement;
-      expect(userRoleElement.textContent).toContain('admin');
-    });
-
-    it('should display "Usuario" when the user has no name', () => {
-      sessionContext$.next({
-        session: { user: { name: '', role: 'user' } },
-        token: 'test_token',
-      });
-      spectator.detectChanges();
-      const userNameElement = spectator.query('h2') as HTMLElement;
-      expect(userNameElement.textContent).toContain('Usuario');
-    });
+  it('ARC-069: ROL-002 ve los accesos /mi-perfil y /bandeja', () => {
+    const fixture = setup(user('ROL-002', 'Técnico de mantenimiento'));
+    expect(q(fixture, '[data-testid="shortcut-/mi-perfil"]')).not.toBeNull();
+    const bandeja = q(fixture, '[data-testid="shortcut-/bandeja"]');
+    expect(bandeja).not.toBeNull();
+    expect(bandeja?.getAttribute('href')).toBe('/bandeja');
+    expect(q(fixture, '[data-testid="home-no-shortcuts"]')).toBeNull();
   });
 
-  describe('AC2: Muestra opciones de menú según el rol', () => {
-    it('should show "Opción 1" for user role', () => {
-      sessionContext$.next({
-        session: { user: { name: 'Test User', role: 'user' } },
-        token: 'test_token',
-      });
-      spectator.detectChanges();
-      const menuItems = spectator.queryAll('b2b-sidebar-item');
-      expect(menuItems.length).toBe(1);
-      expect(menuItems[0].textContent).toContain('Opción 1');
-    });
-
-    it('should show "Opción 1" and "Opción 2" for admin role', () => {
-      sessionContext$.next({
-        session: { user: { name: 'Admin User', role: 'admin' } },
-        token: 'test_token',
-      });
-      spectator.detectChanges();
-      const menuItems = spectator.queryAll('b2b-sidebar-item');
-      expect(menuItems.length).toBe(2);
-      expect(menuItems[0].textContent).toContain('Opción 1');
-      expect(menuItems[1].textContent).toContain('Opción 2');
-    });
-
-    it('should show no items for an unknown role', () => {
-      sessionContext$.next({
-        session: { user: { name: 'Guest User', role: 'guest' } },
-        token: 'test_token',
-      });
-      spectator.detectChanges();
-      const menuItems = spectator.queryAll('b2b-sidebar-item');
-      expect(menuItems.length).toBe(0);
-    });
-  });
-
-  describe('AC3: El botón de logout cierra sesión y redirige', () => {
-    it('should call logout method when "Cerrar sesión" button is clicked', () => {
-      sessionContext$.next({
-        session: { user: { name: 'Test User', role: 'user' } },
-        token: 'test_token',
-      });
-      spectator.detectChanges();
-      const logoutButton = spectator.query('button[b2b-button]');
-      spectator.click(logoutButton as Element);
-      expect(authService.logout).toHaveBeenCalled();
-    });
-
-    it('should navigate to /acceso on successful logout', () => {
-      sessionContext$.next({
-        session: { user: { name: 'Test User', role: 'user' } },
-        token: 'test_token',
-      });
-      spectator.detectChanges();
-      const logoutButton = spectator.query('button[b2b-button]');
-      spectator.click(logoutButton as Element);
-      expect(router.navigate).toHaveBeenCalledWith(['/acceso']);
-    });
-
-    it('should show an error message on failed logout', () => {
-      (authService.logout as jest.Mock).mockReturnValue(throwError(() => ({ status: 500 })));
-      sessionContext$.next({
-        session: { user: { name: 'Test User', role: 'user' } },
-        token: 'test_token',
-      });
-      spectator.detectChanges();
-      const logoutButton = spectator.query('button[b2b-button]');
-      spectator.click(logoutButton as Element);
-      // We expect the error to be handled, but since the component does not display it,
-      // we just check that navigation does not happen. A more robust test would check for the error message.
-      expect(router.navigate).not.toHaveBeenCalled();
-    });
-  });
-});
-
-    it('should call logout and navigate on successful logout', async () => {
-      const logoutSpy = authService.logout as jest.Mock;
-      const navigateSpy = router.navigate as jest.Mock;
-
-      await spectator.component.logout();
-
-      expect(logoutSpy).toHaveBeenCalled();
-      expect(navigateSpy).toHaveBeenCalledWith(['/acceso/sesion-finalizada']);
-    });
-
-    it('should log an error and not navigate on failed logout', async () => {
-      const error = new Error('Logout failed');
-      const logoutSpy = (authService.logout as jest.Mock).mockReturnValue(throwError(() => error));
-      const navigateSpy = router.navigate as jest.Mock;
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-
-      await spectator.component.logout();
-
-      expect(logoutSpy).toHaveBeenCalled();
-      expect(navigateSpy).not.toHaveBeenCalled();
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error al cerrar sesión', error);
-
-      consoleErrorSpy.mockRestore();
-    });
+  it('ARC-069: sin accesos directos para el rol muestra aviso home-no-shortcuts', () => {
+    const onlyTech: readonly NavItem[] = [
+      { label: 'Inicio', path: '/inicio', roles: ALL, shortcut: false },
+      { label: 'Bandeja', path: '/bandeja', roles: ['ROL-002'], shortcut: true },
+    ];
+    const fixture = setup(user('ROL-001', 'Empleado'), onlyTech);
+    expect(q(fixture, '[data-testid="home-no-shortcuts"]')).not.toBeNull();
+    expect(q(fixture, '[data-testid^="shortcut-"]')).toBeNull();
   });
 });

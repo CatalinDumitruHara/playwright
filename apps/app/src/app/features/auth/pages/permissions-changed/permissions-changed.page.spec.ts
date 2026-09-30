@@ -1,55 +1,54 @@
-
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { Router } from '@angular/router';
-import { IonicModule } from '@ionic/angular';
-import { RouterTestingModule } from '@angular/router/testing';
-
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
+import { Router, provideRouter } from '@angular/router';
+import { of } from 'rxjs';
 import { PermissionsChangedPage } from './permissions-changed.page';
+import { AuthenticationService } from '../../../../core/auth/authentication.service';
+import { CurrentUser } from '../../../../core/auth/session.model';
+
+function setup(user: Partial<CurrentUser> | null): {
+  fixture: ComponentFixture<PermissionsChangedPage>;
+  navigate: jest.SpyInstance;
+  getSessionContext: jest.Mock;
+} {
+  const getSessionContext = jest.fn().mockReturnValue(of(user));
+  TestBed.configureTestingModule({
+    imports: [PermissionsChangedPage],
+    providers: [
+      provideRouter([]),
+      {
+        provide: AuthenticationService,
+        useValue: { currentUser: signal(user).asReadonly(), getSessionContext },
+      },
+    ],
+  });
+  const router = TestBed.inject(Router);
+  const navigate = jest.spyOn(router, 'navigate').mockResolvedValue(true);
+  const fixture = TestBed.createComponent(PermissionsChangedPage);
+  fixture.detectChanges();
+  return { fixture, navigate, getSessionContext };
+}
+
+function q(fixture: ComponentFixture<PermissionsChangedPage>, sel: string): HTMLElement | null {
+  return (fixture.nativeElement as HTMLElement).querySelector(sel);
+}
 
 describe('PermissionsChangedPage', () => {
-  let component: PermissionsChangedPage;
-  let fixture: ComponentFixture<PermissionsChangedPage>;
-  let router: Router;
-
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [ PermissionsChangedPage ],
-      imports: [
-        IonicModule.forRoot(),
-        RouterTestingModule.withRoutes([])
-      ]
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(PermissionsChangedPage);
-    component = fixture.componentInstance;
-    router = TestBed.inject(Router);
-    fixture.detectChanges();
-  }));
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('pinta el rol actual del usuario', () => {
+    const { fixture } = setup({ roleCode: 'ROL-003', roleLabel: 'Administrador' });
+    expect(q(fixture, '[data-testid="current-role"]')?.textContent).toContain(
+      'Tu rol actual es: Administrador'
+    );
   });
 
-  it('should display the permissions changed message', () => {
-    const compiled = fixture.nativeElement;
-    expect(compiled.querySelector('h1').textContent).toContain('Tus permisos han cambiado');
-    const paragraph = compiled.querySelector('p');
-    expect(paragraph.textContent).toContain('Hemos detectado que tus permisos de acceso han sido actualizados.');
+  it('reloadMenu re-resuelve la sesión (EP-003) y navega a /inicio', () => {
+    const { fixture, navigate, getSessionContext } = setup({
+      roleCode: 'ROL-003',
+      roleLabel: 'Administrador',
+    });
+    q(fixture, '[data-testid="reload-button"]')?.click();
+    expect(getSessionContext).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledWith(['/inicio']);
+    expect(fixture.componentInstance.reloading()).toBe(false);
   });
-
-  it('should display the updated role', () => {
-    component.currentRole = 'ADMIN'; // Asignar un valor para la prueba
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement;
-    const roleElement = compiled.querySelector('strong');
-    expect(roleElement.textContent).toContain('ADMIN');
-  });
-
-  it('should navigate to home page on reload button click', () => {
-    jest.spyOn(router, 'navigate');
-    const button = fixture.nativeElement.querySelector('ion-button');
-    button.click();
-    expect(router.navigate).toHaveBeenCalledWith(['/']);
-  });
-
 });

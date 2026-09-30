@@ -1,17 +1,34 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import { CanActivateChildFn, CanActivateFn, Router } from '@angular/router';
 import { AuthenticationService } from './authentication.service';
+import { RoleCode, isInternalPath } from './session.model';
 
-export const roleGuard: CanActivateFn = (route) => {
-  const authService = inject(AuthenticationService);
+export const roleGuard: CanActivateFn = (route, state) => {
+  const auth = inject(AuthenticationService);
   const router = inject(Router);
-  const expectedRoles = route.data['roles'] as string[];
-  const userRole = authService.sessionContext()?.user.role;
 
-  if (userRole && expectedRoles.includes(userRole)) {
+  const deny = () =>
+    router.createUrlTree(['/acceso-no-autorizado'], {
+      queryParams: { ruta: state.url },
+    });
+
+  const roles = route.data?.['roles'] as readonly RoleCode[] | undefined;
+  if (!Array.isArray(roles) || roles.length === 0) {
+    return deny();
+  }
+
+  if (auth.hasAnyRole(roles)) {
     return true;
   }
 
-  router.navigate(['/inicio']); // o a una página de "acceso denegado"
-  return false;
+  if (!auth.isAuthenticated() && isInternalPath(state.url)) {
+    return router.createUrlTree(['/acceso'], {
+      queryParams: { returnUrl: state.url },
+    });
+  }
+
+  return deny();
 };
+
+export const roleGuardChild: CanActivateChildFn = (route, state) =>
+  roleGuard(route, state);

@@ -11,8 +11,10 @@ import {
   B2bNotificationInlineComponent,
   B2bPasswordFieldComponent,
 } from '@mapfre-tech/b2b-components';
-import { AuthenticationService } from '../../../../core/auth/authentication.service';
-import { ChangePasswordForcedRequest } from '@api-types';
+import {
+  AuthenticationService,
+  InitialPasswordPayload,
+} from '../../../../core/auth/authentication.service';
 import { Router } from '@angular/router';
 import { passwordMatchValidator } from '../../../../core/validators/password-match.validator';
 
@@ -47,7 +49,7 @@ export class ChangePasswordForcedPage {
   changePassword() {
     if (this.form.valid) {
       this.errorMessage = null;
-      const changePasswordForcedRequest: ChangePasswordForcedRequest = {
+      const changePasswordForcedRequest: InitialPasswordPayload = {
         new_password: this.form.value.newPassword,
       };
       this.authService

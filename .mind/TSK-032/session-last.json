@@ -1,0 +1,46 @@
+{
+  "task_code": "TSK-032",
+  "attempt": 3,
+  "at": "2026-09-30T15:17:35.344461+00:00",
+  "construction_id": "43093eb9-6138-481d-a6d9-b0ddfc8ef230",
+  "status": "delivered",
+  "delivered": true,
+  "error": null,
+  "summary": "Intento 3: corregido lo que reportó la verificación (stub-delivery).\n1) Rutas huérfanas: `/acceso/credencial-caducada`, `/avisos/permisos-actualizados` y `/avisos/version-no-soportada` ya están en el menú del shell. Van en la sección «Auth» que declara su spec de UI: campo `NavItem.section` y constante `NAV_SECTION_AUTH` en `core/navigation/navigation.model.ts`, y un segundo bloque `b2b-sidebar-item` en `layout/nav-menu`, siempre con el design system.\n2) Disparador real de FLOW-028 SCR-004: ante",
+  "model": "claude-opus-5-5",
+  "input_tokens": 1154631,
+  "output_tokens": 10440,
+  "llm_calls": 48,
+  "cost_usd": 1.8542782000000002,
+  "build_status": "green",
+  "build_output": "",
+  "environment_status": "realized",
+  "environment_detail": "wiremock=wiremock/wiremock:3.13.1",
+  "schema_status": "skipped",
+  "commit_sha": "88bc418ebd5d5e7b79b8a2cfa206729c47f936b7",
+  "browser_status": "green",
+  "browser_coverage": {
+    "mapped": [
+      {
+        "code": "ARC-070",
+        "route": "/acceso/sesion-finalizada"
+      },
+      {
+        "code": "ARC-092",
+        "route": "/acceso-no-autorizado"
+      },
+      {
+        "code": "ARC-069",
+        "route": "/inicio"
+      }
+    ],
+    "unmapped": [],
+    "tagged_specs_found": [
+      "e2e/ARC-069.inicio.e2e-spec.ts",
+      "e2e/ARC-070.sesion-finalizada.e2e-spec.ts",
+      "e2e/ARC-092.acceso-no-autorizado.e2e-spec.ts"
+    ],
+    "canonical_ran": true,
+    "selection_strategy": "hybrid"
+  }
+}

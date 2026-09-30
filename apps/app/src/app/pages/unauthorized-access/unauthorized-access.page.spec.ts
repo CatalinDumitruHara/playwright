@@ -1,76 +1,71 @@
-import { Spectator, createRoutingFactory, mockProvider } from '@ngneat/spectator/jest';
+import { signal } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { UnauthorizedAccessPage } from './unauthorized-access.page';
 import { AuthenticationService } from '../../core/auth/authentication.service';
-import { Router } from '@angular/router';
-import {
-  B2bButtonComponent,
-  B2bNotificationInlineComponent,
-} from '@mapfre-tech/b2b-components';
+import { CurrentUser } from '../../core/auth/session.model';
 
-describe('UnauthorizedAccessPage', () => {
-  let spectator: Spectator<UnauthorizedAccessPage>;
-  const createComponent = createRoutingFactory({
-    component: UnauthorizedAccessPage,
-    imports: [B2bButtonComponent, B2bNotificationInlineComponent],
+const EMPLOYEE: CurrentUser = {
+  userId: 'u-1',
+  fullName: 'Ana García López',
+  email: 'ana@example.com',
+  roleCode: 'ROL-001',
+  roleLabel: 'Empleado',
+  mustChangePassword: false,
+};
+
+function setup(query: Record<string, string> = {}): {
+  fixture: ComponentFixture<UnauthorizedAccessPage>;
+  navigate: jest.SpyInstance;
+} {
+  TestBed.configureTestingModule({
+    imports: [UnauthorizedAccessPage],
     providers: [
-      mockProvider(AuthenticationService, {
-        sessionContext: () => ({
-          user: { name: 'Test User' },
-          permissions: ['test-role'],
-        }),
-      }),
+      provideRouter([]),
+      {
+        provide: ActivatedRoute,
+        useValue: { snapshot: { queryParamMap: convertToParamMap(query) } },
+      },
+      {
+        provide: AuthenticationService,
+        useValue: { currentUser: signal<CurrentUser | null>(EMPLOYEE) },
+      },
     ],
-    // Do not use mocks: [Router] here, as we will provide a custom one.
-    detectChanges: false,
+  });
+  const navigate = jest.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+  const fixture = TestBed.createComponent(UnauthorizedAccessPage);
+  fixture.detectChanges();
+  return { fixture, navigate };
+}
+
+function q(fixture: ComponentFixture<UnauthorizedAccessPage>, sel: string): HTMLElement | null {
+  return (fixture.nativeElement as HTMLElement).querySelector(sel);
+}
+
+describe('UnauthorizedAccessPage (ARC-092)', () => {
+  it('ARC-092: muestra el mensaje de acceso no autorizado', () => {
+    const { fixture } = setup({ ruta: '/admin' });
+    expect(q(fixture, '[data-testid="unauthorized-message"]')).not.toBeNull();
   });
 
-  it('should create', () => {
-    spectator = createComponent({
-      providers: [
-        {
-          provide: Router,
-          useValue: { url: '', navigate: jest.fn(), initialNavigation: jest.fn() },
-        },
-      ],
-    });
-    spectator.detectChanges();
-    expect(spectator.component).toBeTruthy();
+  it('ARC-092: muestra la ruta solicitada interna (/admin)', () => {
+    const { fixture } = setup({ ruta: '/admin' });
+    expect(q(fixture, '[data-testid="requested-path"]')?.textContent?.trim()).toBe('/admin');
   });
 
-  it('should display the current URL and user role', () => {
-    const testUrl = '/test-url';
-    spectator = createComponent({
-      providers: [
-        {
-          provide: Router,
-          useValue: {
-            url: testUrl,
-            navigate: jest.fn(),
-            initialNavigation: jest.fn(), // Add the missing function
-          },
-        },
-      ],
-    });
-
-    spectator.detectChanges();
-
-    const paragraphs = spectator.queryAll('p');
-    expect(paragraphs[0]).toHaveText(`Ruta solicitada: ${testUrl}`);
-    expect(paragraphs[1]).toHaveText(`Tu rol actual: test-role`);
+  it('ARC-092 (error): ruta externa se sustituye por "—"', () => {
+    const { fixture } = setup({ ruta: '//evil.com' });
+    expect(q(fixture, '[data-testid="requested-path"]')?.textContent?.trim()).toBe('—');
   });
 
-  it('should navigate to home on "Volver" button click', () => {
-    const routerMock = { url: '', navigate: jest.fn(), initialNavigation: jest.fn() };
-    spectator = createComponent({
-      providers: [{ provide: Router, useValue: routerMock }],
-    });
-    spectator.detectChanges();
+  it('ARC-092: muestra el rol vigente del usuario', () => {
+    const { fixture } = setup({ ruta: '/admin' });
+    expect(q(fixture, '[data-testid="current-role"]')?.textContent?.trim()).toBe('Empleado');
+  });
 
-    const backButton = spectator.query('button');
-    if (backButton) {
-      spectator.click(backButton);
-    }
-
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/']);
+  it('ARC-092: el botón volver navega a /inicio', () => {
+    const { fixture, navigate } = setup({ ruta: '/admin' });
+    q(fixture, '[data-testid="back-home"]')?.click();
+    expect(navigate).toHaveBeenCalledWith(['/inicio']);
   });
 });
