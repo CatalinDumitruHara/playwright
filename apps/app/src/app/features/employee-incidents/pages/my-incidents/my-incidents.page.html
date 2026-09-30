@@ -1,0 +1,31 @@
+<div class="my-incidents-page">
+  <div class="header-controls">
+    <b2b-search (search)="onSearch($event)"></b2b-search>
+    <button class="b2b-button" (click)="goToNewIncident()">
+      Nueva incidencia
+    </button>
+  </div>
+
+  <ng-container *ngIf="incidentsData$ | async as incidentsData">
+    <ng-container *ngIf="incidentsData.items.length > 0; else noIncidents">
+      <b2b-table-container
+        [headers]="tableModel.headers"
+        [data]="incidentsData.items"
+        (rowClicked)="goToIncidentDetail($event)"
+      >
+      </b2b-table-container>
+      <b2b-paginator
+        [totalElements]="incidentsData.total"
+        [pageSize]="incidentsData.per_page"
+        (pageChange)="onPageChange($event)"
+      ></b2b-paginator>
+    </ng-container>
+
+    <ng-template #noIncidents>
+      <b2b-notification-inline
+        type="info"
+        message="No se han encontrado incidencias."
+      ></b2b-notification-inline>
+    </ng-template>
+  </ng-container>
+</div>

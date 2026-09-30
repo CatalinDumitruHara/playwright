@@ -6,7 +6,7 @@ import {
   provideEnvironment,
 } from '@mapfre-tech/ngx-multienvironment/core';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { authInterceptor } from './core/auth/auth.interceptor';
+// import { authInterceptor } from './core/auth/auth.interceptor';
 
 export const getAppConfig: (config: {
   env: string;
@@ -15,6 +15,6 @@ export const getAppConfig: (config: {
   providers: [
     provideRouter(appRoutes),
     provideEnvironment(config.env, config.envConfig),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    // provideHttpClient(withInterceptors([authInterceptor])),
   ],
 });

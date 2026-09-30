@@ -1,0 +1,18 @@
+<div class="ion-padding">
+  <button (click)="goBack()">Volver al detalle</button>
+
+  <ng-container *ngIf="history$ | async as history">
+    <ul b2b-list *ngIf="history.items.length > 0; else noHistory">
+      <li *ngFor="let item of history.items">
+        <p><strong>De:</strong> {{ item.fromState }}</p>
+        <p><strong>A:</strong> {{ item.toState }}</p>
+        <p><strong>Autor:</strong> {{ item.author }}</p>
+        <p><strong>Fecha:</strong> {{ item.timestamp | date: 'dd/MM/yyyy HH:mm' }}</p>
+      </li>
+    </ul>
+    <ng-template #noHistory>
+      <p>No hay historial de cambios para esta incidencia.</p>
+    </ng-template>
+  </ng-container>
+</div>
+

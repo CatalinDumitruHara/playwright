@@ -1,0 +1,16 @@
+<div *ngIf="incident$ | async as incident">
+  <h1>Detalle de la Incidencia</h1>
+  <b2b-read-data [label]="'Código'" [text]="incident.reference_code"></b2b-read-data>
+  <b2b-read-data [label]="'Sala'" [text]="incident.room.name"></b2b-read-data>
+  <b2b-read-data [label]="'Oficina'" [text]="incident.room.office_name"></b2b-read-data>
+  <b2b-read-data [label]="'Categoría'" [text]="incident.category.name"></b2b-read-data>
+  <b2b-read-data [label]="'Descripción'" [text]="incident.description"></b2b-read-data>
+  <b2b-read-data [label]="'Estado'" [text]="incident.status"></b2b-read-data>
+  <b2b-read-data [label]="'Fecha de alta'" [text]="incident.created_at | date"></b2b-read-data>
+  <b2b-read-data [label]="'Técnico asignado'" [text]="incident.assigned_to?.full_name || 'Sin asignar'"></b2b-read-data>
+  
+  <a b2b-link [routerLink]="['/mis-incidencias', incident.id, 'historial']">Ver historial</a>
+  <a b2b-link *ngIf="incident.photo" [routerLink]="['/mis-incidencias', incident.id, 'foto']">Ver foto</a>
+  
+  <button b2b-button variant="secondary" [routerLink]="['/mis-incidencias']">Volver al listado</button>
+</div>

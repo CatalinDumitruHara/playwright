@@ -1,0 +1,18 @@
+<div class="incident-photo-container" *ngIf="photo$ | async as photo; else noPhoto">
+  <img [src]="photo" alt="Foto de la incidencia" />
+</div>
+
+<ng-template #noPhoto>
+  <b2b-notification-inline
+    type="info"
+    title="No hay foto adjunta"
+    [showIcon]="true"
+    [closable]="false"
+  ></b2b-notification-inline>
+</ng-template>
+
+<div class="incident-photo-actions">
+    <button b2bButton type="button" variant="secondary" (click)="back()">
+        Volver al detalle
+    </button>
+</div>

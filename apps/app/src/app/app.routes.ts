@@ -1,13 +1,13 @@
 import { Route } from '@angular/router';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
-import { authGuard } from './core/auth/auth.guard';
-import { roleGuard } from './core/auth/role.guard';
+// import { authGuard } from './core/auth/auth.guard';
+// import { roleGuard } from './core/auth/role.guard';
 
 export const appRoutes: Route[] = [
   {
     path: '',
     component: MainLayoutComponent,
-    canActivate: [authGuard],
+    // canActivate: [authGuard],
     children: [
       {
         path: 'inicio',
@@ -38,19 +38,61 @@ export const appRoutes: Route[] = [
           ).then((p) => p.ChangePasswordConfirmationPage),
       },
       {
-        path: 'incidents',
+        path: 'mis-incidencias',
         loadComponent: () =>
-          import('./pages/welcome/welcome.page').then((p) => p.WelcomePage), // Placeholder
-        canActivate: [roleGuard],
-        data: { roles: ['ROL-002'] },
+          import(
+            './features/employee-incidents/pages/my-incidents/my-incidents.page'
+          ).then((p) => p.MyIncidentsPage),
       },
       {
-        path: 'admin',
+        path: 'mis-incidencias/:id',
         loadComponent: () =>
-          import('./pages/welcome/welcome.page').then((p) => p.WelcomePage), // Placeholder
-        canActivate: [roleGuard],
-        data: { roles: ['ROL-003'] },
+          import(
+            './features/employee-incidents/pages/incident-detail/incident-detail.page'
+          ).then((p) => p.IncidentDetailPage),
       },
+      {
+        path: 'mis-incidencias/:id/historial',
+        loadComponent: () =>
+          import(
+            './features/employee-incidents/pages/incident-history/incident-history.page'
+          ).then((p) => p.IncidentHistoryPage),
+      },
+      {
+        path: 'mis-incidencias/:id/foto',
+        loadComponent: () =>
+          import(
+            './features/employee-incidents/pages/incident-photo/incident-photo.page'
+          ).then((p) => p.IncidentPhotoPage),
+      },
+      {
+        path: 'incidencias/nueva',
+        loadComponent: () =>
+          import(
+            './features/employee-incidents/pages/incident-create/incident-create.page'
+          ).then((p) => p.IncidentCreatePage),
+      },
+      {
+        path: 'incidencias/nueva/confirmacion',
+        loadComponent: () =>
+          import(
+            './features/employee-incidents/pages/incident-create-confirmation/incident-create-confirmation.page'
+          ).then((p) => p.IncidentCreateConfirmationPage),
+      },
+      {
+        path: 'incidencias/no-encontrada',
+        loadComponent: () =>
+          import(
+            './features/employee-incidents/pages/incident-not-found/incident-not-found.page'
+          ).then((p) => p.IncidentNotFoundPage),
+      },
+      // {
+      //   path: 'admin',
+      //   loadComponent: () =>
+      //     import('./features/welcome/pages/welcome/welcome.page').then((p) => p.WelcomePage), // Placeholder
+      //   // canActivate: [roleGuard],
+      //   data: { roles: ['ROL-003'] },
+      // },
       {
         path: '',
         redirectTo: 'home',

@@ -1,0 +1,63 @@
+<b2b-container>
+  <b2b-grid-layout>
+    <div b2b-grid-item [gridColumn]="'2 / span 10'">
+      <h1 class="b2b-heading-1">Crear nueva incidencia</h1>
+    </div>
+
+    <div b2b-grid-item [gridColumn]="'2 / span 10'">
+      <form [formGroup]="incidentForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <b2b-dropdown-select
+            formControlName="room_id"
+            label="Sala"
+            placeholder="Selecciona una sala"
+            [options]="rooms$ | async"
+          >
+          </b2b-dropdown-select>
+        </div>
+
+        <div class="form-group">
+          <b2b-dropdown-select
+            formControlName="category_code"
+            label="Categoría"
+            placeholder="Selecciona una categoría"
+            [options]="categories$ | async"
+          >
+          </b2b-dropdown-select>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Descripción</label>
+          <textarea
+            b2b-text-area
+            id="description"
+            formControlName="description"
+            placeholder="Describe la incidencia"
+            rows="5"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <b2b-file-uploader
+            formControlName="photo"
+            label="Foto (opcional)"
+          ></b2b-file-uploader>
+        </div>
+
+        <div class="form-actions">
+          <button b2b-button btn-secondary type="button" (click)="onCancel()">
+            Cancelar
+          </button>
+          <button
+            b2b-button
+            btn-primary
+            type="submit"
+            [disabled]="incidentForm.invalid"
+          >
+            Crear incidencia
+          </button>
+        </div>
+      </form>
+    </div>
+  </b2b-grid-layout>
+</b2b-container>
