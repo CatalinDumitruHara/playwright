@@ -1522,5 +1522,4 @@ El intento anterior dejó el módulo COMPILANDO, pero el artefacto entregado **n
 ```
 stub-delivery: hay features marcadas como entregadas cuyo cuerpo no hace nada. `TODO`, `not implemented` y un retorno vacío como cuerpo único son bloqueantes de entrega, no notas.
 - 8 de 16 rutas registradas que ninguna plantilla enlaza: `/acceso/cambio-obligatorio-contrasena`, `/acceso/credencial-caducada`, `/acceso/cuenta-bloqueada`, `/admin`, `/avisos/permisos-actualizados`, `/avisos/version-no-soportada` (+2 más). Una pantalla a la que sólo se llega escribiendo la URL no está entregada: móntala en el menú del shell con la `sección de menú` que declara su spec de UI
-- servicio(s) de producción que FABRICAN su respuesta en vez de pedirla: `apps/app/src/app/features/employee-incidents/pages/incident-history/incident-history.page.ts::if` (Observable/Promise resuelto con un literal), `apps/app/src/app/features/employee-incidents/pages/incident-history/incident-history.page.ts::ngOnInit` (Observable/Promise resuelto con un literal). Un doble en el árbol de producto es un bloqueante: la pantalla se ve llena y no hay nada detrás — los dobles solo valen en tests
 ```
