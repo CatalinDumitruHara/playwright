@@ -1,7 +1,7 @@
-
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { B2bButtonComponent, B2bNotificationInlineComponent, B2bReadDataComponent } from '@mapfre-tech/b2b-components';
 import { Router, RouterLink } from '@angular/router';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-incident-create-confirmation',
@@ -16,13 +16,25 @@ import { Router, RouterLink } from '@angular/router';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class IncidentCreateConfirmationPage {
+export class IncidentCreateConfirmationPage implements OnInit {
   private router = inject(Router);
-  // TODO: Get incidentId from ActivatedRoute state or params
-  private incidentId = 'INC-2024-000001';
+  private location = inject(Location);
+
+  incidentId = signal<string | undefined>(undefined);
+
+  constructor() {
+    const navigationState = this.location.getState() as { incidentId?: string };
+    this.incidentId.set(navigationState?.incidentId);
+  }
+
+  ngOnInit(): void {
+    if (!this.incidentId()) {
+      this.router.navigate(['/incidents/not-found']);
+    }
+  }
 
   navigateToIncidentDetail(): void {
-    this.router.navigate(['/mis-incidencias', this.incidentId]);
+    this.router.navigate(['/mis-incidencias', this.incidentId()]);
   }
 
   navigateToCreateIncident(): void {

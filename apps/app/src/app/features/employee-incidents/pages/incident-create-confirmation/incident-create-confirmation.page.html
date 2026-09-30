@@ -1,36 +1,15 @@
-<div class="b2b-container-xl">
-  <div class="b2b-grid">
-    <div class="b2b-col-12">
-      <b2b-notification-inline
-        [visible]="true"
-        type="ok"
-        title="Incidencia creada correctamente"
-        class="b2b-m-y-24"
-      ></b2b-notification-inline>
-    </div>
+<b2b-notification-inline [visible]="true" type="ok">
+  Incidencia registrada correctamente
+</b2b-notification-inline>
 
-    <div class="b2b-col-12">
-      <b2b-read-data
-        label="Código de referencia"
-        value="INC-2024-000001"
-        class="b2b-m-b-24"
-      ></b2b-read-data>
-    </div>
+<b2b-read-data>
+  <span b2b-read-data-label>Código de referencia</span>
+  <span b2b-read-data-value>{{ incidentId() }}</span>
+</b2b-read-data>
 
-    <div class="b2b-col-12 b2b-m-b-24">
-      <a
-        b2b-link
-        (click)="navigateToIncidentDetail()"
-        (keydown.enter)="navigateToIncidentDetail()"
-        tabindex="0"
-        >Ver detalle de la incidencia</a
-      >
-    </div>
-
-    <div class="b2b-col-12">
-      <button b2b-button (click)="navigateToCreateIncident()">
-        Crear otra incidencia
-      </button>
-    </div>
-  </div>
-</div>
+<button b2b-button (click)="navigateToIncidentDetail()">
+  Ver detalle de la incidencia
+</button>
+<button b2b-button variant="secondary" (click)="navigateToCreateIncident()">
+  Crear otra incidencia
+</button>

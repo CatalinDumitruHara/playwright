@@ -22,6 +22,6 @@ export default {
   ],
   moduleNameMapper: {
     '@ionic/angular/standalone': '<rootDir>/src/__mocks__/index.ts',
-    '@api-types': '<rootDir>/../../libs/api-types/src/index.ts'
+    '@api-types': '<rootDir>/../libs/api-types/src/index.ts'
   },
 };
