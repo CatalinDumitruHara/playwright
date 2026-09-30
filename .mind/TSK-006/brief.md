@@ -551,3 +551,12 @@ Registro inmutable de cada resolución de destinatarios del directorio, individu
 ## Entorno de prueba de esta sesión
 
 NO se levanta ningún servicio de respaldo para esta tarea: verifica con tests unitarios y dobles en memoria. No intentes arrancar contenedores por tu cuenta ni asumas que hay una BBDD disponible.
+
+## Fallo del intento anterior (OBLIGATORIO corregir)
+
+La sesión previa **no entregó**. Corrige la causa antes de ampliar alcance:
+
+> entrega vacía: no aterrizó ningún cambio de código fuera de `.mind/` (solo brief o sin commits nuevos)
+
+Acciones:
+- Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
