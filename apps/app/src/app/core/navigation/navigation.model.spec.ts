@@ -33,5 +33,16 @@ describe('navigation.model', () => {
     it.each(ALL_ROLES)('incluye /inicio para %s', (role) => {
       expect(navItemsForRole(APP_NAV_ITEMS, role).map((i) => i.path)).toContain('/inicio');
     });
+
+    it.each(ALL_ROLES)('incluye las tres pantallas de la sección Auth para %s', (role) => {
+      const paths = navItemsForRole(APP_NAV_ITEMS, role).map((i) => i.path);
+      expect(paths).toEqual(
+        expect.arrayContaining([
+          '/acceso/credencial-caducada',
+          '/avisos/permisos-actualizados',
+          '/avisos/version-no-soportada',
+        ])
+      );
+    });
   });
 });

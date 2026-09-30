@@ -15,6 +15,7 @@ import {
 import { AuthenticationService } from '../../core/auth/authentication.service';
 import {
   NAV_ITEMS,
+  NAV_SECTION_AUTH,
   NavItem,
   navItemsForRole,
 } from '../../core/navigation/navigation.model';
@@ -33,8 +34,18 @@ export class NavMenuComponent {
   private readonly router = inject(Router);
   private readonly items = inject(NAV_ITEMS);
 
-  readonly menu = computed(() =>
+  private readonly menu = computed(() =>
     navItemsForRole(this.items, this.auth.currentUser()?.roleCode)
+  );
+
+  /** Ítems del menú principal (sin sección 'Auth'); se pintan primero. */
+  readonly mainItems = computed(() =>
+    this.menu().filter((item) => item.section !== NAV_SECTION_AUTH)
+  );
+
+  /** Ítems de la sección 'Auth'; se pintan a continuación. */
+  readonly authItems = computed(() =>
+    this.menu().filter((item) => item.section === NAV_SECTION_AUTH)
   );
 
   /** Estado de apertura del sidebar; el output de la librería marca la vista OnPush. */

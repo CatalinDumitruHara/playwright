@@ -10,9 +10,11 @@ import {
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { Router } from '@angular/router';
+import { Observable, catchError, of } from 'rxjs';
 import { authInterceptor } from './auth.interceptor';
 import { AuthenticationService } from './authentication.service';
 import { API_BASE_URL } from '../config/api-base-url.token';
+import { CurrentUser } from './session.model';
 
 describe('authInterceptor', () => {
   let http: HttpClient;
@@ -21,6 +23,8 @@ describe('authInterceptor', () => {
     isAuthenticated: jest.Mock;
     clearSession: jest.Mock;
     getToken: jest.Mock;
+    sessionContext: jest.Mock;
+    getSessionContext: jest.Mock;
   };
   let router: { url: string; navigate: jest.Mock };
 
@@ -29,6 +33,14 @@ describe('authInterceptor', () => {
       isAuthenticated: jest.fn().mockReturnValue(false),
       clearSession: jest.fn(),
       getToken: jest.fn().mockReturnValue(null),
+      sessionContext: jest.fn().mockReturnValue(null),
+      // EP-003 real GET (pasa por el interceptor), como AuthenticationService: error -> null.
+      getSessionContext: jest.fn(
+        (): Observable<CurrentUser | null> =>
+          http
+            .get<CurrentUser | null>('/api/auth/sessions/current')
+            .pipe(catchError(() => of(null)))
+      ),
     };
     router = { url: '/mi-perfil', navigate: jest.fn().mockResolvedValue(true) };
 
@@ -48,6 +60,11 @@ describe('authInterceptor', () => {
   afterEach(() => httpMock.verify());
 
   const fail401 = { status: 401, statusText: 'Unauthorized' };
+  const fail403 = { status: 403, statusText: 'Forbidden' };
+  const user = (roleCode: CurrentUser['roleCode']): Partial<CurrentUser> => ({
+    userId: 'u-1',
+    roleCode,
+  });
 
   it('con token añade Authorization Bearer a peticiones API aunque isAuthenticated sea false', () => {
     auth.getToken.mockReturnValue('tok-123');
@@ -126,9 +143,8 @@ describe('authInterceptor', () => {
     auth.isAuthenticated.mockReturnValue(true);
     const errSpy = jest.fn();
     http.get('/api/x').subscribe({ error: errSpy });
-    httpMock
-      .expectOne('/api/x')
-      .flush(null, { status: 403, statusText: 'Forbidden' });
+    httpMock.expectOne('/api/x').flush(null, fail403);
+    httpMock.expectOne('/api/auth/sessions/current').flush(null);
 
     expect(router.navigate).toHaveBeenCalledWith(['/acceso-no-autorizado'], {
       queryParams: { ruta: '/mi-perfil' },
@@ -136,5 +152,46 @@ describe('authInterceptor', () => {
     expect(auth.clearSession).not.toHaveBeenCalled();
     expect(errSpy).toHaveBeenCalledTimes(1);
     expect((errSpy.mock.calls[0][0] as HttpErrorResponse).status).toBe(403);
+  });
+
+  it('FLOW-028: 403 con rol cambiado tras re-resolver EP-003 navega a /avisos/permisos-actualizados', () => {
+    auth.sessionContext.mockReturnValue(user('ROL-001'));
+    const errSpy = jest.fn();
+    http.get('/api/x').subscribe({ error: errSpy });
+    httpMock.expectOne('/api/x').flush(null, fail403);
+    const ctx = httpMock.expectOne('/api/auth/sessions/current');
+    expect(ctx.request.method).toBe('GET');
+    ctx.flush(user('ROL-003'));
+
+    expect(auth.getSessionContext).toHaveBeenCalledTimes(1);
+    expect(router.navigate).toHaveBeenCalledTimes(1);
+    expect(router.navigate).toHaveBeenCalledWith(['/avisos/permisos-actualizados'], {
+      state: { previousRole: 'ROL-001' },
+    });
+    expect(errSpy).toHaveBeenCalledTimes(1);
+    expect((errSpy.mock.calls[0][0] as HttpErrorResponse).status).toBe(403);
+  });
+
+  it('FLOW-028: 403 con el mismo rol tras re-resolver EP-003 navega a /acceso-no-autorizado', () => {
+    auth.sessionContext.mockReturnValue(user('ROL-002'));
+    http.get('/api/x').subscribe({ error: () => undefined });
+    httpMock.expectOne('/api/x').flush(null, fail403);
+    httpMock.expectOne('/api/auth/sessions/current').flush(user('ROL-002'));
+
+    expect(router.navigate).toHaveBeenCalledTimes(1);
+    expect(router.navigate).toHaveBeenCalledWith(['/acceso-no-autorizado'], {
+      queryParams: { ruta: '/mi-perfil' },
+    });
+  });
+
+  it('403 en la propia GET /api/auth/sessions/current: navega directo a /acceso-no-autorizado sin re-resolver', () => {
+    auth.sessionContext.mockReturnValue(user('ROL-001'));
+    http.get('/api/auth/sessions/current').subscribe({ error: () => undefined });
+    httpMock.expectOne('/api/auth/sessions/current').flush(null, fail403);
+
+    expect(auth.getSessionContext).not.toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledWith(['/acceso-no-autorizado'], {
+      queryParams: { ruta: '/mi-perfil' },
+    });
   });
 });

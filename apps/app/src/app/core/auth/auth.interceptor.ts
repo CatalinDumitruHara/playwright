@@ -62,9 +62,27 @@ export const authInterceptor: HttpInterceptorFn = (
             }
           }
         } else if (error.status === 403) {
-          void router.navigate(['/acceso-no-autorizado'], {
-            queryParams: { ruta: router.url },
-          });
+          const ruta = router.url;
+          const goUnauthorized = (): void => {
+            void router.navigate(['/acceso-no-autorizado'], {
+              queryParams: { ruta },
+            });
+          };
+          if (isSessionContextRequest) {
+            goUnauthorized();
+          } else {
+            // FLOW-028: re-resolve EP-003 to tell a role change apart from a denied operation.
+            const previousRole = auth.sessionContext()?.roleCode;
+            auth.getSessionContext().subscribe((user) => {
+              if (user && previousRole && user.roleCode !== previousRole) {
+                void router.navigate(['/avisos/permisos-actualizados'], {
+                  state: { previousRole },
+                });
+              } else {
+                goUnauthorized();
+              }
+            });
+          }
         }
       }
       return throwError(() => error);

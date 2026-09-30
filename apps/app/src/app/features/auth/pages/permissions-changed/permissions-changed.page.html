@@ -1,9 +1,11 @@
 <b2b-container>
-  <b2b-notification-inline [visible]="true" type="info">
-    <p>Tus permisos han cambiado. El menú y las acciones disponibles se han actualizado para reflejar tu nuevo rol.</p>
-  </b2b-notification-inline>
-  <div class="ion-padding">
-    <p>Tu rol actual es: {{ currentRole }}</p>
-    <button b2b-button (click)="reloadMenu()">Recargar menú y acciones</button>
+  <div b2b-container-body>
+    <b2b-notification-inline [visible]="true" type="info">
+      <p>Tus permisos han cambiado. El menú y las acciones disponibles se han actualizado para reflejar tu nuevo rol.</p>
+    </b2b-notification-inline>
+    @if (user(); as u) {
+      <p data-testid="current-role">Tu rol actual es: {{ u.roleLabel }}</p>
+    }
+    <button b2b-button type="button" data-testid="reload-button" [disabled]="reloading()" (click)="reloadMenu()">Recargar menú y acciones</button>
   </div>
 </b2b-container>
