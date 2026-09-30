@@ -22,6 +22,6 @@ export default {
   moduleNameMapper: {
     '@ionic/angular/standalone': '<rootDir>/src/__mocks__/index.ts',
     '@b2b/shared/ui': '<rootDir>/../../libs/shared/ui/src/index.ts',
-    '^@mapfre-tech/b2b-components/(.*)$': '<rootDir>/../../node_modules/@mapfre-tech/b2b-components/$1',
+    //    '^@mapfre-tech/b2b-components/(.*)$': '<rootDir>/../../node_modules/@mapfre-tech/b2b-components/$1',
   },
 };
