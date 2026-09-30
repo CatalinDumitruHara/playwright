@@ -5,32 +5,7 @@ import { of, throwError } from 'rxjs';
 import { IncidentDetailPage } from './incident-detail.page';
 import { IncidentService } from '../../services/incident.service';
 import { CommonModule } from '@angular/common';
-import { Component, Directive, ChangeDetectionStrategy } from '@angular/core';
-
-// Mock dependencies before they are imported by the component
-jest.mock('@mapfre-tech/b2b-components/read-data', () => ({
-  ReadDataComponent: Component({
-    selector: 'app-read-data',
-    template: '',
-    standalone: true,
-  })({}),
-}));
-
-jest.mock('@mapfre-tech/b2b-components/spinner', () => ({
-  SpinnerComponent: Component({
-    selector: 'app-spinner',
-    template: '',
-    standalone: true,
-  })({}),
-}));
-
-jest.mock('@mapfre-tech/b2b-components/card', () => ({
-  CardPrimaryDirective: Directive({
-    selector: '[appCardPrimary]',
-    standalone: true,
-  })({}),
-}));
-
+import { ChangeDetectionStrategy } from '@angular/core';
 
 describe('IncidentDetailPage', () => {
   let component: IncidentDetailPage;
