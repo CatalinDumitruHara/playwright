@@ -1526,3 +1526,22 @@ Si tu pantalla necesita un cuerpo concreto, añádelo tú por el admin API (`POS
 
 ### Si el entorno no está disponible
 Comprueba `.mind/TSK-034/env.json`: si su `status` es `unavailable` o `degraded`, la plataforma no pudo darte (todo) el entorno. En ese caso ESCRIBE igualmente los tests de integración y déjalos en el entregable, y repórtalo como health check **Warning** con `check: entorno-de-prueba` — NO como Blocker: no es un defecto de tu tarea, y la verificación queda diferida al CI. Reserva el Blocker para cuando el entorno SÍ estaba y los tests fallan por el código o por el brief.
+
+## REWORK — feedback del revisor (atiéndelo TODO)
+- (mind-platform) MIND (plataforma): este PR tiene **conflictos de merge** con `dev` (`mergeable_state=dirty`). Suele pasar al mergear otro PR en paralelo que tocó ficheros compartidos (routers, `__init__`, deps…). Haz rebase o merge de `dev` en tu rama, resuelve los conflictos sin cambiar el alcance de la tarea, deja build/tests verdes y vuelve a empujar. Preferible mergear PRs en orden del DAG (uno a uno) para reducir este caso.
+
+## Estado del build al cerrar el intento anterior
+
+El intento anterior dejó el módulo COMPILANDO, pero el artefacto entregado **no arrancaría** (o incumple el contrato que declara). El compilador está en VERDE: **no busques ahí y no pierdas el intento intentando reproducir un fallo de compilación que no existe**. Lo que falla es exactamente lo que dice el informe de abajo, y es lo PRIMERO que tienes que arreglar, antes de añadir nada nuevo.
+
+- Arregla lo que nombra el informe, en el sitio que nombra. No hace falta reproducirlo con el compilador: ya compila.
+- Si el defecto viene de la rama BASE y no de tu trabajo, arréglalo igual y decláralo como `health_check` de severidad Warning indicando el fichero y por qué lo tocaste.
+- **No borres ni desactives tests para que el informe calle.** Si crees que el informe se equivoca, entrégalo con un `health_check` Blocker explicando por qué; quitar cobertura para tapar una señal es peor que la señal.
+
+### Lo que reportó la verificación (literal)
+
+```
+stub-delivery: hay features marcadas como entregadas cuyo cuerpo no hace nada. `TODO`, `not implemented` y un retorno vacío como cuerpo único son bloqueantes de entrega, no notas.
+- 1 de 18 rutas registradas que ninguna plantilla enlaza: `/incidencias/mias`. Una pantalla a la que sólo se llega escribiendo la URL no está entregada: móntala en el menú del shell con la `sección de menú` que declara su spec de UI
+- servicio(s) de producción que FABRICAN su respuesta en vez de pedirla: `apps/app/src/app/features/my-incidents/pages/my-incidents-list/my-incidents-list.page.ts::loadFilterCatalogs` (Observable/Promise resuelto con un literal), `apps/app/src/app/features/report-incident/report-incident.service.ts::readPhoto` (Observable/Promise resuelto con un literal). Un doble en el árbol de producto es un bloqueante: la pantalla se ve llena y no hay nada detrás — los dobles solo valen en tests
+```
