@@ -1,23 +1,66 @@
 {
   "task_code": "TSK-034",
   "attempt": 2,
-  "at": "2026-10-01T11:35:57.078596+00:00",
-  "construction_id": "da3444f6-e379-4243-a009-23dc7ca198ed",
-  "status": "failed",
-  "delivered": false,
-  "error": "agent-runtime no responde (http://localhost:8086): Server disconnected without sending a response.",
-  "summary": "",
-  "model": null,
-  "input_tokens": 0,
-  "output_tokens": 0,
-  "llm_calls": 0,
-  "cost_usd": 0.0,
-  "build_status": "skipped",
+  "at": "2026-10-01T12:03:06.742311+00:00",
+  "construction_id": "c1c2e3da-1dfa-467b-97ce-07533b150276",
+  "status": "delivered",
+  "delivered": true,
+  "error": null,
+  "summary": "REWORK TSK-034. (1) Conflictos con dev resueltos: dev se había rehecho sin el PR #9 (TSK-033) que la rama arrastraba. Rama reconstruida como merge de origin/dev (PR #7 scaffolding + PR #8 shell TSK-032) + SOLO el diff de TSK-034 (sin force-push); origin/dev es ancestro de HEAD y el diff vs dev se limita a features/my-incidents, features/report-incident, e2e/ARC-023..027/094/095, .mind/TSK-034, app.routes.ts, navigation.model.ts y libs/api-types. (2) Composition root sobre el shell de dev: 9 ruta",
+  "model": "claude-opus-5-5",
+  "input_tokens": 4552232,
+  "output_tokens": 21009,
+  "llm_calls": 169,
+  "cost_usd": 3.8234108,
+  "build_status": "green",
   "build_output": "",
-  "environment_status": "not_required",
-  "environment_detail": "",
+  "environment_status": "realized",
+  "environment_detail": "wiremock=wiremock/wiremock:3.13.1",
   "schema_status": "skipped",
-  "commit_sha": null,
-  "browser_status": "skipped",
-  "browser_coverage": {}
+  "commit_sha": "e616870b3ed9bedb4602f0a5283cbbce208fd66f",
+  "browser_status": "green",
+  "browser_coverage": {
+    "mapped": [
+      {
+        "code": "ARC-023",
+        "route": "/incidencias/nueva"
+      },
+      {
+        "code": "ARC-024",
+        "route": "/incidencias/nueva/confirmacion"
+      },
+      {
+        "code": "ARC-025",
+        "route": "/mis-incidencias"
+      },
+      {
+        "code": "ARC-026",
+        "route": "/mis-incidencias/{id}"
+      },
+      {
+        "code": "ARC-027",
+        "route": "/mis-incidencias/{id}/historial"
+      },
+      {
+        "code": "ARC-094",
+        "route": "/incidencias/{id}/foto"
+      },
+      {
+        "code": "ARC-095",
+        "route": "/incidencias/no-encontrada"
+      }
+    ],
+    "unmapped": [],
+    "tagged_specs_found": [
+      "e2e/ARC-023.alta-incidencia.e2e-spec.ts",
+      "e2e/ARC-024.confirmacion-alta.e2e-spec.ts",
+      "e2e/ARC-025.mis-incidencias.e2e-spec.ts",
+      "e2e/ARC-026.detalle-incidencia.e2e-spec.ts",
+      "e2e/ARC-027.historial-estados.e2e-spec.ts",
+      "e2e/ARC-094.foto-incidencia.e2e-spec.ts",
+      "e2e/ARC-095.incidencia-no-encontrada.e2e-spec.ts"
+    ],
+    "canonical_ran": true,
+    "selection_strategy": "hybrid"
+  }
 }
