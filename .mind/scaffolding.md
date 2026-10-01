@@ -3,7 +3,7 @@
 - **Arquetipos ArqRef que se construirán:** `batch`, `container-python`, `database-relational`, `frontend-application-spa` — el esqueleto de cada
   arquetipo lo aporta el API corporativo (o clónalo de ArqRef); cada repo debe
   adecuarse a su arquetipo y NUNCA salirse.
-- **Contratos congelados:** 56 endpoints (openapi.yaml, 0 schemas con campos), 6 eventos (asyncapi.yaml).
+- **Contratos congelados:** 56 endpoints (openapi.yaml, 22 schemas con campos), 6 eventos (asyncapi.yaml).
 - **Base pública de la API:** `/api` (`servers[0].url`). El back monta los routers para que la URL pública sea `base + path`; el front la lee del entorno.
 
 ## Layout y disciplina (PR #0)
@@ -12,6 +12,7 @@
 - Declara cada dependencia de terceros con pin en el manifiesto del arquetipo.
 - `apps/app/public/assets/environments.json` trae `apiBaseUrl` por entorno; `proxy.conf.json` reenvía esa base al backend en `nx serve` (añade `"proxyConfig": "proxy.conf.json"` al target `serve` si el arquetipo no lo trae).
 - `libs/api-types/src/index.ts`: los DTO del contrato, generados. Impórtalos; no declares `interface`s con el nombre de un schema.
+- `playwright.config.ts` + `e2e/*.e2e-spec.ts`: seed de validación browser (smoke/functional/visual). Declara `@playwright/test` en `devDependencies` y los scripts `test:e2e*`; el runtime los ejecuta post-build cuando la policy de Playwright se dispara. Amplía specs por pantalla; no borres el seed.
 
 ## Endpoints
 

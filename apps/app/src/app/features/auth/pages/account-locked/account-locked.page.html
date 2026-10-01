@@ -1,55 +1,48 @@
-<b2b-container>
-  <div b2b-container-body class="account-locked-page">
-    <h1 style="font-size: var(--b2b-titles-04-font-size)">Cuenta bloqueada temporalmente</h1>
 
-    <b2b-notification-inline
-      [visible]="true"
-      state="alert"
-      type="alert"
-      title="Cuenta bloqueada temporalmente"
-      description="Has superado el número de intentos de acceso permitidos. Podrás reintentar el inicio de sesión cuando venza el bloqueo."
-      data-testid="lock-notice"
-    ></b2b-notification-inline>
-
-    <b2b-read-data *ngIf="lockedUntil" data-testid="lock-end">
-      <span b2b-read-data-label>Fin del bloqueo temporal</span>
-      <span b2b-read-data-value>{{ lockedUntil | date: 'dd/MM/yyyy HH:mm' }}</span>
-    </b2b-read-data>
-
-    <form class="account-locked-form" [formGroup]="form" (ngSubmit)="onSubmit()" data-testid="locked-login-form" novalidate>
-      <div class="account-locked-field">
-        <label b2b-label for="username">Correo corporativo</label>
-        <input b2b-input class="b2b-width-full" formControlName="username" id="username" autocomplete="username" />
-      </div>
-
-      <div class="account-locked-field">
-        <b2b-password-field
-          class="b2b-width-full"
-          formControlName="password"
-          label="Contraseña"
-          inputName="password"
-        ></b2b-password-field>
-      </div>
-
-      <b2b-notification-inline
-        [visible]="!!errorMessage"
-        state="error"
-        type="error"
-        [title]="errorMessage ?? ''"
-        data-testid="locked-login-error"
-      ></b2b-notification-inline>
-
-      <button b2b-button type="submit" [disabled]="isLocked || submitting" data-testid="locked-login-submit">
-        Reintentar el inicio de sesión
-      </button>
-    </form>
-
-    <b2b-notification-inline
-      [visible]="true"
-      state="info"
-      type="info"
-      title="Si necesitas acceso inmediato, comunica el bloqueo al Administrador."
-      data-testid="lock-admin-info"
-    ></b2b-notification-inline>
+<div class="container">
+  <div class="lock-message">
+    <h2>Cuenta Bloqueada</h2>
+    <p>
+      Has excedido el número de intentos de inicio de sesión.
+      Tu cuenta ha sido bloqueada temporalmente.
+    </p>
+    <p>
+      Tiempo restante de bloqueo: <strong>{{ remainingTime }}</strong>
+    </p>
   </div>
-</b2b-container>
+
+  <form class="login-form" #loginForm="ngForm">
+    <div class="form-group">
+      <label for="corporateEmail">Correo Corporativo</label>
+      <input
+        type="email"
+        id="corporateEmail"
+        name="corporateEmail"
+        [(ngModel)]="corporateEmail"
+        [disabled]="isFormDisabled"
+        required
+      />
+    </div>
+    <div class="form-group">
+      <label for="password">Contraseña</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        [(ngModel)]="password"
+        [disabled]="isFormDisabled"
+        required
+      />
+    </div>
+    <button type="submit" [disabled]="isFormDisabled">
+      Iniciar Sesión
+    </button>
+  </form>
+
+  <div class="admin-contact">
+    <p>
+      Si necesitas acceso inmediato, por favor, comunica al Administrador en
+      "Usuarios con bloqueo vigente".
+    </p>
+  </div>
+</div>

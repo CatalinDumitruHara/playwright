@@ -1,11 +1,11 @@
-# TSK-033 · Pantallas de Autenticación y Perfil de Usuario
+# TSK-032 · Shell de la SPA: Navegación, autenticación y layout principal
 
 - Componente dueño: `ARC-011`
 - Arquetipo del repo: `frontend-application-spa` — respeta sus convenciones; NUNCA te salgas de él (ver «Contrato de salida del arquetipo»).
-- Zonas de código de ESTA tarea (trabajo principal): `apps/app/src/app/features/auth/`, `apps/app/src/app/features/profile/`, `apps/app/src/app/app.routes.ts`. Fuera de ellas NO amplíes alcance de negocio — **EXCEPTO** el composition root y el manifiesto del host necesarios para montar lo entregado (sección Composition root).
+- Zonas de código de ESTA tarea (trabajo principal): `apps/app/src/app/core/`, `apps/app/src/app/layout/`, `apps/app/src/app/app.routes.ts`, `apps/app/src/app/app.component.ts`. Fuera de ellas NO amplíes alcance de negocio — **EXCEPTO** el composition root y el manifiesto del host necesarios para montar lo entregado (sección Composition root).
 
 ## Definition of Done
-Formulario de login consume EP-001 y maneja respuestas de error. Formulario de cambio de contraseña del perfil de usuario consume EP-005. Flujo de establecimiento de contraseña en primer acceso (EP-006) implementado. Rutas registradas en el host; `start`/`build` verdes.
+Layout principal de la aplicación con menú de navegación dinámico según rol. Implementado interceptor HTTP que maneja 401/403 y redirige al login. Implementadas guardias de ruta de Angular para proteger las secciones. El servicio de sesión consume EP-003 para obtener el contexto del usuario. Rutas base registradas en el host; scripts `start`/`build` verdes.
 
 ## Oráculos de verificación (dod-oracles) — OBLIGATORIO
 
@@ -65,7 +65,7 @@ Un manifiesto sin versiones (o incompleto frente a los imports) NO es entrega v�
 
 ## Extiende la zona, no la reimplementes (zone-extend) — OBLIGATORIO
 
-Tus zonas (`apps/app/src/app/features/auth/`, `apps/app/src/app/features/profile/`, `apps/app/src/app/app.routes.ts`) pueden ya contener código de una TSK predecesora mergeada (o del esqueleto). Antes de crear tipos nuevos:
+Tus zonas (`apps/app/src/app/core/`, `apps/app/src/app/layout/`, `apps/app/src/app/app.routes.ts`, `apps/app/src/app/app.component.ts`) pueden ya contener código de una TSK predecesora mergeada (o del esqueleto). Antes de crear tipos nuevos:
 
 1. **Lista y lee** los ficheros bajo la zona (`ls` / abre `service.py`, `router.py`, …).
 2. **EDIT/EXTIENDE** clases, funciones y exports existentes. **PROHIBIDO** una segunda `class`/`def`/export con el **mismo nombre** en el mismo fichero (en Python gana la última y el resto es basura).
@@ -80,18 +80,18 @@ Estos son los endpoints que publica el backend de este producto (`openapi.yaml`,
 
 | EP | Método | Path | Request | Response | Status | Public | Roles |
 |----|--------|------|---------|----------|--------|--------|-------|
+| `EP-003` | **GET** | `/auth/sessions/current` | `—` | `SessionContext` | 200 | N | `ROL-001`, `ROL-002`, `ROL-003` |
+| | | _Devuelve el contexto del usuario autenticado con su identidad y rol vigente_ | | | | | |
 | `EP-001` | **POST** | `/auth/sessions` | `LoginRequest` | `SessionDetail` | 201 | Y | — |
 | | | _Inicia sesión con usuario y contraseña propios y devuelve la sesión con el rol vigente_ | | | | | |
+| `EP-002` | **DELETE** | `/auth/sessions/current` | `—` | `—` | 204 | N | `ROL-001`, `ROL-002`, `ROL-003` |
+| | | _Cierra la sesión del usuario y la revoca en servidor_ | | | | | |
+| `EP-004` | **GET** | `/auth/permissions` | `—` | `EffectivePermissions` | 200 | N | `ROL-001`, `ROL-002`, `ROL-003` |
+| | | _Devuelve las operaciones permitidas y el alcance de datos del rol vigente_ | | | | | |
 | `EP-005` | **PUT** | `/auth/password` | `PasswordChangeRequest` | `PasswordChangeResult` | 200 | N | `ROL-001`, `ROL-002`, `ROL-003` |
 | | | _Cambia la contraseña del propio usuario aportando la actual_ | | | | | |
 | `EP-006` | **PUT** | `/auth/initial-password` | `InitialPasswordRequest` | `PasswordChangeResult` | 200 | N | `ROL-001`, `ROL-002`, `ROL-003` |
 | | | _Establece la contraseña definitiva en el primer acceso tras alta o restablecimiento_ | | | | | |
-| `EP-002` | **DELETE** | `/auth/sessions/current` | `—` | `—` | 204 | N | `ROL-001`, `ROL-002`, `ROL-003` |
-| | | _Cierra la sesión del usuario y la revoca en servidor_ | | | | | |
-| `EP-003` | **GET** | `/auth/sessions/current` | `—` | `SessionContext` | 200 | N | `ROL-001`, `ROL-002`, `ROL-003` |
-| | | _Devuelve el contexto del usuario autenticado con su identidad y rol vigente_ | | | | | |
-| `EP-004` | **GET** | `/auth/permissions` | `—` | `EffectivePermissions` | 200 | N | `ROL-001`, `ROL-002`, `ROL-003` |
-| | | _Devuelve las operaciones permitidas y el alcance de datos del rol vigente_ | | | | | |
 | `EP-007` | **POST** | `/users` | `UserCreateRequest` | `UserDetail` | 201 | N | `ROL-003` |
 | | | _Da de alta un usuario con nombre, correo corporativo y rol, y emite su credencial inicial_ | | | | | |
 | `EP-008` | **GET** | `/users` | `—` | `UserListPage` | 200 | N | `ROL-003` |
@@ -807,11 +807,26 @@ Usa estas coordenadas/versiones en el manifiesto del host; no improvises latest 
 - **freezegun** `1.5.x o superior` [tests] · `freezegun`
 - **Ruff (linter + formatter)** `0.8.x o superior` [backend] · `ruff`
 - **mypy** `1.14.x o superior` [backend] · `mypy`
+- **Angular** `19.2.x (LTS vigente al arranque; se congela para todo el proyecto)` [frontend] · `@angular/core`
+- **Angular Material + CDK** `19.2.x (misma major que Angular)` [frontend] · `@angular/material`
+- **RxJS** `7.8.x` [frontend] · `rxjs`
+- **TypeScript** `5.7.x` [frontend] · `typescript`
+- **Jest + jest-preset-angular** `Jest 29.7.x, jest-preset-angular 14.5.x` [tests] · `jest-preset-angular`
+- **ESLint + angular-eslint** `ESLint 9.x, angular-eslint 19.x` [frontend] · `angular-eslint`
 - **Prettier** `3.4.x` [frontend] · `prettier`
 - **GitHub Actions** `runners ubuntu-24.04` [infra]
 - **pre-commit** `4.0.x o superior` [infra] · `pre-commit`
 
 ### Convenciones
+- **BACKEND + FRONTEND — Response wrapper UNICO Y OBLIGATORIO. Todo endpoint que devuelve una coleccion responde SIEMPRE con el objeto {"items": [...], "page": n, "pageSize": n, "totalCount": n, "totalPages": n}, sin excepciones, incluidos los catalogos y los historicos. Todo endpoint que devuelve un recurso unico responde con el objeto plano del recurso. Un recurso sin resultados devuelve 200 con items: [] y totalCount: 0, NUNCA 404 ni 204. Los modelos TypeScript del frontend declaran Page<T> y los servicios API tipan Observable<Page<IncidenciaResumen>>.** — Es el bug clasico de listado vacio: si un endpoint devuelve [] y otro {items:[]}, el servicio Angular que hace response.items.length peta en runtime con 'Cannot read properties of undefined'. Ademas, multiples criterios de aceptacion (AC-BAN-02, AC-ROL-07, AC-INC-04) exigen totalCount calculado sobre el conjunto ya acotado por alcance y filtros, lo que solo es expresable con envoltorio.
+  - Ejemplo correcto: `// backend
+return Page.of(items=rows, page=q.page, page_size=q.page_size, total_count=total)
+// frontend
+export interface Page<T> { items: T[]; page: number; pageSize: number; totalCount: number; totalPages: number; }
+listar(q: Filtro): Observable<Page<IncidenciaResumen>> { return this.http.get<Page<IncidenciaResumen>>('/api/incidents', {params}); }`
+  - Ejemplo incorrecto (evítalo): `return rows            # backend devuelve array plano
+// frontend
+listar(): Observable<IncidenciaResumen[]> { ... }   // y ademas pierde totalCount y no puede paginar`
 - **BACKEND — Transacciones: el limite transaccional es el METODO DEL SERVICE. El router abre la sesion via dependencia get_db y la cede al service; el service hace with uow(db): ... y el commit ocurre UNA sola vez al final del caso de uso. El repository NUNCA llama a commit(), rollback() ni flush() salvo flush explicito para obtener la PK generada. Las lecturas puras usan sesion en modo solo lectura (no se hace commit). Toda escritura que deba coexistir con su asiento de historico o con su fila de outbox se hace en el MISMO with uow.** — AC-CIE-05, AC-HIST-02, AC-ACC-03 y REQ-132 exigen atomicidad estricta: si falla el historico, no se consolida el cierre; si falla la revocacion de sesiones, no se consolida la desactivacion; la solicitud de aviso se persiste en la misma transaccion que el alta (patron outbox, ADR-006). Un commit dentro del repository rompe esa garantia sin que nadie lo note hasta produccion.
   - Ejemplo correcto: `def cerrar(self, incidencia_id: int, cmd: CerrarCommand, actor: ContextoSesion) -> IncidenciaDetalle:
     with uow(self.db):
@@ -845,6 +860,37 @@ mias = [i for i in todas if i.reported_by_user_id == session_user_id]  # trae to
          operation_code="INCIDENT_CREATE", outcome="OK")`
   - Ejemplo incorrecto (evítalo): `log.info(f"login de {email} con password {password}")
 log.debug("request body: %s", await request.json())   # vuelca PII y credenciales`
+- **FRONTEND (Angular 19) — Componentes standalone con changeDetection: ChangeDetectionStrategy.OnPush, dependencias por inject() (nunca constructor injection), estado local con signals y estado derivado con computed(). Toda pantalla de listado o detalle implementa los TRES estados de forma explicita en la plantilla: cargando (spinner), error (mensaje en espaniol + accion reintentar) y vacio (mensaje informativo + accion limpiar filtros si aplica). El bootstrap declara provideZoneChangeDetection({ eventCoalescing: true }) — el proyecto NO es zoneless.** — Multiples criterios exigen literalmente el estado vacio informativo y no un error (AC-INC-04 'listado vacio con mensaje informativo y sin error', AC-BAN-06 'No hay incidencias que cumplan los filtros seleccionados' con accion de limpiar). OnPush + signals mantiene el LCP dentro del objetivo de NFR-013. Se conserva zone.js porque Angular Material 19 no esta certificado zoneless.
+  - Ejemplo correcto: `@Component({ standalone: true, changeDetection: ChangeDetectionStrategy.OnPush, ... })
+export class MisIncidenciasPageComponent implements OnInit {
+  private readonly api = inject(IncidenciasApiService);
+  readonly cargando = signal(false);
+  readonly error = signal<string | null>(null);
+  readonly pagina = signal<Page<IncidenciaResumen> | null>(null);
+  readonly vacio = computed(() => this.pagina()?.totalCount === 0);
+}`
+  - Ejemplo incorrecto (evítalo): `constructor(private api: IncidenciasApiService) {}   // constructor injection
+// plantilla sin rama de error ni de vacio: el usuario ve una tabla en blanco sin saber por que`
+- **FRONTEND (Angular 19) — Acceso HTTP: EXCLUSIVAMENTE HttpClient provisto con provideHttpClient(withInterceptorsFromDi(), withInterceptors([authInterceptor, errorInterceptor, mockInterceptor])). PROHIBIDO fetch, XMLHttpRequest o axios. Un servicio API por feature en src/app/features/<feature>/data/<feature>-api.service.ts con un metodo por endpoint y tipo de retorno Observable<T>. Las URLs se componen sobre environment.apiBaseUrl; nunca se concatenan a mano en el componente. El authInterceptor anade withCredentials: true (cookie de sesion) y el errorInterceptor traduce 401 a navegacion al acceso conservando la ruta pretendida y 403 a la pantalla de acceso no autorizado.** — AC-SES-02 exige que, tras 401, el front limpie el estado y aterrice en la ruta pretendida tras identificarse; eso solo se implementa una vez, en un interceptor. Con fetch se pierden los interceptores, el manejo uniforme de errores y el envio automatico de la cookie de sesion.
+  - Ejemplo correcto: `@Injectable({ providedIn: 'root' })
+export class IncidenciasApiService {
+  private readonly http = inject(HttpClient);
+  private readonly base = `${environment.apiBaseUrl}/incidents`;
+  listar(f: BandejaFiltro): Observable<Page<IncidenciaResumen>> {
+    return this.http.get<Page<IncidenciaResumen>>(this.base, { params: toHttpParams(f) });
+  }
+}`
+  - Ejemplo incorrecto (evítalo): `const r = await fetch('/api/incidents');   // sin interceptor: 401 no redirige, 403 no se traduce
+const data = await r.json();`
+- **FRONTEND (Angular 19) — Formularios: SIEMPRE Reactive Forms tipados (FormGroup<{...}> con NonNullableFormBuilder). PROHIBIDO Template-driven ([(ngModel)]). Los mensajes de error se declaran en espaniol junto al control, el boton de envio se deshabilita mientras la peticion esta en vuelo (signal enviando) y el formulario CONSERVA los datos introducidos cuando el backend devuelve 400/409/422.** — AC-INC-02 ('el formulario conserva los datos ya introducidos'), AC-COM-03 ('el dialogo permanece abierto conservando integro el texto escrito') y AC-INC-09 (doble pulsacion crea exactamente una incidencia) son criterios de aceptacion formales. Template-driven no permite validacion sincronica tipada ni control fino del estado de envio.
+  - Ejemplo correcto: `readonly form = inject(NonNullableFormBuilder).group({
+  roomId: [0, Validators.required],
+  categoryCode: ['', Validators.required],
+  description: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(500)]],
+});
+enviar(): void { if (this.enviando() || this.form.invalid) return; this.enviando.set(true); ... }`
+  - Ejemplo incorrecto (evítalo): `<input [(ngModel)]="descripcion">    <!-- template-driven, sin tipos ni validadores declarados -->
+<button (click)="enviar()">Crear</button>   <!-- sin guard de doble envio: crea dos incidencias -->`
 - **TRANSVERSAL — Autorizacion: cada operacion de la API declara su operation_code del catalogo cat_operacion mediante la dependencia require(operation_code) del router. La dependencia resuelve la sesion, relee el rol VIGENTE en base de datos (nunca el embebido en la sesion), consulta la matriz permiso_rol_operacion y aplica deny-by-default: un par rol x operacion sin fila explicita se deniega. La dependencia devuelve el ContextoSesion con user_id, role_code y data_scope, que el service usa para acotar la consulta. Un endpoint sin require(...) no se despliega: hay un test de contrato que recorre app.routes y falla si alguna ruta no publica lo declara.** — REQ-021, REQ-060 y AC-PERM-01 exigen fuente unica de verdad y denegacion por defecto, con revision de codigo que demuestre que no hay comprobaciones de rol dispersas por los endpoints. REQ-019 exige ademas que el cambio de rol surta efecto en la siguiente peticion, lo que obliga a releer el rol de BBDD en cada llamada.
   - Ejemplo correcto: `@router.get("/incidents")
 def listar(q: Annotated[BandejaQuery, Depends()],
@@ -858,12 +904,288 @@ def listar(actor = Depends(get_current_user)):
 
 ### Anti-patrones (PROHIBIDOS)
 - Declarar la PK con autoincrement=True, con un tipo SERIAL, o con AUTOINCREMENT en el DDL. → usa: sa.Column('<entity>_id', sa.Integer(), sa.Identity(always=True), primary_key=True), que Oracle traduce a NUMBER GENERATED ALWAYS AS IDENTITY. AUTOINCREMENT es sintaxis de SQLite y SERIAL de PostgreSQL: ninguna existe en Oracle y el DDL falla en el despliegue, no en el test unitario.
+- Que un endpoint de coleccion devuelva un array plano [T] mientras otro devuelve {items: T[]}, o que devuelva 404/204 cuando no hay resultados. → usa: TODOS los endpoints de coleccion devuelven Page[T] = {items, page, pageSize, totalCount, totalPages} y responden 200 con items: [] y totalCount: 0 cuando no hay coincidencias. El modelo Angular declara Page<T> y los servicios tipan Observable<Page<T>>. Es el origen del bug clasico de 'listado vacio' con 'Cannot read properties of undefined (reading length)'.
 - Codificar las transiciones de estado o la matriz de permisos como cadenas de if/elif en el servicio (if estado == 'ABIERTA' and nuevo == 'EN_CURSO': ...). → usa: Delegar en TransicionRuleService y PermisoRuleService, que leen cat_transicion_incidencia y permiso_rol_operacion con deny-by-default y devuelven la regla aplicada para trazarla. REQ-021 y REQ-117 exigen fuente unica de verdad y 'ninguna comprobacion de rol codificada dispersa en los endpoints', verificable por revision de codigo (AC-PERM-01).
 - Comprobar el rol o el alcance dentro del cuerpo del endpoint (if actor.role_code != 'TECNICO_MANTENIMIENTO': raise 403) en lugar de declararlo en la dependencia require(operation_code). → usa: Declarar siempre Depends(require(Op.X)) en la firma del endpoint. Un endpoint sin require(...) y no listado como publico hace fallar el test de contrato de rutas. Esto materializa el 'protegido por defecto' de AC-SES-04 y evita el endpoint nuevo que nadie recordo proteger.
 - Loggear el cuerpo completo de la peticion, el correo corporativo del usuario, la contrasenia, la credencial temporal o la cookie de sesion. → usa: Registrar identificadores (session_user_id, incidencia_id, operation_code, outcome) y confiar el enmascarado al processor central de structlog, que elimina password*, temporary_password, password_hash, password_salt, session_token, Cookie, Authorization y corporate_email. REQ-063, REQ-076 y REQ-079 lo prohiben de forma explicita y es auditable.
 - Emitir un JWT autocontenido con el rol embebido y considerar la sesion cerrada solo en el navegador. → usa: Sesion opaca server-side en tabla sesion_usuario, cookie HttpOnly+Secure+SameSite=Strict, y relectura del rol vigente en BBDD en cada peticion. REQ-057, REQ-070 y REQ-086 exigen revocacion inmediata en servidor (logout, cambio de contrasenia, desactivacion) y REQ-019 que el cambio de rol surta efecto en la siguiente peticion: un JWT con rol embebido no puede cumplirlo.
 - Enviar el correo SMTP dentro de la transaccion del alta o de la transicion de estado, o encolar el aviso en una lista en memoria del proceso. → usa: Patron outbox: la solicitud de aviso se INSERTA en la misma transaccion que el alta o la transicion; el despachador ARC-014 la toma despues en FIFO con bloqueo y la entrega. Un SMTP caido debe dejar la solicitud PENDIENTE y devolver 2xx al usuario (AC-AVI-05), nunca revertir la operacion de negocio ni perder el aviso al reiniciar el contenedor.
+- Llamar a fetch() o axios desde un componente o servicio Angular, o construir la URL concatenando strings en la plantilla. → usa: HttpClient inyectado con inject(HttpClient) en un servicio API por feature, URLs compuestas sobre environment.apiBaseUrl, e interceptores funcionales para cookie de sesion, traduccion de 401/403 y modo mock. Con fetch se pierde el manejo uniforme de errores y la redireccion al acceso conservando la ruta pretendida (AC-SES-02).
+- Ocultar un boton en la SPA y considerar que eso restringe la operacion, o desactivar provideZoneChangeDetection y dejar el bootstrap sin proveedor de deteccion de cambios explicito. → usa: La SPA oculta por usabilidad a partir de allowedOperations devueltas por GET /auth/permissions, pero la denegacion vinculante la produce siempre la API (AC-PERM-05 verifica invocando la API al margen de la SPA). En el bootstrap se declara explicitamente provideZoneChangeDetection({ eventCoalescing: true }): este proyecto usa zone.js, no zoneless.
+- Guardar el estado del modo mock en sessionStorage o localStorage sin que el usuario sepa que esta viendo datos simulados. → usa: El modo mock se activa unicamente con environment.useMocks, mantiene los datos en memoria del servicio y el AppShell muestra un banner permanente e imposible de cerrar con el texto 'MODO DEMO — datos simulados'. Un mock persistido y silencioso acaba en una demo donde el cliente cree estar viendo datos reales.
 - Hacer commit() o rollback() dentro de un repositorio, o guardar la incidencia y su asiento de historico en transacciones separadas. → usa: El unico with uow(db) esta en el metodo del servicio y abarca la escritura de negocio, su asiento de historico y su fila de outbox. AC-CIE-05 exige que un fallo al escribir el historico deje la incidencia en 'resuelta' sin comentario ni asiento; con commits parciales quedan historicos huerfanos imposibles de conciliar (AC-TRZ-03).
+
+### Plantillas canónicas del arquetipo
+#### `angular-page-component`
+```
+// src/app/features/<feature>/pages/<feature>-list/<feature>-list.page.ts
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatButtonModule } from '@angular/material/button';
+import { Router } from '@angular/router';
+
+import { <Entity>ApiService } from '../../data/<feature>-api.service';
+import { Page } from '../../../../core/models/page.model';
+import { <Entity>Resumen } from '../../models/<entity>.model';
+
+@Component({
+  selector: 'app-<feature>-list-page',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DatePipe, MatTableModule, MatPaginatorModule, MatProgressSpinnerModule, MatButtonModule],
+  template: `
+    <h1>Mis incidencias</h1>
+
+    @if (cargando()) {
+      <mat-spinner diameter="40" aria-label="Cargando incidencias"></mat-spinner>
+    } @else if (error()) {
+      <div class="estado-error" role="alert">
+        <p>{{ error() }}</p>
+        <button mat-stroked-button (click)="cargar()">Reintentar</button>
+      </div>
+    } @else if (vacio()) {
+      <div class="estado-vacio">
+        <p>No hay incidencias que cumplan los filtros seleccionados.</p>
+        <button mat-stroked-button (click)="limpiarFiltros()">Limpiar filtros</button>
+      </div>
+    } @else {
+      <table mat-table [dataSource]="items()">
+        <ng-container matColumnDef="referenceCode">
+          <th mat-header-cell *matHeaderCellDef>Codigo</th>
+          <td mat-cell *matCellDef="let i">{{ i.referenceCode }}</td>
+        </ng-container>
+        <ng-container matColumnDef="roomNameSnapshot">
+          <th mat-header-cell *matHeaderCellDef>Sala</th>
+          <td mat-cell *matCellDef="let i">{{ i.roomNameSnapshot }}</td>
+        </ng-container>
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Estado</th>
+          <td mat-cell *matCellDef="let i">{{ i.status }}</td>
+        </ng-container>
+        <ng-container matColumnDef="createdAt">
+          <th mat-header-cell *matHeaderCellDef>Fecha de alta</th>
+          <td mat-cell *matCellDef="let i">{{ i.createdAt | date: 'dd/MM/yyyy HH:mm' : 'Europe/Madrid' }}</td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+        <tr mat-row *matRowDef="let fila; columns: columnas" (click)="abrirDetalle(fila.incidenciaId)"></tr>
+      </table>
+
+      <mat-paginator
+        [length]="pagina()!.totalCount"
+        [pageIndex]="pagina()!.page - 1"
+        [pageSize]="pagina()!.pageSize"
+        [pageSizeOptions]="[10, 25, 50]"
+        (page)="cambiarPagina($event)">
+      </mat-paginator>
+    }
+  `,
+})
+export class <Entity>ListPageComponent implements OnInit {
+  private readonly api = inject(<Entity>ApiService);
+  private readonly router = inject(Router);
+
+  readonly columnas = ['referenceCode', 'roomNameSnapshot', 'status', 'createdAt'];
+  readonly cargando = signal(false);
+  readonly error = signal<string | null>(null);
+  readonly pagina = signal<Page<<Entity>Resumen> | null>(null);
+
+  readonly items = computed(() => this.pagina()?.items ?? []);
+  readonly vacio = computed(() => this.pagina()?.totalCount === 0);
+
+  private page = 1;
+  private pageSize = 25;
+
+  ngOnInit(): void {
+    this.cargar();
+  }
+
+  cargar(): void {
+    this.cargando.set(true);
+    this.error.set(null);
+    this.api.listar({ page: this.page, pageSize: this.pageSize }).subscribe({
+      next: (p) => {
+        this.pagina.set(p);
+        this.cargando.set(false);
+      },
+      error: () => {
+        this.error.set('No se ha podido recuperar tu listado de incidencias. Intentalo de nuevo.');
+        this.cargando.set(false);
+      },
+    });
+  }
+
+  cambiarPagina(e: PageEvent): void {
+    this.page = e.pageIndex + 1;
+    this.pageSize = e.pageSize;
+    this.cargar();
+  }
+
+  limpiarFiltros(): void {
+    this.page = 1;
+    this.cargar();
+  }
+
+  abrirDetalle(id: number): void {
+    void this.router.navigate(['/mis-incidencias', id]);
+  }
+}
+
+```
+#### `angular-api-service`
+```
+// src/app/features/<feature>/data/<feature>-api.service.ts
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { Observable } from 'rxjs';
+
+import { environment } from '../../../../environments/environment';
+import { Page } from '../../../core/models/page.model';
+import {
+  Crear<Entity>Request,
+  <Entity>Detalle,
+  <Entity>Filtro,
+  <Entity>Resumen,
+} from '../models/<entity>.model';
+
+@Injectable({ providedIn: 'root' })
+export class <Entity>ApiService {
+  private readonly http = inject(HttpClient);
+  private readonly base = `${environment.apiBaseUrl}/<endpoint>`;
+
+  /** GET /<endpoint> — devuelve SIEMPRE el envoltorio Page<T>. */
+  listar(filtro: <Entity>Filtro): Observable<Page<<Entity>Resumen>> {
+    let params = new HttpParams()
+      .set('page', filtro.page)
+      .set('pageSize', filtro.pageSize);
+    if (filtro.status?.length) {
+      for (const s of filtro.status) params = params.append('status', s);
+    }
+    if (filtro.searchText) params = params.set('searchText', filtro.searchText);
+    return this.http.get<Page<<Entity>Resumen>>(this.base, { params });
+  }
+
+  /** GET /<endpoint>/{id} — objeto plano, no envuelto. */
+  obtener(id: number): Observable<<Entity>Detalle> {
+    return this.http.get<<Entity>Detalle>(`${this.base}/${id}`);
+  }
+
+  /** POST /<endpoint> — alta con foto opcional (multipart). */
+  crear(cmd: Crear<Entity>Request, foto?: File): Observable<<Entity>Detalle> {
+    const fd = new FormData();
+    fd.append('roomId', String(cmd.roomId));
+    fd.append('categoryCode', cmd.categoryCode);
+    fd.append('description', cmd.description);
+    if (foto) fd.append('photo', foto, foto.name);
+    return this.http.post<<Entity>Detalle>(this.base, fd);
+  }
+
+  /** POST /<endpoint>/{id}/transitions — transicion del ciclo de vida. */
+  transicionar(id: number, toStatus: string, expectedVersion: number, comment?: string): Observable<<Entity>Detalle> {
+    return this.http.post<<Entity>Detalle>(`${this.base}/${id}/transitions`, {
+      toStatus,
+      expectedVersion,
+      transitionComment: comment ?? null,
+    });
+  }
+}
+
+```
+#### `angular-mock-service`
+```
+// src/app/features/<feature>/data/<feature>-api.mock.service.ts
+// Doble del servicio API para desarrollo sin backend. Se activa SOLO con environment.useMocks
+// y la aplicacion muestra un banner permanente "MODO DEMO — datos simulados" (AppShell).
+// PROHIBIDO persistir el estado del mock en sessionStorage sin banner visible.
+import { Injectable } from '@angular/core';
+import { Observable, delay, of, throwError } from 'rxjs';
+
+import { Page } from '../../../core/models/page.model';
+import { Crear<Entity>Request, <Entity>Detalle, <Entity>Filtro, <Entity>Resumen } from '../models/<entity>.model';
+
+const LATENCIA_MS = 150;
+
+const SEED: <Entity>Detalle[] = [
+  {
+    incidenciaId: 1,
+    referenceCode: 'INC-2026-000001',
+    roomNameSnapshot: 'Sala Norte',
+    officeNameSnapshot: 'Madrid',
+    categoryNameSnapshot: 'Audiovisual',
+    description: 'El proyector no enciende al conectar el portatil.',
+    status: 'ABIERTA',
+    createdAt: '2026-03-02T08:15:00Z',
+    assignedTechnicianName: null,
+    resolutionComment: null,
+    closedAt: null,
+    availableTransitions: [],
+  },
+  {
+    incidenciaId: 2,
+    referenceCode: 'INC-2026-000002',
+    roomNameSnapshot: 'Sala Sur',
+    officeNameSnapshot: 'Barcelona',
+    categoryNameSnapshot: 'Climatizacion',
+    description: 'El aire acondicionado no enfria desde el lunes.',
+    status: 'EN_CURSO',
+    createdAt: '2026-03-05T11:40:00Z',
+    assignedTechnicianName: 'Lucia Arranz',
+    resolutionComment: null,
+    closedAt: null,
+    availableTransitions: [{ toStatus: 'RESUELTA', label: 'Marcar como resuelta', blockedReason: null }],
+  },
+];
+
+@Injectable()
+export class <Entity>ApiMockService {
+  private readonly datos = [...SEED];
+
+  listar(filtro: <Entity>Filtro): Observable<Page<<Entity>Resumen>> {
+    const filtrados = filtro.status?.length
+      ? this.datos.filter((d) => filtro.status!.includes(d.status))
+      : this.datos;
+    const desde = (filtro.page - 1) * filtro.pageSize;
+    const items = filtrados.slice(desde, desde + filtro.pageSize);
+    // Mismo contrato que el backend real: envoltorio Page<T>.
+    return of({
+      items,
+      page: filtro.page,
+      pageSize: filtro.pageSize,
+      totalCount: filtrados.length,
+      totalPages: Math.max(1, Math.ceil(filtrados.length / filtro.pageSize)),
+    }).pipe(delay(LATENCIA_MS));
+  }
+
+  obtener(id: number): Observable<<Entity>Detalle> {
+    const encontrado = this.datos.find((d) => d.incidenciaId === id);
+    return encontrado
+      ? of(encontrado).pipe(delay(LATENCIA_MS))
+      : throwError(() => ({ status: 404, error: { code: 'INC_NOT_FOUND', message: 'No hemos encontrado esa incidencia' } }));
+  }
+
+  crear(cmd: Crear<Entity>Request): Observable<<Entity>Detalle> {
+    const nueva: <Entity>Detalle = {
+      incidenciaId: this.datos.length + 1,
+      referenceCode: `INC-2026-${String(this.datos.length + 1).padStart(6, '0')}`,
+      roomNameSnapshot: 'Sala simulada',
+      officeNameSnapshot: 'Madrid',
+      categoryNameSnapshot: cmd.categoryCode,
+      description: cmd.description,
+      status: 'ABIERTA',
+      createdAt: new Date().toISOString(),
+      assignedTechnicianName: null,
+      resolutionComment: null,
+      closedAt: null,
+      availableTransitions: [],
+    };
+    this.datos.push(nueva);
+    return of(nueva).pipe(delay(LATENCIA_MS));
+  }
+}
+
+```
 
 ## Design system corporativo (design-system) — LEY
 
@@ -1058,225 +1380,251 @@ npm i @angular/material@~<major-del-arquetipo> @angular/cdk@~<major-del-arquetip
 
 ## Pantallas a implementar (arquitectura T.5 + detalle de UI de B.7)
 
-> 7 pantalla(s) de esta tarea. TRANSCRIBE el detalle: no inventes pantallas, rutas, etiquetas ni navegación. Cuando una pantalla trae «Detalle de UI (B.7)», ESA es la fuente autoritativa — sus `label` son el texto a pintar y su `widget` el control a usar, ya decididos y aprobados. Los bloques de la fase FLOWS son contexto: sus textos son términos de dominio (glosario), NO etiquetas de UI. Respeta el design system del arquetipo.
+> 3 pantalla(s) de esta tarea. TRANSCRIBE el detalle: no inventes pantallas, rutas, etiquetas ni navegación. Cuando una pantalla trae «Detalle de UI (B.7)», ESA es la fuente autoritativa — sus `label` son el texto a pintar y su `widget` el control a usar, ya decididos y aprobados. Los bloques de la fase FLOWS son contexto: sus textos son términos de dominio (glosario), NO etiquetas de UI. Respeta el design system del arquetipo.
 
-### ARC-066 · Acceso
-El usuario se identifica con su usuario y su contraseña propios de la aplicación
+### ARC-069 · Pantalla inicial del rol
+El usuario autenticado accede al menú y a los accesos directos autorizados por su rol vigente
 - **API**: esta pantalla no trae cableado pantalla→endpoint de T.5. NO lo interpretes como «no llama a la API»: elige los endpoints que necesita de la tabla del contrato congelado (sección api-contract), con su path y su verbo literales, y **repórtalo como health check `Warning` con `check: api-contract`** indicando cuáles has usado.
-- **Detalle de UI (B.7) · `UIS-010`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
-  - Propósito: Spec mínima B.7 (stub Playwright) para ARC-066: Acceso.
-  - Disposición: **formulario** (`form`) — respétala; no rediseñes la pantalla.
-  - Navegación: sección de menú «auth» (orden 0).
-- Flujo `FLOW-018` · pantalla `SCR-001`
-  - **Rutas:** `/acceso`
-  - **Componentes de UI:** Formulario de inicio de sesión (identificador y credencial temporal); Mensaje de error de autenticación; Botón Acceder
-  - **Datos que muestra:** Correo corporativo como identificador de acceso; Credencial temporal; Mensaje de error de acceso
-  - **Acciones del usuario:** Introducir la credencial temporal recibida; Iniciar sesión
+- **Detalle de UI (B.7) · `UIS-007`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
+  - Propósito: Spec minima local Playwright (ARC-069).
+  - Disposición: **genérico** (`page`) — respétala; no rediseñes la pantalla.
+  - Navegación: sección de menú «shell» (orden 7).
+- Flujo `FLOW-018` · pantalla `SCR-004`
+  - **Rutas:** `/inicio`
+  - **Componentes de UI:** Menú de navegación según el rol vigente; Cabecera con el usuario autenticado y su rol vigente; Panel de accesos directos a las operaciones permitidas
+  - **Datos que muestra:** Nombre y apellidos del usuario autenticado; Rol vigente del usuario autenticado; Opciones de menú autorizadas para el rol vigente
+  - **Acciones del usuario:** Navegar a una opción del menú del rol vigente; Cerrar sesión
+- Flujo `FLOW-019` · pantalla `SCR-002`
+  - **Rutas:** `/inicio`
+  - **Componentes de UI:** Menú de navegación construido a partir del rol vigente; Cabecera con el usuario autenticado y acción de cerrar sesión; Panel de accesos directos a las operaciones permitidas
+  - **Datos que muestra:** Nombre y apellidos del usuario autenticado; Rol vigente devuelto por el servidor; Opciones de menú autorizadas para el rol vigente
+  - **Acciones del usuario:** Navegar a una opción del menú del rol vigente; Cerrar sesión
   - **Navegación:**
-    - Iniciar sesión con la credencial temporal → «Cambio obligatorio de contraseña» si Si la credencial temporal es válida y el cambio de contraseña es obligatorio [submit]
-    - Iniciar sesión con la credencial temporal → «Credencial temporal caducada» si Si la credencial temporal ha caducado [submit]
-- Flujo `FLOW-019` · pantalla `SCR-001`
-  - **Rutas:** `/acceso`
-  - **Componentes de UI:** Formulario de usuario y contraseña; Mensaje de error genérico de credenciales en español; Botón Acceder
-  - **Datos que muestra:** Correo corporativo como identificador de acceso; Contraseña; Mensaje de error genérico de acceso
-  - **Acciones del usuario:** Introducir el usuario y la contraseña; Iniciar sesión
+    - Cerrar sesión → «Sesión finalizada» [navigate]
+    - Sesión caducada → «Sesión finalizada» si Si la sesión ha caducado por inactividad [navigate]
+- Flujo `FLOW-028` · pantalla `SCR-001`
+  - **Rutas:** `/inicio`
+  - **Componentes de UI:** Menú de navegación filtrado por el rol vigente; Cabecera con el usuario autenticado y su rol vigente; Panel de accesos directos a las operaciones autorizadas
+  - **Datos que muestra:** Nombre y apellidos del usuario autenticado; Rol vigente del usuario autenticado; Opciones de menú autorizadas para el rol vigente
+  - **Acciones del usuario:** Navegar a una opción autorizada del menú; Cerrar sesión
   - **Navegación:**
-    - Iniciar sesión → «Pantalla inicial del rol» si Si el usuario y la contraseña son correctos y la cuenta está activa [submit]
+    - Seleccionar una opción del menú → «Vista funcional autorizada» si Si la operación está permitida para el rol vigente [navigate]
+    - Navegar a una ruta no permitida → «Acceso no autorizado» si Si la operación no está autorizada para el rol vigente [navigate]
 
-### ARC-067 · Cambio obligatorio de contraseña
-El usuario establece su contraseña definitiva antes de poder operar tras un alta o un restablecimiento
+### ARC-070 · Sesión finalizada
+El usuario es informado del cierre o la caducidad de su sesión y vuelve al formulario de acceso
 - **API**: esta pantalla no trae cableado pantalla→endpoint de T.5. NO lo interpretes como «no llama a la API»: elige los endpoints que necesita de la tabla del contrato congelado (sección api-contract), con su path y su verbo literales, y **repórtalo como health check `Warning` con `check: api-contract`** indicando cuáles has usado.
-- **Detalle de UI (B.7) · `UIS-011`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
-  - Propósito: Spec mínima B.7 (stub Playwright) para ARC-067: Cambio obligatorio de contraseña.
-  - Disposición: **formulario** (`form`) — respétala; no rediseñes la pantalla.
-  - Navegación: sección de menú «auth» (orden 0).
-- Flujo `FLOW-018` · pantalla `SCR-002`
-  - **Rutas:** `/acceso/cambio-obligatorio-contrasena`
-  - **Componentes de UI:** Formulario de contraseña nueva y confirmación; Panel de requisitos de la política de contraseña; Aviso bloqueante de cambio obligatorio de contraseña; Botón Establecer contraseña
-  - **Datos que muestra:** Contraseña nueva; Confirmación de la contraseña nueva; Política de contraseña
-  - **Acciones del usuario:** Introducir la contraseña nueva y su confirmación; Establecer la contraseña definitiva; Cerrar sesión sin completar el cambio
-  - **Navegación:**
-    - Establecer la contraseña definitiva → «Pantalla inicial del rol» si Si la contraseña nueva cumple la política y coincide con la confirmación [submit]
-    - Abandonar el cambio y volver al acceso → «Acceso» [back]
-
-### ARC-068 · Credencial temporal caducada
-El usuario es informado de que su credencial temporal ha vencido y debe solicitar un nuevo restablecimiento
-- **API**: esta pantalla no trae cableado pantalla→endpoint de T.5. NO lo interpretes como «no llama a la API»: elige los endpoints que necesita de la tabla del contrato congelado (sección api-contract), con su path y su verbo literales, y **repórtalo como health check `Warning` con `check: api-contract`** indicando cuáles has usado.
-- **Detalle de UI (B.7) · `UIS-012`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
-  - Propósito: Spec mínima B.7 (stub Playwright) para ARC-068: Credencial temporal caducada.
-  - Disposición: **genérico** (`message`) — respétala; no rediseñes la pantalla.
-  - Navegación: sección de menú «auth» (orden 0).
-- Flujo `FLOW-018` · pantalla `SCR-003`
-  - **Rutas:** `/acceso/credencial-caducada`
-  - **Componentes de UI:** Mensaje de credencial temporal caducada; Texto de instrucción para solicitar un nuevo restablecimiento al Administrador; Botón Volver al formulario de acceso
-  - **Datos que muestra:** Aviso de credencial temporal caducada; Fecha de vencimiento de la credencial temporal; Indicación de solicitar un nuevo restablecimiento al Administrador
+- **Detalle de UI (B.7) · `UIS-008`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
+  - Propósito: Spec minima local Playwright (ARC-070).
+  - Disposición: **genérico** (`page`) — respétala; no rediseñes la pantalla.
+  - Navegación: sección de menú «shell» (orden 8).
+- Flujo `FLOW-019` · pantalla `SCR-003`
+  - **Rutas:** `/acceso/sesion-finalizada`
+  - **Componentes de UI:** Mensaje de sesión cerrada o caducada; Botón Volver al formulario de acceso
+  - **Datos que muestra:** Motivo de finalización de la sesión (cierre o caducidad); Fecha y hora de finalización de la sesión
   - **Acciones del usuario:** Volver al formulario de acceso
   - **Navegación:**
-    - Volver al formulario de acceso → «Acceso» [back]
+    - Volver a acceder → «Acceso» [navigate]
 
-### ARC-071 · Mi perfil
-El usuario consulta sus datos, su rol vigente y la fecha de su última actualización de contraseña
+### ARC-092 · Acceso no autorizado
+El usuario recibe el aviso uniforme de operación no permitida para su rol vigente
 - **API**: esta pantalla no trae cableado pantalla→endpoint de T.5. NO lo interpretes como «no llama a la API»: elige los endpoints que necesita de la tabla del contrato congelado (sección api-contract), con su path y su verbo literales, y **repórtalo como health check `Warning` con `check: api-contract`** indicando cuáles has usado.
-- **Detalle de UI (B.7) · `UIS-013`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
-  - Propósito: Spec mínima B.7 (stub Playwright) para ARC-071: Mi perfil.
-  - Disposición: **formulario** (`form`) — respétala; no rediseñes la pantalla.
-  - Navegación: sección de menú «auth» (orden 0).
-- Flujo `FLOW-020` · pantalla `SCR-001`
-  - **Rutas:** `/mi-perfil`
-  - **Componentes de UI:** Tarjeta de datos del usuario autenticado (nombre, correo corporativo, rol vigente); Indicador del estado de cuenta; Botón Cambiar contraseña
-  - **Datos que muestra:** Nombre y apellidos del usuario autenticado; Correo corporativo del usuario autenticado; Rol vigente del usuario autenticado; Estado de la cuenta; Fecha de la última actualización de contraseña
-  - **Acciones del usuario:** Abrir el formulario de cambiar contraseña; Volver a la pantalla inicial del rol
+- **Detalle de UI (B.7) · `UIS-009`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
+  - Propósito: Spec minima local Playwright (ARC-092).
+  - Disposición: **genérico** (`page`) — respétala; no rediseñes la pantalla.
+  - Navegación: sección de menú «shell» (orden 9).
+- Flujo `FLOW-028` · pantalla `SCR-003`
+  - **Rutas:** `/acceso-no-autorizado`
+  - **Componentes de UI:** Mensaje de acceso no autorizado; Botón Volver a la pantalla inicial del rol
+  - **Datos que muestra:** Mensaje de acceso no autorizado; Operación o ruta solicitada; Rol vigente del usuario autenticado
+  - **Acciones del usuario:** Volver a la pantalla inicial del rol
   - **Navegación:**
-    - Pulsar «Cambiar contraseña» → «Cambiar contraseña» [navigate]
-
-### ARC-072 · Cambiar contraseña
-El usuario sustituye su contraseña aportando la vigente y una nueva conforme a la política
-- **API**: esta pantalla no trae cableado pantalla→endpoint de T.5. NO lo interpretes como «no llama a la API»: elige los endpoints que necesita de la tabla del contrato congelado (sección api-contract), con su path y su verbo literales, y **repórtalo como health check `Warning` con `check: api-contract`** indicando cuáles has usado.
-- **Detalle de UI (B.7) · `UIS-014`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
-  - Propósito: Spec mínima B.7 (stub Playwright) para ARC-072: Cambiar contraseña.
-  - Disposición: **formulario** (`form`) — respétala; no rediseñes la pantalla.
-  - Navegación: sección de menú «auth» (orden 0).
-- Flujo `FLOW-020` · pantalla `SCR-002`
-  - **Rutas:** `/mi-perfil/contrasena`
-  - **Componentes de UI:** Formulario de contraseña actual, nueva y confirmación; Panel de requisitos de la política de contraseña; Mensajes de validación del formulario; Botón Guardar; Botón Cancelar
-  - **Datos que muestra:** Contraseña actual; Contraseña nueva; Confirmación de la contraseña nueva; Política de contraseña
-  - **Acciones del usuario:** Introducir la contraseña actual, la nueva y su confirmación; Confirmar el cambio de contraseña; Cancelar el cambio y volver a Mi perfil
-  - **Navegación:**
-    - Cancelar el cambio de contraseña → «Mi perfil» [back]
-    - Guardar la contraseña nueva → «Confirmación del cambio de contraseña» si Si la contraseña actual es correcta y la nueva cumple la política [submit]
-
-### ARC-073 · Confirmación del cambio de contraseña
-El usuario confirma el cambio y es avisado de la revocación de sus demás sesiones abiertas
-- **API**: esta pantalla no trae cableado pantalla→endpoint de T.5. NO lo interpretes como «no llama a la API»: elige los endpoints que necesita de la tabla del contrato congelado (sección api-contract), con su path y su verbo literales, y **repórtalo como health check `Warning` con `check: api-contract`** indicando cuáles has usado.
-- **Detalle de UI (B.7) · `UIS-015`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
-  - Propósito: Spec mínima B.7 (stub Playwright) para ARC-073: Confirmación del cambio de contraseña.
-  - Disposición: **genérico** (`message`) — respétala; no rediseñes la pantalla.
-  - Navegación: sección de menú «auth» (orden 0).
-- Flujo `FLOW-020` · pantalla `SCR-003`
-  - **Rutas:** `/mi-perfil/contrasena/confirmacion`
-  - **Componentes de UI:** Mensaje de éxito del cambio de contraseña; Aviso de revocación de las demás sesiones; Botón Volver a Mi perfil
-  - **Datos que muestra:** Fecha y hora del cambio de contraseña; Aviso de revocación de las demás sesiones
-  - **Acciones del usuario:** Volver a Mi perfil
-  - **Navegación:**
-    - Volver a «Mi perfil» → «Mi perfil» [navigate]
-
-### ARC-076 · Acceso con cuenta bloqueada
-El usuario es informado del bloqueo temporal de su cuenta y del tiempo restante para reintentar
-- **API**: esta pantalla no trae cableado pantalla→endpoint de T.5. NO lo interpretes como «no llama a la API»: elige los endpoints que necesita de la tabla del contrato congelado (sección api-contract), con su path y su verbo literales, y **repórtalo como health check `Warning` con `check: api-contract`** indicando cuáles has usado.
-- **Detalle de UI (B.7) · `UIS-016`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
-  - Propósito: Spec mínima B.7 (stub Playwright) para ARC-076: Acceso con cuenta bloqueada.
-  - Disposición: **genérico** (`message`) — respétala; no rediseñes la pantalla.
-  - Navegación: sección de menú «auth» (orden 0).
-- Flujo `FLOW-022` · pantalla `SCR-001`
-  - **Rutas:** `/acceso/cuenta-bloqueada`
-  - **Componentes de UI:** Formulario de acceso; Mensaje de cuenta bloqueada temporalmente; Indicador del tiempo restante del bloqueo
-  - **Datos que muestra:** Correo corporativo como identificador de acceso; Contraseña; Aviso de cuenta bloqueada temporalmente; Fecha y hora de fin del bloqueo temporal
-  - **Acciones del usuario:** Reintentar el inicio de sesión una vez vencido el bloqueo temporal
-  - **Navegación:**
-    - Comunicar al Administrador la cuenta bloqueada → «Usuarios con bloqueo vigente» si Si el usuario avisa del bloqueo temporal tras los intentos fallidos [navigate]
+    - Volver a la pantalla inicial del rol → «Pantalla inicial del rol» [back]
 
 ## Requisitos que materializa esta tarea
 
-### REQ-053 — Inicio de sesión con usuario y contraseña propios de la aplicación
-El usuario inicia sesión en la aplicación introduciendo su usuario y su contraseña propios de la aplicación. Reglas: solo inicia sesión un usuario existente y con `is_active = true`; credenciales incorrectas, usuario inexistente o usuario inactivo devuelven el mismo mensaje genérico, sin revelar cuál de los dos datos es erróneo (criterio EPIC-003); la contraseña se verifica siempre contra `password_hash` (ver AUT-02), nunca por comparación en claro; un inicio de sesión correcto reinicia `failed_login_attempts` a 0. Flujo: pantalla de acceso → el usuario introduce `username` y `password` → `POST /api/auth/login` → si es válido se emite la sesión (SES-01) y la SPA redirige a la vista inicial correspondiente a su rol (PERM-01); si no, vuelve al formulario con el error genérico. Datos: `username` (string, obligatorio, 3–100, único, comparación case-insensitive, corresponde al correo corporativo del empleado), `password` (string, obligatorio, nunca persistido ni registrado en logs), `is_active` (boolean, obligatorio), `last_login_at` (timestamp, se actualiza solo en el éxito). Validaciones: obligatoriedad en front y back; `trim` de `username`; sin normalización destructiva de `password`. Errores: 400 "Introduce usuario y contraseña"; 401 "Usuario o contraseña incorrectos" (idéntico para credencial errónea, usuario inexistente y usuario inactivo); 423 "Cuenta bloqueada temporalmente" si aplica AUT-03; 500 "No ha sido posible iniciar sesión, inténtelo de nuevo". Criterios: Given usuario activo When introduce credenciales correctas Then 200 y sesión iniciada; Given contraseña incorrecta When intenta acceder Then 401 con mensaje idéntico al de usuario inexistente; Given usuario con `is_active = false` When introduce credenciales correctas Then 401 y no se emite sesión. Seguridad: único endpoint público junto a AUT-03; aplicable a EMPLEADO, TECNICO-DE-MANTENIMIENTO y ADMINISTRADOR por igual; sin doble factor. Eventos: `UserLoggedIn` (consumido por TRZ-01). Dependencias: PRE-02, AUT-02. [gap: política de contraseñas — longitud mínima, complejidad, caducidad y reutilización no están definidas en el RFP]. Prioridad: Must.
+### REQ-001 — Autenticación obligatoria con credenciales propias, sin acceso anónimo ni SSO
+Toda operación del sistema exige un usuario autenticado con credenciales propias de la aplicación ("usuario y contraseña propios de la aplicación, con roles almacenados en base de datos"); no existe acceso anónimo ni SSO. Dependencia: requisito de autenticación (dominio de autenticación, otra épica).
 **Reglas de negocio:**
-1. `username` es único en el sistema, con unicidad evaluada sin distinguir mayúsculas de minúsculas.
-2. `username` tiene entre 3 y 100 caracteres y se corresponde con el correo corporativo del empleado.
-3. El mensaje devuelto ante un acceso denegado es idéntico para credencial incorrecta, usuario inexistente y usuario inactivo.
-4. Tras un inicio de sesión correcto, `failed_login_attempts` de esa cuenta vale 0.
-5. `last_login_at` solo cambia como consecuencia de un inicio de sesión correcto.
-6. La contraseña en claro no queda persistida ni registrada en logs en ningún punto del flujo de acceso.
+1. Ninguna operación del sistema es accesible sin un usuario autenticado con credenciales propias de la aplicación: no existe acceso anónimo ni autenticación federada (SSO)
+2. Los roles de un usuario residen en la base de datos de la aplicación y no en un proveedor de identidad externo
 **Criterios de aceptación:**
-1. AC-AUT-01: Dado un usuario dado de alta por un ADMINISTRADOR con `is_active = true`, cuando introduce su `username` (correo corporativo) y su contraseña correctos en la pantalla de acceso, entonces `POST /api/auth/login` responde 200, se emite una sesión y la SPA lo redirige a la vista inicial correspondiente a su rol.
-2. AC-AUT-02: Dado un intento de acceso con contraseña incorrecta, con usuario inexistente o con usuario `is_active = false`, cuando se envía el formulario de acceso, entonces los tres casos devuelven 401 con el mensaje idéntico "Usuario o contraseña incorrectos", no se emite sesión y la respuesta no permite distinguir cuál de los tres casos se ha producido (mismo cuerpo, mismo código y diferencia de latencia < 50 ms).
-**Validaciones:**
-1. `username` es obligatorio y se valida tanto en el front como en el back antes de invocar el login
-2. `password` es obligatorio y se valida tanto en el front como en el back antes de invocar el login
-3. `username` debe tener entre 3 y 100 caracteres
-4. Al `username` se le aplica `trim` antes de compararlo y la comparación es case-insensitive
-5. Sobre `password` no se aplica ninguna normalización destructiva (ni `trim`, ni cambio de mayúsculas/minúsculas)
-6. `is_active` es obligatorio y debe ser un booleano en el registro de usuario evaluado
+1. AC-PERM-07: Dado una petición sin credenciales, con credenciales inválidas o con sesión expirada, cuando alcanza cualquier endpoint de la API, entonces recibe 401 «Sesión no válida o expirada» y no se devuelve ningún dato de negocio; no existe ningún endpoint funcional accesible de forma anónima.
 **Escenarios de error:**
-1. Falta el usuario o la contraseña en la solicitud de acceso
-2. Usuario o contraseña incorrectos (mensaje idéntico para credencial errónea, usuario inexistente o cuenta inactiva)
-3. La cuenta está bloqueada temporalmente y no se admiten nuevos intentos de acceso
-4. No ha sido posible completar el inicio de sesión; se solicita reintentar más tarde
-**Campos de datos:**
-- `username` (string, obligatorio) — Longitud 3-100, único, comparación case-insensitive, trim previo
-- `password` (string, obligatorio) — Nunca persistida ni registrada en logs; sin normalización destructiva
-- `is_active` (boolean, obligatorio) — Si es false se responde 401 con el mismo mensaje genérico y no se emite sesión
-- `last_login_at` (datetime, opcional) — Se actualiza únicamente cuando la autenticación es correcta
+1. Petición recibida sin credenciales de aplicación válidas o con sesión expirada
 
-### REQ-068 — Cambio de la propia contraseña aportando la actual y una nueva
-El usuario autenticado puede cambiar su propia contraseña aportando la contraseña actual y una nueva. Reglas: (1) sólo el titular de la sesión cambia su propia contraseña, nunca la de otro; (2) el cambio exige current_password correcta; (3) new_password debe cumplir la política de PWD-02 y ser distinta de la actual; (4) el cambio es inmediato: «la contraseña queda actualizada y el siguiente inicio de sesión solo funciona con la nueva»; (5) si la actual es incorrecta «el sistema rechaza el cambio y la contraseña anterior sigue siendo válida». Flujo: usuario autenticado → Mi perfil → Cambiar contraseña → introduce actual, nueva y confirmación → confirma → éxito, se marca must_change_password=false y se revocan sesiones (PWD-03). Ramas: actual incorrecta → rechazo e incremento de failed_password_attempts (PWD-05); nueva no conforme → rechazo enumerando las reglas incumplidas. Datos: user_id (uuid, tomado de la sesión, nunca del payload), current_password (string, obligatorio, no persistido), new_password (string, obligatorio), new_password_confirmation (string, obligatorio, idéntico a new_password), password_hash (string, generado), password_updated_at (timestamp). Validaciones: obligatorios no vacíos; confirmación coincidente; nueva ≠ actual; política PWD-02. Errores: 400 «Las contraseñas no coinciden»; 422 «La contraseña actual no es correcta»; 422 «La nueva contraseña no cumple la política de seguridad» con detalle; 423/429 «Cuenta bloqueada temporalmente por intentos fallidos». Criterios de aceptación: Given un usuario con sesión iniciada, When cambia su contraseña aportando la actual y una nueva válida, Then queda actualizada y el siguiente inicio de sesión sólo funciona con la nueva. Given una contraseña actual incorrecta, When confirma, Then el sistema rechaza el cambio y la anterior sigue siendo válida. Seguridad: ejecutable por EMPLEADO, TECNICO_DE_MANTENIMIENTO y ADMINISTRADOR, siempre con alcance de datos restringido a su propia cuenta; sin doble factor [inferido]. Evento de dominio: PasswordChanged [inferido]. Dependencias: PWD-02, PWD-03, PRE-02 e inicio de sesión (otra épica). Prioridad: Must [inferido]. auth_type: SESSION. data_scope: own_only.
+### REQ-010 — La SPA adapta navegación y acciones visibles al rol vigente del usuario autenticado
+La SPA adapta la navegación y las acciones visibles al rol vigente del usuario autenticado. Reglas: el front oculta o deshabilita las opciones no permitidas (listado completo y filtros de mantenimiento, autoasignación, cambio de estado, administración de usuarios) según `role_code`; el ocultamiento es usabilidad, no seguridad: la decisión vinculante es la de PERM-01. Idioma único español. Flujo: login → la respuesta de sesión incluye `role_code` y capacidades → guards de ruta y directivas de visibilidad filtran menú y botones → una ruta no permitida redirige a una pantalla "Acceso no autorizado". Datos: `role_code`, `capabilities[]` (lista de acciones permitidas devuelta por la API). Validaciones: si la respuesta no trae rol, la sesión se considera inválida y se fuerza re-login. Errores: pantalla "No tiene permisos para acceder a esta sección" ante 403 de la API; mensaje de sesión expirada ante 401. CA: Given un usuario con rol empleado, when inicia sesión, then no ve las opciones de listado completo ni de administración de usuarios. Given un usuario con rol técnico, when inicia sesión, then ve el listado completo con filtros por sala, categoría y estado. Seguridad: no se confía ninguna decisión de autorización al cliente. Integración: Angular SPA (front). Dependencias: PERM-01. Prioridad: Must [inferido].
 **Reglas de negocio:**
-1. Un usuario sólo puede cambiar la contraseña de su propia cuenta, identificada por el `user_id` de la sesión y nunca por el del payload
-2. Un cambio de contraseña sólo es válido si la `current_password` aportada coincide con la contraseña vigente de la cuenta
-3. La nueva contraseña es distinta de la contraseña vigente de la cuenta
-4. `new_password_confirmation` es idéntica a `new_password`
-5. Tras un cambio con éxito, la contraseña anterior deja de ser válida de forma inmediata para cualquier inicio de sesión
-6. Tras un cambio rechazado, la contraseña anterior sigue siendo válida y `password_hash` permanece inalterado
-7. Una cuenta que completa un cambio de contraseña con éxito queda con `must_change_password` a false
+1. Las opciones de navegación y acciones visibles en la SPA son un subconjunto de las capacidades devueltas por la API para el rol vigente
+2. Una sesión cuya respuesta no incluye rol se considera inválida
+3. La interfaz se presenta en un único idioma, español
 **Criterios de aceptación:**
-1. AC-PWD-01: Dado un usuario con sesión iniciada, cuando cambia su contraseña aportando la actual correcta y una nueva conforme a la política, entonces la operación responde éxito, `password_updated_at` se actualiza, `must_change_password` pasa a false y el siguiente inicio de sesión sólo funciona con la nueva contraseña.
-2. AC-PWD-02: Dado un usuario con sesión iniciada, cuando intenta cambiar su contraseña aportando una `current_password` incorrecta, entonces el sistema responde 422 «La contraseña actual no es correcta», la contraseña anterior sigue siendo válida en el siguiente login y `failed_password_attempts` se incrementa en 1.
-3. AC-PWD-03: Dado una contraseña que incumple la política (menos de 10 caracteres, o sin mayúscula, o sin minúscula, o sin dígito, o que contiene el `username`), cuando se intenta establecer desde cualquiera de los tres flujos (cambio propio, primer acceso forzado, restablecimiento por administrador), entonces los tres responden 422 con la lista de reglas incumplidas y `password_hash` no se modifica en ninguno.
-4. AC-PWD-05: Dado un usuario con sesión abierta simultáneamente en dos navegadores, cuando cambia su contraseña desde uno de ellos, entonces la siguiente petición del otro navegador responde 401 con redirección al login y la sesión desde la que ejecutó el cambio continúa operativa.
+1. AC-PERM-04: Dado un usuario con rol `EMPLEADO`, cuando inicia sesión en la SPA, entonces el menú no muestra las opciones de listado completo, autoasignación, cambio de estado ni administración de usuarios, y la navegación directa por URL a cualquiera de esas rutas redirige a la pantalla «Acceso no autorizado»; dado un usuario con rol `TECNICO_MANTENIMIENTO`, cuando inicia sesión, entonces ve el listado completo con los tres filtros (sala, categoría, estado).
 **Validaciones:**
-1. `current_password` es obligatoria y no puede estar vacía
-2. `new_password` es obligatoria y no puede estar vacía
-3. `new_password_confirmation` es obligatoria y debe coincidir exactamente con `new_password`
-4. `new_password` debe ser distinta de `current_password`
-5. `new_password` debe cumplir la política de contraseñas definida en REQ-069 antes de aceptarse
-6. El `user_id` se toma siempre de la sesión: si el payload incluye un `user_id`, la petición se rechaza (no se acepta como dato de entrada)
+1. La respuesta de sesión debe incluir `role_code` y `capabilities[]`; si no trae rol, la sesión se considera inválida y se fuerza re-login
 **Escenarios de error:**
-1. Falta alguno de los datos obligatorios: contraseña actual, nueva o confirmación
-2. La nueva contraseña y su confirmación no coinciden
-3. Se intenta cambiar la contraseña de una cuenta distinta a la del titular de la sesión
-4. La contraseña actual aportada no es correcta
-5. La nueva contraseña no cumple la política de seguridad vigente
-6. La nueva contraseña coincide con la que ya está en uso
-7. La cuenta está bloqueada temporalmente por intentos fallidos y no admite el cambio
+1. La respuesta de sesión no incluye rol vigente: la sesión se considera no válida y se solicita nuevo inicio de sesión
+2. El usuario intenta acceder a una sección no permitida para su rol
 **Campos de datos:**
-- `user_id` (uuid, obligatorio) — Se toma siempre de la sesión, nunca del payload
-- `current_password` (string, obligatorio) — No se persiste; verificación en tiempo constante
-- `new_password` (string, obligatorio) — Debe cumplir la política de REQ-069 y ser distinta de la actual
-- `new_password_confirmation` (string, obligatorio) — Idéntica a `new_password`
-- `password_hash` (string, obligatorio) — Nunca en claro; algoritmo adaptativo con salt por usuario
-- `password_updated_at` (datetime, obligatorio) — Referencia para la revocación de sesiones de REQ-070
+- `role_code` (enum, obligatorio) — ∈ `cat_roles`; si falta, la sesión se considera inválida
+- `capabilities` (array, obligatorio) — Uso de usabilidad, no vinculante para autorización
 
-### REQ-071 — Cambio obligatorio de contraseña en el primer acceso o tras restablecimiento
-El sistema obliga al usuario a establecer una contraseña propia en su primer acceso tras el alta o tras un restablecimiento. Reglas: (1) el alta por ADMINISTRADOR y el restablecimiento (RST-01) dejan la cuenta con must_change_password=true; (2) mientras la marca esté activa, tras autenticarse el usuario sólo puede acceder al cambio de contraseña y al cierre de sesión; cualquier otro endpoint responde 403; (3) al completar el cambio con una contraseña conforme a PWD-02 la marca pasa a false y se libera el acceso; (4) la credencial temporal caduca a las 48 h [inferido]; vencida, exige nuevo restablecimiento por el ADMINISTRADOR. Flujo: login con credencial temporal → redirección forzada a la pantalla de cambio → introduce nueva contraseña y confirmación (no se pide la actual si la sesión viene de credencial temporal [ambigüedad]) → acceso normal. Datos: must_change_password (boolean, por defecto true al alta y al restablecer), password_expires_at (timestamp, nullable), password_updated_at (timestamp). [gap: el RFP no define la vigencia de la credencial temporal ni si debe caducar]. Validaciones: política PWD-02; la nueva contraseña no puede ser igual a la temporal recibida. Errores: 403 «Debes establecer una contraseña nueva antes de continuar»; 410 «La credencial temporal ha caducado, solicita un nuevo restablecimiento al administrador». Criterios de aceptación: Given un usuario recién dado de alta, When inicia sesión por primera vez, Then el sistema le obliga a establecer contraseña antes de permitirle reportar o gestionar incidencias. Given ese mismo usuario, When intenta llamar a cualquier otro endpoint con la marca activa, Then responde 403. Seguridad: aplica a EMPLEADO, TECNICO_DE_MANTENIMIENTO y ADMINISTRADOR por igual; garantiza que la contraseña definitiva sólo la conoce el titular, en línea con el objetivo de la épica de «eliminar la práctica insegura de comunicar contraseñas por correo o de forma verbal». Evento de dominio: PasswordChanged [inferido]. Dependencias: PWD-02, RST-01, alta de usuario (otra épica). Prioridad: Must [inferido]. auth_type: SESSION. data_scope: own_only.
+### REQ-013 — Toda decisión de autorización es vinculante en la API REST, nunca en la SPA
+Toda decisión de autorización es vinculante en la API REST; la interfaz (SPA Angular) solo refleja el resultado y nunca constituye control de acceso. Aplica a: PERM, incidencias, gestión de usuarios.
 **Reglas de negocio:**
-1. Una cuenta recién dada de alta o recién restablecida tiene `must_change_password` a true
-2. Mientras `must_change_password` esté activo, las únicas operaciones accesibles para el usuario autenticado son el cambio de contraseña y el cierre de sesión
-3. Una credencial temporal caduca 48 horas después de su emisión y, vencida, no permite establecer contraseña sin un nuevo restablecimiento
-4. La nueva contraseña establecida en el primer acceso es distinta de la credencial temporal recibida
+1. Toda decisión de autorización es vinculante únicamente en la API REST; la SPA nunca constituye control de acceso
 **Criterios de aceptación:**
-1. AC-PWD-03: Dado una contraseña que incumple la política (menos de 10 caracteres, o sin mayúscula, o sin minúscula, o sin dígito, o que contiene el `username`), cuando se intenta establecer desde cualquiera de los tres flujos (cambio propio, primer acceso forzado, restablecimiento por administrador), entonces los tres responden 422 con la lista de reglas incumplidas y `password_hash` no se modifica en ninguno.
-2. AC-PWD-07: Dado un usuario con `must_change_password=true` recién dado de alta, cuando se autentica y llama a cualquier endpoint distinto del cambio de contraseña o del cierre de sesión, entonces recibe 403 «Debes establecer una contraseña nueva antes de continuar», y cuando completa el cambio con una contraseña conforme, entonces la marca pasa a false y el acceso al resto de funcionalidades queda liberado.
-3. AC-PWD-08: Dado una credencial temporal emitida hace más de 48 h, cuando el usuario intenta usarla, entonces el sistema responde 410 «La credencial temporal ha caducado, solicita un nuevo restablecimiento al administrador» y no concede sesión [inferido: vigencia de 48 h no definida en el RFP].
-4. AC-RST-01: Dado un administrador autenticado y un usuario activo que ha olvidado su contraseña, cuando el administrador ejecuta el restablecimiento desde el listado de usuarios, entonces el usuario puede iniciar sesión con la credencial repuesta, es forzado a establecer una contraseña propia antes de operar y el administrador no ve en ningún momento la contraseña anterior ni la nueva definitiva.
+1. AC-USR-02: Dado el conjunto de operaciones del sistema, cuando se ejecuta la matriz completa rol×operación (`EMPLEADO`, `TECNICO_DE_MANTENIMIENTO`, `ADMINISTRADOR`), entonces cada celda coincide con la matriz acordada —el empleado solo reporta y consulta lo propio, el técnico ve/asigna/resuelve cualquier incidencia, el administrador gestiona usuarios y no tiene alcance sobre incidencias— y la autorización se evalúa en la API REST en el 100 % de los casos, nunca solo en la SPA.
+
+### REQ-020 — Exposición al frontend de los permisos efectivos del usuario de la sesión
+El sistema expone al frontend los permisos efectivos del usuario de la sesión para que la SPA muestre únicamente las acciones que su rol permite. Reglas: (1) existe un recurso de solo lectura que devuelve el rol y la lista de operaciones permitidas del usuario autenticado; (2) el frontend usa esa respuesta solo para ocultar/deshabilitar controles y no sustituye la verificación del backend (PERM-01); (3) la respuesta nunca incluye permisos de otros usuarios ni la matriz completa del sistema. Flujo: login correcto → la SPA solicita el contexto de permisos → renderiza el menú (el EMPLEADO no ve «Asignarme», «Cambiar estado» ni «Cerrar»; el TECNICO_MANTENIMIENTO sí y además el listado completo con filtros). Datos de respuesta: role_code (varchar), allowed_operations (array de códigos de cat_operaciones), data_scope (varchar: OWN | ALL). Catálogos: cat_operaciones, cat_roles. Validaciones: el recurso solo admite el usuario de la sesión; no acepta parámetro de usuario. Errores: sin sesión → 401. Aceptación: un EMPLEADO autenticado no ve acciones de gestión y obtiene data_scope = OWN; si invoca por API una acción oculta, el backend la deniega con 403. Integración: Angular SPA (front propio). Dependencias: ROL-01, PERM-01. Prioridad: Should.
+**Reglas de negocio:**
+1. El contexto de permisos expuesto al frontend contiene exclusivamente el rol y las operaciones permitidas del usuario de la sesión
+2. El data_scope de un usuario es OWN o ALL, y nunca ambos simultáneamente
+**Criterios de aceptación:**
+1. AC-ROL-04: Dado un empleado autenticado en la SPA Angular, cuando la aplicación carga el contexto de permisos del usuario de la sesión, entonces la respuesta contiene `role_code`, `allowed_operations` y `data_scope = OWN`, no se renderizan los controles «Asignarme», «Cambiar estado» ni «Cerrar», y la respuesta no incluye permisos de otros usuarios ni la matriz completa del sistema.
+2. AC-PERM-05: Dado un usuario con rol `EMPLEADO` cuya interfaz Angular oculta las acciones de gestión, cuando invoca esas mismas operaciones directamente contra la API REST saltándose la SPA, entonces el backend las deniega con `403` en el 100 % de los intentos, demostrando que el control de la SPA es de usabilidad y nunca la única barrera.
 **Validaciones:**
-1. `new_password` y su confirmación son obligatorias y deben coincidir en la pantalla de cambio forzado
-2. `new_password` debe cumplir la política de contraseñas de REQ-069
-3. `new_password` no puede ser igual a la credencial temporal recibida
+1. El recurso de permisos efectivos no admite ningún parámetro de usuario: cualquier identificador de usuario recibido se rechaza/ignora y solo se resuelve el usuario de la sesión
+2. `data_scope` de la respuesta solo puede tomar los valores `OWN` o `ALL`
+3. Cada elemento de `allowed_operations` debe ser un código existente en `cat_operaciones`
 **Escenarios de error:**
-1. La cuenta tiene pendiente establecer una contraseña propia y no puede acceder a ninguna otra funcionalidad
-2. La credencial temporal ha caducado y requiere un nuevo restablecimiento por el administrador
-3. La nueva contraseña coincide con la credencial temporal recibida
+1. Consulta del contexto de permisos sin sesión iniciada
+2. La consulta incluye un identificador de usuario distinto al de la sesión, que no está admitido
 **Campos de datos:**
-- `must_change_password` (boolean, obligatorio) — true al alta y tras restablecimiento; false al completar el cambio
-- `password_expires_at` (datetime, opcional) — 48 h desde su generación `[inferido]`; `[gap: vigencia no definida por el cliente]`
-- `password_updated_at` (datetime, obligatorio) — Libera el acceso al resto de funcionalidades
-- `new_password` (string, obligatorio) — Política REQ-069 y distinta de la credencial temporal recibida
-- `new_password_confirmation` (string, obligatorio) — Idéntica a `new_password`
+- `role_code` (enum, obligatorio) — Valor de `cat_roles`
+- `allowed_operations` (array, obligatorio) — Códigos de `cat_operaciones`; solo del propio usuario, nunca la matriz completa
+- `data_scope` (enum, obligatorio) — OWN | ALL
+
+### REQ-032 — Las comprobaciones de permiso residen en el backend, no en la SPA
+Las comprobaciones de permiso residen en el backend (API REST en Python); los controles de la SPA Angular son de usabilidad y nunca la única barrera. Aplica a: ROL-03, PERM, ALC.
+**Reglas de negocio:**
+1. La decisión de autorización reside en el backend; los controles de la SPA Angular nunca son la única barrera de permiso
+**Criterios de aceptación:**
+1. AC-USR-02: Dado el conjunto de operaciones del sistema, cuando se ejecuta la matriz completa rol×operación (`EMPLEADO`, `TECNICO_DE_MANTENIMIENTO`, `ADMINISTRADOR`), entonces cada celda coincide con la matriz acordada —el empleado solo reporta y consulta lo propio, el técnico ve/asigna/resuelve cualquier incidencia, el administrador gestiona usuarios y no tiene alcance sobre incidencias— y la autorización se evalúa en la API REST en el 100 % de los casos, nunca solo en la SPA.
+**Escenarios de error:**
+1. Acción invocada directamente contra la API pese a estar oculta en la interfaz; el backend la deniega
+
+### REQ-051 — Sesión válida obligatoria para toda funcionalidad salvo el inicio de sesión
+Toda funcionalidad del sistema, salvo el propio inicio de sesión, exige una sesión válida del usuario; sin ella la petición se deniega y el usuario es redirigido al inicio de sesión. Dependencia: SES-03.
+**Reglas de negocio:**
+1. Ninguna funcionalidad del sistema distinta del propio inicio de sesión es accesible sin una sesión válida.
+**Criterios de aceptación:**
+1. AC-SES-04: Dada cualquier funcionalidad del sistema distinta del propio formulario de inicio de sesión, cuando se invoca sin credencial de sesión, con credencial manipulada, revocada o caducada, entonces responde 401 con mensaje uniforme, no devuelve datos ni revela si el recurso existe; y dado un endpoint nuevo sin configuración explícita en la lista de rutas públicas, cuando se invoca sin sesión, entonces también responde 401 (protegido por defecto).
+**Escenarios de error:**
+1. Se solicita una funcionalidad del sistema sin una sesión válida: se deniega el acceso y se conduce al inicio de sesión
+
+### REQ-056 — Emisión y mantenimiento de la sesión tras autenticación correcta
+Tras una autenticación correcta el sistema emite una sesión que se mantiene mientras el usuario opera, sin pedirle de nuevo sus credenciales. Reglas: la sesión se materializa como credencial de sesión emitida por el backend y enviada por la SPA Angular en cada petición; tiene vencimiento por inactividad y vencimiento absoluto; mientras el usuario opera dentro de la ventana de inactividad la sesión se prolonga de forma transparente; expirada la sesión, la siguiente petición se deniega y el front lleva al inicio de sesión sin perder el contexto de la ruta solicitada; una sesión revocada (SES-02) nunca se prolonga. [inferido: el RFP solo exige que la sesión "se mantiene sin requerirle volver a introducir credenciales"]. Flujo: login correcto (AUT-01) → creación de la sesión con `user_id` y `role_code` → cada petición la valida → renovación por actividad → expiración o cierre explícito. Datos: `session_id` (uuid, PK), `user_id` (fk usuario, obligatorio), `role_code` (string, obligatorio, tomado del usuario en el momento de la emisión), `issued_at`, `expires_at`, `last_activity_at`, `revoked_at` (nullable). Validaciones: `expires_at` siempre futuro en la emisión; sesión con `revoked_at` informado se considera inválida; la credencial de sesión no viaja en la URL. Errores: 401 "Tu sesión ha caducado, vuelve a identificarte" al expirar; 401 genérico si la credencial es ilegible o manipulada. Criterios: Given una sesión activa When el usuario navega y opera Then no se le solicitan credenciales; Given una sesión sin actividad durante el periodo de inactividad When realiza una petición Then 401 y redirección al inicio de sesión; Given una sesión válida When alcanza su vencimiento absoluto Then deja de ser aceptada aunque haya habido actividad. Seguridad: aplica a EMPLEADO, TECNICO-DE-MANTENIMIENTO y ADMINISTRADOR; cada sesión solo da acceso a los datos del alcance de su rol (PERM-01). Eventos: `UserSessionStarted`. Dependencias: AUT-01. [gap: duración de la sesión por inactividad y vencimiento absoluto no especificados] [ambigüedad: "horario laboral" no concreta franja, días ni calendario]. Prioridad: Must.
+**Reglas de negocio:**
+1. Una sesión pertenece a un único usuario y fija el `role_code` vigente en el instante de su emisión.
+2. En el momento de la emisión, `expires_at` de una sesión es posterior a `issued_at`.
+3. Una sesión con `revoked_at` informado es inválida y no admite prolongación por actividad.
+4. Una sesión alcanzado su vencimiento absoluto es inválida aunque haya habido actividad continuada.
+5. La credencial de sesión no viaja en la URL de las peticiones.
+**Criterios de aceptación:**
+1. AC-SES-01: Dado un usuario con sesión activa, cuando navega y opera dentro de la ventana de inactividad configurada, entonces ninguna petición le solicita de nuevo sus credenciales y `last_activity_at` se actualiza en cada petición aceptada. [gap: duración de la sesión por inactividad no especificada en el RFP]
+2. AC-SES-02: Dada una sesión que ha superado su periodo de inactividad o su vencimiento absoluto, cuando el usuario realiza cualquier petición, entonces el backend responde 401, el front limpia el estado de usuario y lo lleva al inicio de sesión conservando la ruta pretendida, y tras identificarse aterriza en esa misma ruta. [gap: vencimiento absoluto no especificado]
+**Validaciones:**
+1. `expires_at` debe ser un timestamp posterior al instante de emisión de la sesión
+2. `user_id` y `role_code` son obligatorios en la emisión de la sesión y `role_code` se toma del usuario, no de la petición
+3. La credencial de sesión debe viajar en la cabecera de la petición y nunca en la URL; se rechaza la recibida por query string
+4. Una credencial de sesión con `revoked_at` informado se rechaza como entrada inválida
+5. La credencial de sesión debe ser legible y no manipulada; si no puede decodificarse o su firma no valida, se rechaza
+**Escenarios de error:**
+1. La sesión ha caducado por inactividad o por vencimiento absoluto y debe volver a identificarse
+2. La credencial de sesión presentada es ilegible o ha sido alterada
+**Campos de datos:**
+- `session_id` (uuid, obligatorio) — Clave primaria de la sesión; no viaja en la URL
+- `user_id` (uuid, obligatorio) — Referencia al usuario autenticado
+- `role_code` (enum, obligatorio) — Valores EMPLEADO, TECNICO-DE-MANTENIMIENTO, ADMINISTRADOR
+- `issued_at` (datetime, obligatorio) — Momento de emisión de la sesión
+- `expires_at` (datetime, obligatorio) — Debe ser siempre futuro en el momento de la emisión
+- `last_activity_at` (datetime, obligatorio) — Se actualiza mientras la sesión no esté revocada
+- `revoked_at` (datetime, opcional) — Nullable; si está informado la sesión se considera inválida y no se prolonga
+
+### REQ-057 — Cierre explícito de sesión con revocación en servidor
+El usuario cierra su sesión de forma explícita y sus peticiones posteriores dejan de ser aceptadas. Reglas: el cierre invalida la sesión en servidor (`revoked_at`) y no solo en el navegador; tras cerrar sesión, cualquier petición con la credencial anterior se rechaza aunque no haya vencido; el cierre de sesión es idempotente; el front borra el estado de usuario en memoria y devuelve al formulario de acceso. Flujo: el usuario pulsa "Cerrar sesión" → `POST /api/auth/logout` → revocación → redirección a la pantalla de acceso. Datos: `session_id`, `revoked_at` (timestamp), `revocation_reason` (string, valores `logout`, `expired`, `admin`). Validaciones: solo puede revocarse la sesión propia del solicitante; el ADMINISTRADOR puede revocar sesiones de otros usuarios cuando desactiva una cuenta (dependencia del módulo de usuarios). Errores: 401 "Debes iniciar sesión" si se invoca sin sesión válida; 500 "No ha sido posible cerrar la sesión". Criterios: Given un usuario con sesión iniciada When cierra sesión Then sus peticiones posteriores son rechazadas hasta que vuelva a identificarse; Given una sesión ya cerrada When se reutiliza su credencial Then 401; Given un usuario que cierra sesión When vuelve a identificarse con credenciales correctas Then obtiene una sesión nueva y distinta. Seguridad: disponible para todos los roles; el evento queda auditado (TRZ-01). Eventos: `UserSessionClosed`. Dependencias: SES-01. Prioridad: Must.
+**Reglas de negocio:**
+1. Una sesión revocada nunca vuelve a ser válida; una nueva identificación produce una sesión distinta de la anterior.
+2. `revocation_reason` toma un valor del conjunto cerrado `logout`, `expired`, `admin`.
+3. Un usuario solo puede revocar su propia sesión; únicamente el ADMINISTRADOR puede revocar sesiones ajenas, y solo al desactivar la cuenta correspondiente.
+4. El cierre de sesión es idempotente: cerrar una sesión ya cerrada produce el mismo resultado observable para el usuario que cerrarla la primera vez.
+**Criterios de aceptación:**
+1. AC-SES-03: Dado un usuario con sesión iniciada, cuando pulsa "Cerrar sesión", entonces `revoked_at` queda informado en servidor con `revocation_reason = logout`, cualquier petición posterior con la credencial anterior responde 401 aunque no haya vencido, repetir el cierre no produce error al usuario y un nuevo inicio de sesión correcto emite un `session_id` distinto del anterior.
+**Validaciones:**
+1. La petición de cierre de sesión debe incluir una credencial de sesión válida
+2. La sesión indicada para revocar debe coincidir con la sesión del solicitante, salvo que quien la invoca sea ADMINISTRADOR
+3. `revocation_reason` debe pertenecer al conjunto cerrado `logout`, `expired`, `admin`
+**Escenarios de error:**
+1. Se solicita el cierre de sesión sin una sesión válida
+2. Se reutiliza la credencial de una sesión ya cerrada o revocada
+3. Se intenta cerrar la sesión de otro usuario sin autorización para hacerlo
+4. No ha sido posible cerrar la sesión
+**Campos de datos:**
+- `session_id` (uuid, obligatorio) — Solo puede revocarse la sesión propia del solicitante
+- `revoked_at` (datetime, obligatorio) — El cierre es idempotente sobre una sesión ya revocada
+- `revocation_reason` (enum, obligatorio) — Valores logout, expired, admin
+
+### REQ-058 — Denegación de toda petición sin sesión válida y redirección al acceso
+El sistema deniega toda petición a cualquier funcionalidad realizada sin una sesión válida y conduce al usuario al inicio de sesión. Reglas: el control se aplica en el backend (todos los endpoints salvo `login` y los recursos estáticos de la SPA) y, de forma complementaria, en el enrutado del front; ninguna respuesta de un recurso protegido devuelve datos a un peticionario sin sesión; la denegación no revela si el recurso solicitado existe; la SPA conserva la ruta pretendida para retomarla tras identificarse. Flujo: petición → validación de la credencial de sesión (SES-01) → si es inválida, ausente, revocada o caducada, respuesta 401 → el interceptor del front limpia el estado y navega a la pantalla de acceso. Datos: cabecera de autorización de la petición, `session_id` resuelto, `requested_path` (string, conservado en el front para el retorno). Validaciones: lista explícita de rutas públicas (solo `login`); cualquier ruta nueva es protegida por defecto. Errores: 401 "Debes iniciar sesión para continuar" uniforme para ausencia, caducidad o revocación de sesión. Criterios: Given una petición a cualquier funcionalidad sin sesión válida When se procesa Then el sistema la deniega y redirige al inicio de sesión; Given un usuario sin sesión When escribe directamente la URL de una vista interna Then aterriza en el acceso y, tras identificarse, en la vista pretendida; Given un endpoint nuevo sin configuración explícita When se invoca sin sesión Then responde 401. Seguridad: cubre por igual las funcionalidades de EMPLEADO, TECNICO-DE-MANTENIMIENTO y ADMINISTRADOR; es la aplicación técnica de PRE-01. Integración: Angular front (interceptor y guardas de ruta). Dependencias: SES-01, PRE-01. Prioridad: Must.
+**Reglas de negocio:**
+1. El inicio de sesión es la única ruta pública del backend; cualquier ruta no declarada explícitamente como pública es protegida.
+2. La respuesta a una petición sin sesión válida es idéntica exista o no el recurso solicitado.
+3. La respuesta a una petición sin sesión válida es idéntica para ausencia, caducidad o revocación de la sesión.
+**Criterios de aceptación:**
+1. AC-USR-04: Dado un usuario con sesión caducada, cuando invoca cualquier operación, entonces recibe 401 «Tu sesión ha caducado, vuelve a iniciar sesión» y la SPA le redirige a la pantalla de acceso conservando la intención de navegación; y cuando se revisa el almacenamiento, entonces las contraseñas están cifradas con hash de un solo sentido y los roles residen en base de datos, sin SSO ni directorio corporativo. [pendiente mapping 1.4] (REQ-058 referenciado)
+**Validaciones:**
+1. Toda petición a un recurso protegido debe incluir la cabecera de autorización con la credencial de sesión; su ausencia se rechaza
+2. La ruta solicitada solo se admite sin sesión si figura en la lista explícita de rutas públicas (`login` y estáticos de la SPA); cualquier otra se trata como protegida por defecto
+3. `requested_path` conservado por el front para el retorno debe ser una ruta interna de la aplicación
+**Escenarios de error:**
+1. Petición a un recurso protegido sin sesión válida, caducada o revocada: se deniega de forma uniforme sin revelar si el recurso existe
+**Campos de datos:**
+- `authorization_header` (string, obligatorio) — Ausente, ilegible o manipulada produce 401 uniforme
+- `session_id` (uuid, opcional) — Nullable cuando la credencial es inválida, revocada o caducada
+- `requested_path` (string, opcional) — Solo se conserva en el front; la denegación no revela si el recurso existe
+
+### REQ-059 — Resolución y exposición del contexto del usuario autenticado (identidad y rol)
+La aplicación resuelve y expone el contexto del usuario autenticado (identidad y rol) para adaptar la navegación y las opciones visibles. Reglas: el contexto se obtiene siempre del servidor a partir de la sesión activa, nunca de datos enviados por el cliente; incluye nombre, correo corporativo y rol vigente; si el ADMINISTRADOR cambia el rol de un usuario con sesión abierta, el contexto refleja el rol de la sesión hasta su renovación o cierre [ambigüedad: el RFP no indica si el cambio de rol debe invalidar las sesiones activas]; ocultar una opción en el front nunca sustituye al control de acceso del servidor (PERM-01). Flujo: arranque de la SPA con sesión válida → `GET /api/auth/me` → el front pinta el menú según el rol → en cada recarga se repite la resolución. Datos: `user_id` (uuid), `full_name` (string), `email` (string, correo corporativo), `role_code` (string, obligatorio, procedente de `cat_roles`: EMPLEADO, TECNICO-DE-MANTENIMIENTO, ADMINISTRADOR), `is_active` (boolean). Validaciones: nunca se devuelven `password_hash` ni `password_salt` (AUT-02); si el usuario ha sido desactivado, la petición se rechaza como sesión inválida. Errores: 401 "Debes iniciar sesión para continuar" sin sesión válida. Criterios: Given un EMPLEADO con sesión When entra en la aplicación Then ve solo las opciones de reportar y consultar sus incidencias; Given un TECNICO-DE-MANTENIMIENTO con sesión When entra Then ve además el listado completo de incidencias; Given una respuesta de contexto When se inspecciona Then no contiene ningún dato de credencial. Seguridad: cada usuario solo obtiene su propio contexto; no permite consultar el de terceros. Integración: Angular front. Dependencias: SES-01, módulo de gestión de usuarios y roles. Prioridad: Must.
+**Reglas de negocio:**
+1. El contexto de identidad y rol procede siempre de la sesión activa y nunca de datos aportados por el cliente.
+2. Un usuario solo obtiene su propio contexto; el contexto de terceros no es consultable.
+3. `role_code` pertenece al catálogo cerrado `cat_roles`: EMPLEADO, TECNICO-DE-MANTENIMIENTO, ADMINISTRADOR.
+4. Un usuario desactivado no tiene sesión válida, con independencia de que su sesión no haya vencido.
+5. El rol expuesto en el contexto es el fijado en la sesión hasta su renovación o cierre, aunque el rol del usuario haya cambiado entretanto.
+**Criterios de aceptación:**
+1. AC-SES-05: Dado un usuario con sesión válida, cuando arranca la SPA y se resuelve `GET /api/auth/me`, entonces obtiene su nombre, correo corporativo y `role_code` procedentes del servidor (no del cliente), el menú muestra solo las opciones de su rol —EMPLEADO: reportar y consultar sus incidencias; TECNICO-DE-MANTENIMIENTO: además el listado completo— y la respuesta no contiene ningún dato de credencial ni el contexto de terceros.
+**Validaciones:**
+1. El contexto se resuelve a partir del `user_id` de la sesión; se ignora cualquier identificador de usuario recibido en la petición
+2. `role_code` es obligatorio y debe pertenecer al catálogo `cat_roles` (EMPLEADO, TECNICO-DE-MANTENIMIENTO, ADMINISTRADOR)
+3. La respuesta de contexto no puede contener los campos `password_hash` ni `password_salt`
+**Escenarios de error:**
+1. Se solicita el contexto de usuario sin una sesión válida, o la cuenta asociada ha dejado de estar activa
+2. Se solicita el contexto de un usuario distinto al de la sesión
+**Campos de datos:**
+- `user_id` (uuid, obligatorio) — Se obtiene del servidor, nunca de datos enviados por el cliente
+- `full_name` (string, obligatorio) — Dato personal limitado a nombre y correo corporativo
+- `email` (email, obligatorio) — Formato de correo corporativo
+- `role_code` (enum, obligatorio) — Valores del catálogo cat_roles: EMPLEADO, TECNICO-DE-MANTENIMIENTO, ADMINISTRADOR
+- `is_active` (boolean, obligatorio) — Si el usuario ha sido desactivado la petición se rechaza como sesión inválida
+
+### REQ-067 — Sesión autenticada vigente exigida salvo login y reposición de acceso
+Salvo el inicio de sesión y la reposición de acceso, toda operación exige sesión autenticada vigente; sin sesión válida el sistema responde 401 y redirige al login. Dependencia: inicio de sesión (épica de autenticación, fuera de este alcance). auth_type: SESSION. data_scope: own_only.
+**Reglas de negocio:**
+1. Toda operación distinta del inicio de sesión y de la reposición de acceso exige una sesión autenticada vigente
+**Criterios de aceptación:**
+1. AC-XFN-01: Dado una petición sin sesión autenticada vigente a cualquier operación distinta del inicio de sesión, cuando se ejecuta, entonces el sistema responde 401 y el frontend redirige al login sin exponer datos de la operación.
+**Escenarios de error:**
+1. La petición no aporta una sesión autenticada vigente y se redirige al inicio de sesión
+2. La sesión ha caducado o ha sido revocada y ya no es válida
 
 ## Entorno de prueba de esta sesión
 
-Antes de arrancar tu sesión, la plataforma levanta los servicios de abajo como contenedores efímeros y deja sus datos de conexión en `.mind/TSK-033/env.sh` (y en `env.json`). Contrato de uso:
+Antes de arrancar tu sesión, la plataforma levanta los servicios de abajo como contenedores efímeros y deja sus datos de conexión en `.mind/TSK-032/env.sh` (y en `env.json`). Contrato de uso:
 
-- **Haz `source .mind/TSK-033/env.sh` antes de cada build/test** que necesite el entorno; si el fichero no existe, el entorno NO se pudo levantar (ver el final de esta sección).
+- **Haz `source .mind/TSK-032/env.sh` antes de cada build/test** que necesite el entorno; si el fichero no existe, el entorno NO se pudo levantar (ver el final de esta sección).
 - Los tests **leen la conexión de esas variables** (o de Testcontainers, ver abajo). NUNCA hardcodees host, puerto ni credenciales, y NUNCA toques la configuración `local/` del arquetipo para apuntarla a este entorno.
 - Son servicios de PRUEBA y efímeros: se destruyen al terminar la sesión. No guardes nada que deba sobrevivir ni los uses como almacén de resultados.
 
@@ -1307,4 +1655,19 @@ Si tu pantalla necesita un cuerpo concreto, añádelo tú por el admin API (`POS
 **Navegador para los tests**: el runtime trae Chromium y `CHROME_BIN` ya apunta a él, así que NO lo instales ni lo descargues. Pero corre en un contenedor sin privilegios, así que su sandbox no puede activarse: usa un launcher headless con `--no-sandbox` (en Karma, un `customLaunchers` que extienda `ChromeHeadless`; en Playwright, `args: ['--no-sandbox']`). Sin eso el navegador está pero no arranca, y el síntoma no lo dice.
 
 ### Si el entorno no está disponible
-Comprueba `.mind/TSK-033/env.json`: si su `status` es `unavailable` o `degraded`, la plataforma no pudo darte (todo) el entorno. En ese caso ESCRIBE igualmente los tests de integración y déjalos en el entregable, y repórtalo como health check **Warning** con `check: entorno-de-prueba` — NO como Blocker: no es un defecto de tu tarea, y la verificación queda diferida al CI. Reserva el Blocker para cuando el entorno SÍ estaba y los tests fallan por el código o por el brief.
+Comprueba `.mind/TSK-032/env.json`: si su `status` es `unavailable` o `degraded`, la plataforma no pudo darte (todo) el entorno. En ese caso ESCRIBE igualmente los tests de integración y déjalos en el entregable, y repórtalo como health check **Warning** con `check: entorno-de-prueba` — NO como Blocker: no es un defecto de tu tarea, y la verificación queda diferida al CI. Reserva el Blocker para cuando el entorno SÍ estaba y los tests fallan por el código o por el brief.
+
+## Estado del build al cerrar el intento anterior
+
+El intento anterior dejó el módulo COMPILANDO, pero el artefacto entregado **no arrancaría** (o incumple el contrato que declara). El compilador está en VERDE: **no busques ahí y no pierdas el intento intentando reproducir un fallo de compilación que no existe**. Lo que falla es exactamente lo que dice el informe de abajo, y es lo PRIMERO que tienes que arreglar, antes de añadir nada nuevo.
+
+- Arregla lo que nombra el informe, en el sitio que nombra. No hace falta reproducirlo con el compilador: ya compila.
+- Si el defecto viene de la rama BASE y no de tu trabajo, arréglalo igual y decláralo como `health_check` de severidad Warning indicando el fichero y por qué lo tocaste.
+- **No borres ni desactives tests para que el informe calle.** Si crees que el informe se equivoca, entrégalo con un `health_check` Blocker explicando por qué; quitar cobertura para tapar una señal es peor que la señal.
+
+### Lo que reportó la verificación (literal)
+
+```
+stub-delivery: hay features marcadas como entregadas cuyo cuerpo no hace nada. `TODO`, `not implemented` y un retorno vacío como cuerpo único son bloqueantes de entrega, no notas.
+- 3 de 12 rutas registradas que ninguna plantilla enlaza: `/acceso/credencial-caducada`, `/avisos/permisos-actualizados`, `/avisos/version-no-soportada`. Una pantalla a la que sólo se llega escribiendo la URL no está entregada: móntala en el menú del shell con la `sección de menú` que declara su spec de UI
+```

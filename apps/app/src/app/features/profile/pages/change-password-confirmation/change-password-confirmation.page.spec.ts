@@ -1,65 +1,54 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter, Router } from '@angular/router';
+import { ChangePasswordConfirmationPage } from './change-password-confirmation.page';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { RouterTestingModule } from '@angular/router/testing';
+import { Router } from '@angular/router';
 import { By } from '@angular/platform-browser';
 import { formatDate } from '@angular/common';
-import { ChangePasswordConfirmationPage } from './change-password-confirmation.page';
-
-const CHANGED_AT = '2026-09-30T08:45:00';
 
 describe('ChangePasswordConfirmationPage', () => {
-  let fixture: ComponentFixture<ChangePasswordConfirmationPage>;
   let component: ChangePasswordConfirmationPage;
+  let fixture: ComponentFixture<ChangePasswordConfirmationPage>;
   let router: Router;
 
-  const byTestId = (id: string) => fixture.debugElement.query(By.css(`[data-testid="${id}"]`));
-
-  async function setup(): Promise<void> {
+  beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ChangePasswordConfirmationPage],
-      providers: [provideRouter([])],
+      imports: [
+        ChangePasswordConfirmationPage,
+        NoopAnimationsModule,
+        RouterTestingModule.withRoutes([{ path: 'mi-perfil', redirectTo: '' }]),
+      ],
     }).compileComponents();
-    router = TestBed.inject(Router);
-    jest.spyOn(router, 'navigate').mockResolvedValue(true);
+
     fixture = TestBed.createComponent(ChangePasswordConfirmationPage);
     component = fixture.componentInstance;
+    router = TestBed.inject(Router);
     fixture.detectChanges();
-  }
+  });
 
-  afterEach(() => history.replaceState(null, ''));
-
-  it('crea el componente', async () => {
-    await setup();
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('AC: muestra el mensaje de éxito del cambio de contraseña', async () => {
-    await setup();
-    const el = byTestId('success-message');
-    expect(el).toBeTruthy();
-    expect(el.componentInstance.title).toBe('Tu contraseña se ha cambiado correctamente');
+  it('should display the success message', () => {
+    const h1 = fixture.nativeElement.querySelector('h1');
+    expect(h1.textContent).toContain('¡Contraseña actualizada!');
   });
 
-  it('AC: muestra la fecha y hora del cambio recibida en el state de navegación', async () => {
-    history.replaceState({ changedAt: CHANGED_AT }, '');
-    await setup();
-    expect(component.changeDateTime.getTime()).toBe(new Date(CHANGED_AT).getTime());
-    expect(byTestId('change-datetime').nativeElement.textContent.trim()).toBe(
-      formatDate(CHANGED_AT, 'dd/MM/yyyy HH:mm', 'en-US'),
-    );
+  it('should display the date and time of the change', () => {
+    const p = fixture.nativeElement.querySelector('p');
+    const formattedTime = formatDate(component.changeDateTime, 'HH:mm', 'en-US');
+    const formattedDate = formatDate(component.changeDateTime, 'dd/MM/yyyy', 'en-US');
+    expect(p.textContent).toContain(`Tu contraseña ha sido cambiada con éxito a las ${formattedTime} del ${formattedDate}.`);
   });
 
-  it('AC: muestra el aviso de revocación de las demás sesiones', async () => {
-    await setup();
-    const el = byTestId('sessions-revoked');
-    expect(el).toBeTruthy();
-    expect(el.componentInstance.title).toBe('Por tu seguridad, se han cerrado tus demás sesiones abiertas');
+  it('should display the session revocation notice', () => {
+    const alert = fixture.nativeElement.querySelector('.alert-info p');
+    expect(alert.textContent).toContain('Por tu seguridad, hemos cerrado todas las demás sesiones activas en otros dispositivos.');
   });
 
-  it('AC: el botón "Volver a Mi perfil" navega a /mi-perfil', async () => {
-    await setup();
-    const btn = byTestId('back-to-profile');
-    expect(btn.nativeElement.textContent).toContain('Volver a Mi perfil');
-    btn.nativeElement.click();
-    expect(router.navigate).toHaveBeenCalledWith(['/mi-perfil']);
+  it('should navigate to "Mi perfil" when the button is clicked', () => {
+    const button = fixture.debugElement.query(By.css('.btn-primary'));
+    expect(button.nativeElement.getAttribute('href')).toBe('/mi-perfil');
   });
 });

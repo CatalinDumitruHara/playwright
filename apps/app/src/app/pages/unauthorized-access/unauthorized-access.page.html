@@ -1,16 +1,26 @@
-
-<div class="unauthorized-container">
-  <b2b-notification-inline
-    [visible]="true"
-    type="error"
-    title="Acceso no autorizado"
-    message="No tienes permisos para acceder a esta página."
-  ></b2b-notification-inline>
-
-  <div class="details">
-    <p><strong>Ruta solicitada:</strong> {{ requestedUrl }}</p>
-    <p><strong>Tu rol actual:</strong> {{ userRole }}</p>
-  </div>
-
-  <button b2b-button (click)="onBack()">Volver a la página de inicio</button>
-</div>
+<h1 style="font-size: var(--b2b-titles-04-font-size)">Acceso no autorizado</h1>
+<b2b-notification-inline
+  [visible]="true"
+  state="error"
+  type="error"
+  title="Acceso no autorizado"
+  description="No tiene permisos para acceder a esta sección."
+  data-testid="unauthorized-message"
+></b2b-notification-inline>
+<b2b-read-data>
+  <span b2b-read-data-label>Operación o ruta solicitada</span>
+  <span b2b-read-data-value data-testid="requested-path">{{ requestedPath }}</span>
+</b2b-read-data>
+<b2b-read-data>
+  <span b2b-read-data-label>Rol vigente</span>
+  <span b2b-read-data-value data-testid="current-role">{{ user()?.roleLabel ?? '—' }}</span>
+</b2b-read-data>
+<button
+  b2b-button
+  type="button"
+  class="b2b--primary"
+  data-testid="back-home"
+  (click)="back()"
+>
+  Volver a la pantalla inicial
+</button>

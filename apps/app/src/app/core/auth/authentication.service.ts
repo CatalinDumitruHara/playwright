@@ -1,91 +1,118 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, tap, map } from 'rxjs';
-import { Router } from '@angular/router';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, catchError, map, of, tap, throwError } from 'rxjs';
+import { LoginRequest, PasswordChangeRequest } from '@api-types';
+import { API_BASE_URL } from '../config/api-base-url.token';
 import {
-  SessionContext,
-  LoginRequest,
-  SessionDetail,
-  ChangePasswordForcedRequest,
-  ChangePasswordRequest,
-} from '@api-types';
-import { ENVIRONMENT_CONFIG } from '@mapfre-tech/ngx-multienvironment/core';
+  CurrentUser,
+  RoleCode,
+  extractSessionToken,
+  toCurrentUser,
+} from './session.model';
+
+export const SESSION_TOKEN_STORAGE_KEY = 'sessionToken';
+
+export type InitialPasswordPayload = { new_password: string };
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthenticationService {
-  private http = inject(HttpClient);
-  private router = inject(Router);
-  private environment = inject(ENVIRONMENT_CONFIG);
-  private apiBaseUrl = this.environment['apiBaseUrl'] as string;
-  private session: SessionDetail | null = null;
+  private readonly http = inject(HttpClient);
+  private readonly base = inject(API_BASE_URL);
 
-  login(loginRequest: LoginRequest): Observable<SessionDetail> {
-    return this.http
-      .post<SessionDetail>(`${this.apiBaseUrl}/auth/sessions`, loginRequest)
-      .pipe(
-        tap((sessionDetail: SessionDetail) => {
-          this.session = sessionDetail;
-          localStorage.setItem('sessionToken', sessionDetail.token);
-        })
-      );
-  }
+  private readonly userState = signal<CurrentUser | null>(null);
+  readonly currentUser = this.userState.asReadonly();
+  readonly isLoggedIn = computed(() => this.userState() !== null);
 
-  changePasswordForced(
-    changePasswordForcedRequest: ChangePasswordForcedRequest
-  ): Observable<void> {
-    return this.http.put<void>(
-      `${this.apiBaseUrl}/auth/initial-password`,
-      changePasswordForcedRequest
+  /** EP-001 POST /auth/sessions */
+  login(req: LoginRequest): Observable<CurrentUser | null> {
+    return this.http.post<unknown>(`${this.base}/auth/sessions`, req).pipe(
+      tap((body) => {
+        const token = extractSessionToken(body);
+        if (token) {
+          localStorage.setItem(SESSION_TOKEN_STORAGE_KEY, token);
+        }
+        this.userState.set(toCurrentUser(body));
+      }),
+      map((body) => toCurrentUser(body))
     );
   }
 
-  changePassword(
-    changePasswordRequest: ChangePasswordRequest
-  ): Observable<void> {
-    return this.http.put<void>(
-      `${this.apiBaseUrl}/auth/password`,
-      changePasswordRequest
-    );
-  }
-
-  logout(): Observable<void> {
-    return this.http.delete<void>(`${this.apiBaseUrl}/auth/sessions/current`).pipe(
-      tap(() => {
-        localStorage.removeItem('sessionToken');
-        this.session = null;
-        this.router.navigate(['/login']);
+  /** EP-003 GET /auth/sessions/current */
+  getSessionContext(): Observable<CurrentUser | null> {
+    return this.http.get<unknown>(`${this.base}/auth/sessions/current`).pipe(
+      map((body) => toCurrentUser(body)),
+      tap((user) => {
+        if (user === null) {
+          this.clearSession();
+        } else {
+          this.userState.set(user);
+        }
+      }),
+      catchError(() => {
+        this.clearSession();
+        return of(null);
       })
     );
   }
 
-  getSession(): SessionDetail | null {
-    return this.session;
+  /** EP-002 DELETE /auth/sessions/current (204). Does not navigate. */
+  logout(): Observable<void> {
+    return this.http
+      .delete<void>(`${this.base}/auth/sessions/current`)
+      .pipe(
+        map(() => undefined),
+        tap(() => this.clearSession()),
+        catchError((err: unknown) => {
+          if (err instanceof HttpErrorResponse && err.status === 401) {
+            // Session no longer exists on the server: idempotent logout.
+            this.clearSession();
+            return of(undefined);
+          }
+          return throwError(() => err);
+        })
+      );
+  }
+
+  clearSession(): void {
+    localStorage.removeItem(SESSION_TOKEN_STORAGE_KEY);
+    this.userState.set(null);
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem(SESSION_TOKEN_STORAGE_KEY);
   }
 
   isAuthenticated(): boolean {
-    return !!this.session;
+    return this.isLoggedIn();
   }
 
-  getSessionContext(): Observable<SessionContext | null> {
-    return this.http.get<SessionDetail>(`${this.apiBaseUrl}/auth/sessions/current`).pipe(
-      tap(sessionDetail => {
-        this.session = sessionDetail;
-        localStorage.setItem('sessionToken', sessionDetail.token);
-      }),
-      map(sessionDetail => sessionDetail as unknown as SessionContext)
-    );
+  sessionContext(): CurrentUser | null {
+    return this.userState();
   }
 
-  sessionContext(): SessionContext | null {
-    return this.session as unknown as SessionContext;
+  /** Alias of sessionContext(), kept for compatibility with existing pages. */
+  getSession(): CurrentUser | null {
+    return this.sessionContext();
   }
 
-  hasRole(role: string): boolean {
-    if (!this.session) {
-      return false;
-    }
-    return (this.session as unknown as SessionContext).user.role === role;
+  hasRole(role: RoleCode): boolean {
+    return this.userState()?.roleCode === role;
+  }
+
+  hasAnyRole(roles: readonly RoleCode[]): boolean {
+    const user = this.userState();
+    return user !== null && roles.includes(user.roleCode);
+  }
+
+  /** EP-005 PUT /auth/password */
+  changePassword(req: PasswordChangeRequest): Observable<void> {
+    return this.http.put<void>(`${this.base}/auth/password`, req);
+  }
+
+  /** EP-006 PUT /auth/initial-password */
+  changePasswordForced(req: InitialPasswordPayload): Observable<void> {
+    return this.http.put<void>(`${this.base}/auth/initial-password`, req);
   }
 }

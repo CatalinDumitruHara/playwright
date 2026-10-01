@@ -1,20 +1,37 @@
-<b2b-container>
-  <div b2b-container-body>
-    <h2>Inicio</h2>
-    <div *ngIf="user">
-      <p>Bienvenido, {{ user.name }}</p>
-      <p>Rol: {{ user.role }}</p>
-    </div>
-    <b2b-sidebar>
-      <b2b-sidebar-item
-        title="Opción 1"
-        *ngIf="user?.role === 'ROL-001' || user?.role === 'ROL-003'"
-        >Opción 1</b2b-sidebar-item
-      >
-      <b2b-sidebar-item title="Opción 2" *ngIf="user?.role === 'ROL-003'"
-        >Opción 2</b2b-sidebar-item
-      >
-    </b2b-sidebar>
-    <button b2b-button (click)="logout()">Cerrar sesión</button>
-  </div>
-</b2b-container>
+<h1 style="font-size: var(--b2b-titles-04-font-size)">Inicio</h1>
+@if (user(); as u) {
+  <section class="home-identity" aria-label="Usuario autenticado">
+    <b2b-read-data>
+      <span b2b-read-data-label>Nombre y apellidos</span>
+      <span b2b-read-data-value data-testid="home-user-name">{{ u.fullName }}</span>
+    </b2b-read-data>
+    <b2b-read-data>
+      <span b2b-read-data-label>Rol vigente</span>
+      <span b2b-read-data-value data-testid="home-user-role">{{ u.roleLabel }}</span>
+    </b2b-read-data>
+  </section>
+}
+<section class="home-shortcuts" aria-labelledby="home-shortcuts-title">
+  <h2 id="home-shortcuts-title" style="font-size: var(--b2b-titles-08-font-size)">Accesos directos</h2>
+  @if (shortcuts().length > 0) {
+    <ul b2b-list>
+      @for (s of shortcuts(); track s.path) {
+        <li class="home-shortcut">
+          <a b2b-link [routerLink]="s.path" [attr.data-testid]="'shortcut-' + s.path">{{ s.label }}</a>
+          @if (s.description) {
+            <span class="shortcut-description"> — {{ s.description }}</span>
+          }
+        </li>
+      }
+    </ul>
+  } @else {
+    <b2b-notification-inline
+      [visible]="true"
+      state="info"
+      type="info"
+      title="Sin accesos directos"
+      description="Tu rol vigente no tiene operaciones disponibles en este momento."
+      data-testid="home-no-shortcuts"
+    ></b2b-notification-inline>
+  }
+</section>

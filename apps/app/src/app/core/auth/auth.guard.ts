@@ -1,35 +1,31 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import { CanActivateFn, Router, UrlTree } from '@angular/router';
+import { map } from 'rxjs';
 import { AuthenticationService } from './authentication.service';
-import { catchError, map, of } from 'rxjs';
+import { CurrentUser, isInternalPath } from './session.model';
 
-export const authGuard: CanActivateFn = () => {
-  const authService = inject(AuthenticationService);
+export const authGuard: CanActivateFn = (_route, state) => {
+  const auth = inject(AuthenticationService);
   const router = inject(Router);
 
-  if (authService.isAuthenticated()) {
-    const session = authService.getSession();
-    if (session?.must_change_password) {
-      router.navigate(['/acceso/cambio-obligatorio-contrasena']);
-      return false;
-    }
-    return true;
+  const decide = (user: CurrentUser): true | UrlTree =>
+    user.mustChangePassword
+      ? router.createUrlTree(['/acceso/cambio-obligatorio-contrasena'])
+      : true;
+
+  const current = auth.sessionContext();
+  if (auth.isAuthenticated() && current !== null) {
+    return decide(current);
   }
 
-  return authService.getSessionContext().pipe(
-    map(sessionContext => {
-      if (sessionContext) {
-        const session = authService.getSession();
-        if (session?.must_change_password) {
-          router.navigate(['/acceso/cambio-obligatorio-contrasena']);
-          return false;
-        }
-        return true;
-      }
-      router.navigate(['/acceso']);
-      return false;
-    }),
-    // Sin sesión en servidor (401) o API caída: al formulario de acceso, nunca una pantalla en blanco.
-    catchError(() => of(router.createUrlTree(['/acceso'])))
-  );
+  const loginTree = router.createUrlTree(['/acceso'], {
+    queryParams:
+      isInternalPath(state.url) && state.url !== '/'
+        ? { returnUrl: state.url }
+        : {},
+  });
+
+  return auth
+    .getSessionContext()
+    .pipe(map((user) => (user ? decide(user) : loginTree)));
 };
