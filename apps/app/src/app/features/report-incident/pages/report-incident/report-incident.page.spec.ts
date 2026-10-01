@@ -37,7 +37,6 @@ describe('ReportIncidentPage', () => {
     loadCategories: jest.Mock;
     loadRooms: jest.Mock;
     create: jest.Mock;
-    readPhoto: jest.Mock;
     getLastRoomId: jest.Mock;
     setLastRoomId: jest.Mock;
   };
@@ -67,7 +66,6 @@ describe('ReportIncidentPage', () => {
       loadCategories: jest.fn().mockReturnValue(of(CATEGORIES)),
       loadRooms: jest.fn().mockReturnValue(of(ROOMS)),
       create: jest.fn(),
-      readPhoto: jest.fn(),
       getLastRoomId: jest.fn().mockReturnValue(null),
       setLastRoomId: jest.fn(),
     };
@@ -152,7 +150,6 @@ describe('ReportIncidentPage', () => {
       description: VALID_DESCRIPTION,
       photo: null,
     });
-    expect(serviceMock.readPhoto).not.toHaveBeenCalled();
     expect(el('submit-incident').nativeElement.disabled).toBe(true);
     expect(router.navigate).not.toHaveBeenCalled();
 

@@ -31,7 +31,7 @@ export function formatDwell(ms: number | null): string {
   return `${minutes} min`;
 }
 
-export const ALL_STATUSES = 'TODOS';
+export const ALL_STATUSES = '__ALL__';
 
 interface StatusFilterOption {
   code: string;

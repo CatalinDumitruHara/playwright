@@ -8,7 +8,7 @@ import {
 export const DESCRIPTION_MIN = 10;
 export const DESCRIPTION_MAX = 500;
 export const PHOTO_MAX_BYTES = 5 * 1024 * 1024;
-export const PHOTO_MIME: ReadonlyArray<PhotoPayload['mimeType']> = [
+export const PHOTO_MIME: ReadonlyArray<string> = [
   'image/jpeg',
   'image/png',
 ];
@@ -27,17 +27,11 @@ export interface RoomOption {
   active: boolean;
 }
 
-export interface PhotoPayload {
-  fileName: string;
-  mimeType: 'image/jpeg' | 'image/png';
-  contentBase64: string;
-}
-
 export interface ReportIncidentInput {
   roomId: number;
   categoryCode: string;
   description: string;
-  photo: PhotoPayload | null;
+  photo: File | null;
 }
 
 export interface CreatedIncident {
@@ -112,19 +106,37 @@ export function mapRooms(body: RoomList | null): RoomOption[] {
 export function toIncidentCreateRequest(
   input: ReportIncidentInput
 ): IncidentCreateRequest {
-  const photo = input.photo;
-  return {
+  const request: IncidentCreateRequest = {
     room_id: input.roomId,
     category_code: input.categoryCode,
     description: input.description.trim(),
-    photo: photo
-      ? {
-          file_name: photo.fileName,
-          mime_type: photo.mimeType,
-          content_base64: photo.contentBase64,
-        }
-      : null,
   };
+  if (input.photo) {
+    request.photo = input.photo;
+  }
+  return request;
+}
+
+/**
+ * Cuerpo del POST /incidents: sin foto se envía el JSON tal cual; con foto,
+ * multipart/form-data con los mismos campos y el fichero en `photo`.
+ */
+export function toIncidentCreateBody(
+  req: IncidentCreateRequest
+): IncidentCreateRequest | FormData {
+  if (!req.photo) {
+    return req;
+  }
+  const form = new FormData();
+  form.append('room_id', String(req.room_id));
+  form.append('category_code', req.category_code);
+  form.append('description', req.description);
+  if (req.photo instanceof File) {
+    form.append('photo', req.photo, req.photo.name);
+  } else {
+    form.append('photo', req.photo);
+  }
+  return form;
 }
 
 export function mapCreatedIncident(body: IncidentDetail): CreatedIncident {

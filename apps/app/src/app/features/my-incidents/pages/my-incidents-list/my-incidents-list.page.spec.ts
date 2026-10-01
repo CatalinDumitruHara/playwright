@@ -6,7 +6,7 @@ import { BehaviorSubject, of, throwError } from 'rxjs';
 import { MyIncidentsService } from '../../my-incidents.service';
 import { IncidentPage, IncidentRow } from '../../my-incidents.models';
 import { ReportIncidentService } from '../../../report-incident/report-incident.service';
-import { DATE_RANGE_ERROR, LIST_ERROR, MyIncidentsListPage, SEARCH_ERROR } from './my-incidents-list.page';
+import { CATALOG_ERROR, DATE_RANGE_ERROR, LIST_ERROR, MyIncidentsListPage, SEARCH_ERROR } from './my-incidents-list.page';
 
 const ROW: IncidentRow = {
   incidentId: 'inc-1',
@@ -156,6 +156,25 @@ describe('MyIncidentsListPage', () => {
     expect(component.listError()).toBe(LIST_ERROR);
     expect(el('empty-state')).toBeNull();
     expect(all('incident-row')).toHaveLength(0);
+  });
+
+  it('catálogos: si loadRooms falla muestra el aviso, conserva las categorías y sigue listando', async () => {
+    reportMock.loadCategories.mockReturnValue(of([{ code: 'CLIM', name: 'Climatización', active: true }]));
+    reportMock.loadRooms.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 500, statusText: 'Server Error' }))
+    );
+    await setup();
+    expect(component.catalogError()).toBe(CATALOG_ERROR);
+    expect(component.catalogError()).toBe('No se han podido cargar los catálogos de filtros, reintenta');
+    expect(el('catalog-error').componentInstance.title).toBe(CATALOG_ERROR);
+    expect(component.categoryOptions()).toEqual([{ value: 'CLIM', label: 'Climatización' }]);
+    expect(component.roomOptions()).toEqual([]);
+    expect(all('incident-row')).toHaveLength(1);
+  });
+
+  it('catálogos: sin errores no hay aviso de catálogos', async () => {
+    await setup();
+    expect(component.catalogError()).toBeNull();
   });
 
   it('AC8: el enlace de detalle apunta a /mis-incidencias/<id>', async () => {

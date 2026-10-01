@@ -5,7 +5,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { MyIncidentsService } from '../../my-incidents.service';
 import { HistoryEntry } from '../../my-incidents.models';
-import { IncidentHistoryPage, formatDwell } from './incident-history.page';
+import { ALL_STATUSES, IncidentHistoryPage, formatDwell } from './incident-history.page';
 
 const MIN = 60_000;
 const HOUR = 60 * MIN;
@@ -74,7 +74,7 @@ describe('IncidentHistoryPage', () => {
     fixture.detectChanges();
     expect(all('history-entry').length).toBe(1);
     expect(all('history-to')[0].nativeElement.textContent.trim()).toBe('Resuelta');
-    component.onFilterChange({ code: 'TODOS', label: 'Todos' });
+    component.onFilterChange({ code: ALL_STATUSES, label: 'Todos' });
     fixture.detectChanges();
     expect(all('history-entry').length).toBe(3);
   });

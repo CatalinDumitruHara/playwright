@@ -15,6 +15,14 @@
           [formGroup]="form"
           (ngSubmit)="applyFilters()"
         >
+          <b2b-notification-inline
+            [visible]="!!catalogError()"
+            state="error"
+            type="error"
+            [title]="catalogError() ?? ''"
+            data-testid="catalog-error"
+          ></b2b-notification-inline>
+
           <div class="my-incidents__field my-incidents__field--search">
             <label b2b-label for="search-text">Buscar</label>
             <input

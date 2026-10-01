@@ -10,7 +10,7 @@ import {
   Router,
   RouterModule,
 } from '@angular/router';
-import { EMPTY, catchError, forkJoin, of, switchMap, tap } from 'rxjs';
+import { EMPTY, catchError, switchMap, tap } from 'rxjs';
 import {
   B2bButtonComponent,
   B2bContainerComponent,
@@ -63,6 +63,8 @@ export const SEARCH_MAX = 100;
 export const SEARCH_ERROR = 'Introduce al menos 2 caracteres para buscar';
 export const DATE_RANGE_ERROR = 'La fecha de inicio no puede ser posterior a la de fin';
 export const BAD_REQUEST_FALLBACK = 'Parámetros de consulta no válidos';
+export const CATALOG_ERROR =
+  'No se han podido cargar los catálogos de filtros, reintenta';
 export const LIST_ERROR =
   'No se ha podido recuperar tu listado de incidencias. Inténtalo de nuevo';
 
@@ -133,6 +135,7 @@ export class MyIncidentsListPage {
   readonly categoryOptions = signal<FilterOption[]>([]);
   readonly roomOptions = signal<FilterOption[]>([]);
   readonly officeOptions = signal<FilterOption[]>([]);
+  readonly catalogError = signal<string | null>(null);
 
   readonly form = new FormGroup({
     search_text: new FormControl<string>('', { nonNullable: true }),
@@ -195,7 +198,7 @@ export class MyIncidentsListPage {
               this.loading.set(false);
               this.loaded.set(true);
               this.listError.set(this.errorMessage(err));
-              return of(null);
+              return EMPTY;
             })
           );
         }),
@@ -252,26 +255,35 @@ export class MyIncidentsListPage {
   }
 
   private loadFilterCatalogs(): void {
-    forkJoin({
-      categories: this.reportIncident.loadCategories().pipe(catchError(() => of([]))),
-      rooms: this.reportIncident.loadRooms().pipe(catchError(() => of([]))),
-    })
+    // Se incluyen también las inactivas: siguen siendo filtrables por uso histórico.
+    this.reportIncident
+      .loadCategories()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(({ categories, rooms }) => {
-        // Se incluyen también las inactivas: siguen siendo filtrables por uso histórico.
-        this.categoryOptions.set(categories.map((c) => ({ value: c.code, label: c.name })));
-        this.roomOptions.set(rooms.map((r) => ({ value: String(r.id), label: r.name })));
-        const offices = new Map<string, string>();
-        for (const r of rooms) {
-          if (r.officeId === null) continue;
-          const id = String(r.officeId);
-          if (!offices.has(id)) offices.set(id, r.officeName || id);
-        }
-        this.officeOptions.set(
-          [...offices.entries()]
-            .map(([value, label]) => ({ value, label }))
-            .sort((a, b) => a.label.localeCompare(b.label, 'es'))
-        );
+      .subscribe({
+        next: (categories) =>
+          this.categoryOptions.set(categories.map((c) => ({ value: c.code, label: c.name }))),
+        error: () => this.catalogError.set(CATALOG_ERROR),
+      });
+
+    this.reportIncident
+      .loadRooms()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (rooms) => {
+          this.roomOptions.set(rooms.map((r) => ({ value: String(r.id), label: r.name })));
+          const offices = new Map<string, string>();
+          for (const r of rooms) {
+            if (r.officeId === null) continue;
+            const id = String(r.officeId);
+            if (!offices.has(id)) offices.set(id, r.officeName || id);
+          }
+          this.officeOptions.set(
+            [...offices.entries()]
+              .map(([value, label]) => ({ value, label }))
+              .sort((a, b) => a.label.localeCompare(b.label, 'es'))
+          );
+        },
+        error: () => this.catalogError.set(CATALOG_ERROR),
       });
   }
 

@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { ENVIRONMENT_CONFIG } from '@mapfre-tech/ngx-multienvironment/core';
+import { API_BASE_URL } from '../../core/config/api-base-url.token';
 import { ReportIncidentService } from './report-incident.service';
 import { CategoryOption, CreatedIncident, RoomOption } from './report-incident.models';
 
@@ -14,7 +14,7 @@ describe('ReportIncidentService (contrato EP-040 / EP-042 / EP-025)', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: ENVIRONMENT_CONFIG, useValue: { apiBaseUrl: '/api' } },
+        { provide: API_BASE_URL, useValue: '/api' },
       ],
     });
     service = TestBed.inject(ReportIncidentService);
@@ -57,7 +57,7 @@ describe('ReportIncidentService (contrato EP-040 / EP-042 / EP-025)', () => {
     ]);
   });
 
-  it('EP-025: create hace POST /api/incidents con room_id, category_code, description recortada y photo null', () => {
+  it('EP-025: create hace POST /api/incidents con room_id, category_code, description recortada y sin photo (JSON)', () => {
     let result: CreatedIncident | undefined;
     service
       .create({ roomId: 3, categoryCode: 'ELEC', description: '   Se ha fundido la luz del techo   ', photo: null })
@@ -69,8 +69,9 @@ describe('ReportIncidentService (contrato EP-040 / EP-042 / EP-025)', () => {
       room_id: 3,
       category_code: 'ELEC',
       description: 'Se ha fundido la luz del techo',
-      photo: null,
     });
+    expect(req.request.body instanceof FormData).toBe(false);
+    expect('photo' in req.request.body).toBe(false);
     req.flush({
       incident_id: '5',
       reference_code: 'INC-2026-000005',
@@ -88,19 +89,27 @@ describe('ReportIncidentService (contrato EP-040 / EP-042 / EP-025)', () => {
     });
   });
 
-  it('EP-025: create con foto envía file_name, mime_type y content_base64', () => {
+  it('EP-025: create con foto envía multipart/form-data con el fichero en photo', () => {
+    const file = new File(['x'], 'f.png', { type: 'image/png' });
     service
       .create({
         roomId: 3,
         categoryCode: 'ELEC',
-        description: 'Descripción suficiente',
-        photo: { fileName: 'f.png', mimeType: 'image/png', contentBase64: 'AAAA' },
+        description: '  Descripción suficiente  ',
+        photo: file,
       })
       .subscribe();
 
     const req = http.expectOne('/api/incidents');
     expect(req.request.method).toBe('POST');
-    expect(req.request.body.photo).toEqual({ file_name: 'f.png', mime_type: 'image/png', content_base64: 'AAAA' });
+    expect(req.request.body).toBeInstanceOf(FormData);
+    const body = req.request.body as FormData;
+    expect(body.get('room_id')).toBe('3');
+    expect(body.get('category_code')).toBe('ELEC');
+    expect(body.get('description')).toBe('Descripción suficiente');
+    const photo = body.get('photo') as File;
+    expect(photo).toBeInstanceOf(Blob);
+    expect(photo.name).toBe('f.png');
     req.flush({ incident_id: '6' });
   });
 

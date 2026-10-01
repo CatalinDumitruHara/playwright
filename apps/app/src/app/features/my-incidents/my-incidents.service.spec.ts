@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { ENVIRONMENT_CONFIG } from '@mapfre-tech/ngx-multienvironment/core';
+import { API_BASE_URL } from '../../core/config/api-base-url.token';
 import { MyIncidentsService } from './my-incidents.service';
 import { DEFAULT_PAGE_SIZE, HistoryEntry, PhotoContent } from './my-incidents.models';
 
@@ -16,7 +16,7 @@ describe('MyIncidentsService (contrato EP-027 / EP-028 / EP-029 / EP-030)', () =
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: ENVIRONMENT_CONFIG, useValue: { apiBaseUrl: '/api' } },
+        { provide: API_BASE_URL, useValue: '/api' },
       ],
     });
     service = TestBed.inject(MyIncidentsService);

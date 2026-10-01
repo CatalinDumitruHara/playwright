@@ -12,7 +12,7 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Observable, Subscription, forkJoin, of, switchMap } from 'rxjs';
+import { Subscription, forkJoin } from 'rxjs';
 import {
   B2bButtonComponent,
   B2bContainerComponent,
@@ -29,7 +29,6 @@ import {
   DESCRIPTION_MIN,
   PHOTO_MAX_BYTES,
   PHOTO_MIME,
-  PhotoPayload,
   RoomOption,
 } from '../../report-incident.models';
 
@@ -164,7 +163,7 @@ export class ReportIncidentPage implements OnInit, OnDestroy {
 
   onFileSelected(file: File | null): void {
     if (!file) return;
-    if (!(PHOTO_MIME as ReadonlyArray<string>).includes(file.type)) {
+    if (!PHOTO_MIME.includes(file.type)) {
       this.photoError = MSG_PHOTO_FORMAT;
       return;
     }
@@ -200,17 +199,9 @@ export class ReportIncidentPage implements OnInit, OnDestroy {
     }
 
     this.submitting = true;
-    const photo$: Observable<PhotoPayload | null> = this.photoFile
-      ? this.service.readPhoto(this.photoFile)
-      : of(null);
-
-    photo$
-      .pipe(
-        switchMap((photo) =>
-          this.service.create({ roomId, categoryCode, description, photo })
-        ),
-        takeUntilDestroyed(this.destroyRef)
-      )
+    this.service
+      .create({ roomId, categoryCode, description, photo: this.photoFile })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (created: CreatedIncident) => {
           this.service.setLastRoomId(roomId);

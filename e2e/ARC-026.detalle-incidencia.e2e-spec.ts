@@ -1,18 +1,8 @@
 import { test, expect, type Page } from '@playwright/test';
+import { ensureEnvironment } from './mind-env';
+import { mockSession } from './shell-session';
 
 /** ARC-026 — Detalle de incidencia. EP-028 detalle + EP-029 historial con stub local. */
-const session = {
-  token: 't',
-  must_change_password: false,
-  user: {
-    name: 'Ana Pérez',
-    email: 'ana.perez@empresa.com',
-    role: 'ROL-001',
-    status: 'ACTIVA',
-    password_last_updated: '2026-01-01T10:00:00Z',
-  },
-};
-
 const incident = {
   incident_id: '5',
   reference_code: 'INC-2026-000005',
@@ -40,7 +30,6 @@ function json(body: unknown) {
 }
 
 async function stubApi(page: Page) {
-  await page.route('**/api/auth/sessions/current', (route) => route.fulfill(json(session)));
   await page.route('**/api/incidents/5', (route) => route.fulfill(json(incident)));
   await page.route('**/api/incidents/5/history*', (route) => route.fulfill(json(history)));
 }
@@ -48,6 +37,7 @@ async function stubApi(page: Page) {
 test.describe('@smoke @screen:ARC-026 detalle de incidencia', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => localStorage.setItem('OKCD_APPLICATION_ENVIRONMENT', 'dev'));
+    await mockSession(page, 'EMPLEADO');
   });
 
   test('carga sin pageerror y muestra el título', async ({ page }) => {
@@ -56,6 +46,7 @@ test.describe('@smoke @screen:ARC-026 detalle de incidencia', () => {
     page.on('pageerror', (err) => errors.push(String(err)));
     await stubApi(page);
     await page.goto('/mis-incidencias/5', { waitUntil: 'domcontentloaded' });
+    await ensureEnvironment(page);
     await expect(page.locator('app-root')).toBeAttached({ timeout: 15_000 });
     await expect(page.locator('h1', { hasText: 'Detalle de la incidencia' })).toBeVisible({
       timeout: 15_000,
@@ -66,6 +57,7 @@ test.describe('@smoke @screen:ARC-026 detalle de incidencia', () => {
   test('muestra el código de referencia de la incidencia', async ({ page }) => {
     await stubApi(page);
     await page.goto('/mis-incidencias/5', { waitUntil: 'domcontentloaded' });
+    await ensureEnvironment(page);
     await expect(page.locator('[data-testid="detail-reference"]')).toHaveText('INC-2026-000005', {
       timeout: 15_000,
     });

@@ -7,7 +7,7 @@ import {
   IncidentListPage,
   IncidentPhotoContent,
 } from '@api-types';
-import { ENVIRONMENT_CONFIG } from '@mapfre-tech/ngx-multienvironment/core';
+import { API_BASE_URL } from '../../core/config/api-base-url.token';
 import {
   DEFAULT_PAGE_SIZE,
   HistoryEntry,
@@ -36,8 +36,7 @@ export function photoToBlob(p: PhotoContent): Blob {
 })
 export class MyIncidentsService {
   private http = inject(HttpClient);
-  private environment = inject(ENVIRONMENT_CONFIG);
-  private apiBaseUrl = this.environment['apiBaseUrl'] as string;
+  private readonly apiBaseUrl = inject(API_BASE_URL);
 
   /** EP-027 */
   list(q: MyIncidentsQuery): Observable<IncidentPage> {

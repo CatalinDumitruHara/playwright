@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router, RouterLink } from '@angular/router';
 import { By } from '@angular/platform-browser';
 import { IncidentNotFoundPage } from './incident-not-found.page';
 
@@ -22,6 +22,7 @@ describe('IncidentNotFoundPage', () => {
     }).compileComponents();
     router = TestBed.inject(Router);
     jest.spyOn(router, 'navigate').mockResolvedValue(true);
+    jest.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
     fixture = TestBed.createComponent(IncidentNotFoundPage);
     fixture.detectChanges();
   }
@@ -46,8 +47,11 @@ describe('IncidentNotFoundPage', () => {
     const all = one('back-all');
     expect(mine.nativeElement.textContent.trim()).toBe('Volver a mis incidencias');
     expect(all.nativeElement.textContent.trim()).toBe('Volver a todas las incidencias');
+    expect(mine.injector.get(RouterLink).urlTree?.toString()).toBe('/incidencias/mias');
     mine.nativeElement.click();
-    expect(router.navigate).toHaveBeenCalledWith(['/mis-incidencias']);
+    expect(router.navigateByUrl).toHaveBeenCalled();
+    const target = (router.navigateByUrl as jest.Mock).mock.calls[0][0];
+    expect(router.serializeUrl(target)).toBe('/incidencias/mias');
     all.nativeElement.click();
     expect(router.navigate).toHaveBeenCalledWith(['/incidents']);
   });

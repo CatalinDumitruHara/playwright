@@ -36,8 +36,4 @@ export class IncidentNotFoundPage {
   backToAll(): void {
     this.router.navigate(['/incidents']);
   }
-
-  backToMine(): void {
-    this.router.navigate(['/mis-incidencias']);
-  }
 }

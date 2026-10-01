@@ -19,6 +19,8 @@ export interface ClassificationUpdateRequest {
 
 export type FileStream = Record<string, unknown>; // x-mind-placeholder
 
+export type IncidentCategoryList = Record<string, unknown>; // x-mind-placeholder
+
 export interface IncidentClosureRequest {
   resolution_comment: string; // Comentario obligatorio explicando la resolución de la incidencia.
 }
@@ -29,6 +31,8 @@ export interface IncidentCreateRequest {
   description: string; // Descripción breve del problema.
   photo?: Blob; // Fichero de imagen opcional adjunto a la incidencia (multipart/form-data).
 }
+
+export type IncidentDetail = Record<string, unknown>; // x-mind-placeholder
 
 export interface IncidentDetailResponse {
   incident_id: string; // Identificador único de la incidencia.
@@ -48,9 +52,13 @@ export interface IncidentDetailResponse {
   resolution_comment?: string; // Comentario del técnico al cerrar la incidencia.
 }
 
+export type IncidentHistoryPage = Record<string, unknown>; // x-mind-placeholder
+
 export interface IncidentHistoryResponse {
   entries: unknown[]; // Array de entradas de historial, ordenadas cronológicamente. Campos: changed_at (datetime), actor_name (string), from_status (string), to_status (string), assigned_technician (string), comment (string).
 }
+
+export type IncidentListPage = Record<string, unknown>; // x-mind-placeholder
 
 export interface IncidentListResponse {
   items: unknown[]; // Array de objetos que representan un resumen de incidencia. Campos: incident_id (uuid), reference_code (string), room_name (string), category_name (string), status (enum), created_at (datetime), reporter_name (string), assigned_technician_name (string).
@@ -58,6 +66,8 @@ export interface IncidentListResponse {
   page: number; // Número de la página actual.
   size: number; // Número de elementos por página.
 }
+
+export type IncidentPhotoContent = Record<string, unknown>; // x-mind-placeholder
 
 export interface LoginRequest {
   username: string; // Nombre de usuario, que se corresponde con el correo corporativo.
@@ -84,6 +94,8 @@ export interface PasswordChangeRequest {
 export interface RoomCatalogResponse {
   rooms: unknown[]; // Array de objetos que representan las salas. Campos: room_id (integer), room_name (string), office_id (integer), office_name (string).
 }
+
+export type RoomList = Record<string, unknown>; // x-mind-placeholder
 
 export interface SessionResponse {
   access_token: string; // Token de sesión para autorizar peticiones posteriores.

@@ -6,16 +6,16 @@ import {
   IncidentDetail,
   RoomList,
 } from '@api-types';
-import { ENVIRONMENT_CONFIG } from '@mapfre-tech/ngx-multienvironment/core';
+import { API_BASE_URL } from '../../core/config/api-base-url.token';
 import {
   CategoryOption,
   CreatedIncident,
-  PhotoPayload,
   ReportIncidentInput,
   RoomOption,
   mapCategories,
   mapCreatedIncident,
   mapRooms,
+  toIncidentCreateBody,
   toIncidentCreateRequest,
 } from './report-incident.models';
 
@@ -26,8 +26,7 @@ const LAST_ROOM_KEY = 'last_room_id';
 })
 export class ReportIncidentService {
   private http = inject(HttpClient);
-  private environment = inject(ENVIRONMENT_CONFIG);
-  private apiBaseUrl = this.environment['apiBaseUrl'] as string;
+  private readonly apiBaseUrl = inject(API_BASE_URL);
 
   /** EP-040 */
   loadCategories(): Observable<CategoryOption[]> {
@@ -48,31 +47,9 @@ export class ReportIncidentService {
     return this.http
       .post<IncidentDetail>(
         `${this.apiBaseUrl}/incidents`,
-        toIncidentCreateRequest(input)
+        toIncidentCreateBody(toIncidentCreateRequest(input))
       )
       .pipe(map((body) => mapCreatedIncident(body)));
-  }
-
-  readPhoto(file: File): Observable<PhotoPayload> {
-    return new Observable<PhotoPayload>((subscriber) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = typeof reader.result === 'string' ? reader.result : '';
-        const comma = result.indexOf(',');
-        subscriber.next({
-          fileName: file.name,
-          mimeType: file.type === 'image/png' ? 'image/png' : 'image/jpeg',
-          contentBase64: comma >= 0 ? result.slice(comma + 1) : result,
-        });
-        subscriber.complete();
-      };
-      reader.onerror = () =>
-        subscriber.error(reader.error ?? new Error('No se pudo leer la foto'));
-      reader.readAsDataURL(file);
-      return () => {
-        if (reader.readyState === FileReader.LOADING) reader.abort();
-      };
-    });
   }
 
   getLastRoomId(): number | null {
