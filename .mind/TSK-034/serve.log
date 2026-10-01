@@ -1,0 +1,55 @@
+
+> nx run app:serve:development --host 127.0.0.1 --port 4234
+
+- Generating browser application bundles (phase: setup)...
+[32m✔[39m Browser application bundle generation complete.
+[37m[0m[0m[39m
+[37m[0m[1mInitial chunk files[22m                                                                                    [2m | [22m[1mNames[22m                                                                                        [2m | [22m [1mRaw size[22m[0m[39m
+[37m[0m[32mvendor.js[39m[37m                                                                                              [2m | [22m[2mvendor[22m                                                                                       [2m | [22m  [36m4.02 MB[39m[37m[2m | [22m[0m[39m
+[37m[0m[32mstyles.css, styles.js[39m[37m                                                                                  [2m | [22m[2mstyles[22m                                                                                       [2m | [22m[36m312.17 kB[39m[37m[2m | [22m[0m[39m
+[37m[0m[32mpolyfills.js[39m[37m                                                                                           [2m | [22m[2mpolyfills[22m                                                                                    [2m | [22m[36m263.08 kB[39m[37m[2m | [22m[0m[39m
+[37m[0m[32mmain.js[39m[37m                                                                                                [2m | [22m[2mmain[22m                                                                                         [2m | [22m [36m33.34 kB[39m[37m[2m | [22m[0m[39m
+[37m[0m[32mruntime.js[39m[37m                                                                                             [2m | [22m[2mruntime[22m                                                                                      [2m | [22m [36m12.59 kB[39m[37m[2m | [22m[0m[39m
+[37m[0m[0m[39m
+[37m[0m[1m [22m                                                                                                      [2m | [22m[1mInitial total[22m                                                                                [2m | [22m  [1m4.63 MB[22m[0m[39m
+[37m[0m[0m[39m
+[37m[0m[1mLazy chunk files[22m                   [39m[37m                                                                    [2m | [22m[1mNames[22m                                                                                        [2m | [22m [1mRaw size[22m[0m[39m
+[37m[0m[32mapps_app_src_app_features_my-incidents_pages_my-incidents-list_my-incidents-list_page_ts.js[39m[37m            [2m | [22m[2mfeatures-my-incidents-pages-my-incidents-list-my-incidents-list-page[22m                         [2m | [22m [36m47.50 kB[39m[37m[2m | [22m[0m[39m
+[37m[0m[32mapps_app_src_app_features_my-incidents_pages_incident-detail_incident-detail_page_ts.js[39m[37m                [2m | [22m[2mfeatures-my-incidents-pages-incident-detail-incident-detail-page[22m                             [2m | [22m [36m32.76 kB[39m[37m[2m | [22m[0m[39m
+[37m[0m[32mapps_app_src_app_features_report-incident_pages_report-incident_report-incident_page_ts.js[39m[37m             [2m | [22m[2mfeatures-report-incident-pages-report-incident-report-incident-page[22m                          [2m | [22m [36m31.21 kB[39m[37m[2m | [22m[0m[39m
+[37m[0m[32mapps_app_src_app_features_report-incident_pages_report-incident-confirmation_report-incident--d9458d.js[39m[37m[2m | [22m[2mfeatures-report-incident-pages-report-incident-confirmation-report-incident-confirmation-page[22m[2m | [22m [36m18.54 kB[39m[37m[2m | [22m[0m[39m
+[37m[0m[32mapps_app_src_app_features_my-incidents_pages_incident-history_incident-history_page_ts.js[39m[37m              [2m | [22m[2mfeatures-my-incidents-pages-incident-history-incident-history-page[22m                           [2m | [22m [36m18.46 kB[39m[37m[2m | [22m[0m[39m
+[37m[0m[32mcommon.js[39m[37m                                                                                              [2m | [22m[2mcommon[22m                                                                                       [2m | [22m [36m16.68 kB[39m[37m[2m | [22m[0m[39m
+[37m[0m[32mapps_app_src_app_features_profile_pages_change-password_change-password_page_ts.js[39m[37m             [39m[37m        [2m | [22m[2mfeatures-profile-pages-change-password-change-password-page[22m                                  [2m | [22m [36m15.00 kB[39m[37m[2m | [22m[0m[39m
+[37m[0m[32mdefault-node_modules_angular_core_fesm2022_rxjs-interop_mjs.js[39m[37m                                         [2m | [22m[2mfeatures-report-incident-pages-report-incident-report-incident-page[22m                          [2m | [22m [36m14.92 kB[39m[37m[2m | [22m[0m[39m
+[37m[0m[32mapps_app_src_app_features_auth_pages_account-locked_account-locked_page_ts.js[39m[37m                          [2m | [22m[2mfeatures-auth-pages-account-locked-account-locked-page[22m                                       [2m | [22m [36m13.79 kB[39m[37m[2m | [22m[0m[39m
+[37m[0m[32mapps_app_src_app_features_my-incidents_pages_incident-photo_incident-photo_page_ts.js[39m[37m                  [2m | [22m[2mfeatures-my-incidents-pages-incident-photo-incident-photo-page[22m                               [2m | [22m [36m13.53 kB[39m[37m[2m | [22m[0m[39m
+[37m[0m[32mapps_app_src_app_features_auth_pages_change-password-forced_change-password-forced_page_ts.js[39m[37m          [2m | [22m[2mfeatures-auth-pages-change-password-forced-change-password-forced-page[22m                       [2m | [22m [36m11.88 kB[39m[37m[2m | [22m[0m[39m
+[37m[0m[32mapps_app_src_app_features_profile_pages_my-profile_my-profile_page_ts.js[39m[37m                               [2m | [22m[2mfeatures-profile-pages-my-profile-my-profile-page[22m                                            [2m | [22m [36m11.04 kB[39m[37m[2m | [22m[0m[39m
+[37m[0m[32mapps_app_src_app_features_auth_pages_login_login_page_ts.js[39m[37m                                            [2m | [22m[2mfeatures-auth-pages-login-login-page[22m                                                         [2m | [22m  [36m9.79 kB[39m[37m[2m | [22m[0m[39m
+[37m[0m[32mapps_app_src_app_features_my-incidents_pages_incident-not-found_incident-not-found_page_ts.js[39m[37m          [2m | [22m[2mfeatures-my-incidents-p[39m[37mages-incident-not-found-incident-not-found-page[22m                       [2m | [22m  [36m7.38 kB[39m[37m[2m | [22m[0m[39m
+[37m[0m[32mapps_app_src_app_features_auth_pages_expired-credential_expired-credential_page_ts.js[39m[37m                  [2m | [22m[2mfeatures-auth-pages-expired-credential-expired-credential-page[22m                               [2m | [22m  [36m7.33 kB[39m[37m[2m | [22m[0m[39m
+[37m[0m[32mapps_app_src_app_pages_welcome_welcome_page_ts.js[39m[37m                                                      [2m | [22m[2mpages-welcome-welcome-page[22m                                                                   [2m | [22m  [36m7.30 kB[39m[37m[2m | [22m[0m[39m
+[37m[0m[32mapps_app_src_app_features_auth_pages_home_home_page_ts.js[39m[37m                                              [2m | [22m[2mfeatures-auth-pages-home-home-page[22m                                                           [2m | [22m  [36m7.25 kB[39m[37m[2m | [22m[0m[39m
+[37m[0m[32mapps_app_src_app_features_profile_pages_change-password-confirmation_change-password-confirma-eed313.js[39m[37m[2m | [22m[2mfeatures-profile-pages-change-password-confirmation-change-password-confirmation-page[22m        [2m | [22m  [36m6.96 kB[39m[37m[2m | [22m[0m[39m
+[37m[0m[32mapps_app_src_app_features_auth_pages_session-ended_session-ended_page_ts.js[39m[37m                            [2m | [22m[2mfeatures-auth-pages-session-ended-session-ended-page[22m                                         [2m | [22m  [36m5.13 kB[39m[37m[2m | [22m[0m[39m
+[37m[0m[32mapps_app_src_app_features_auth_pages_permissions-changed_permissions-changed_page_ts.js[39m[37m                [2m | [22m[2mfeatures-auth-pages-permissions-changed-permissions-changed-page[22m                             [2m | [22m  [36m4.14 kB[39m[37m[2m | [22m[0m[39m
+[37m[0m[32mapps_app_src_app_features_auth_pages_unsupported-version_unsupported-version_page_ts.js[39m[37m                [2m | [22m[2mfeatures-auth-pages-unsupported-version-unsupported-version-page[22m [39m[37m                            [2m | [22m  [36m2.54 kB[39m[37m[2m | [22m[0m[39m
+[37m[0m[0m[39m
+[37m[0mBuild at: [1m[37m2026-10-01T11:08:04.006Z[39m[37m[22m - Hash: [1m[37ma802a77b89a544c7[39m[37m[22m - Time: [1m[37m11815[39m[37m[22mms[0m[39m
+[37m[39m
+[37m** Angular Live Development Server is listening on 127.0.0.1:4234, open your browser on http://127.0.0.1:4234/ **[39m
+[37m[39m
+[37m[39m
+[37m[92m✔[39m[37m Compiled successfully.[39m
+
+
+
+ NX   Running target serve for project app failed
+
+Failed tasks:
+
+- app:serve:development
+
+Hint: run the command with --verbose for more details.
+
