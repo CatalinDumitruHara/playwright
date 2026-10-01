@@ -30,3 +30,24 @@ export interface ChangePasswordRequest {
   current_password?: string;
   new_password?: string;
 }
+
+/** Placeholder del contrato (x-mind-placeholder): object sin campos declarados. */
+export type IncidentCreateRequest = Record<string, unknown>;
+
+/** Placeholder del contrato (x-mind-placeholder): object sin campos declarados. */
+export type IncidentDetail = Record<string, unknown>;
+
+/** Placeholder del contrato (x-mind-placeholder): object sin campos declarados. */
+export type IncidentListPage = Record<string, unknown>;
+
+/** Placeholder del contrato (x-mind-placeholder): object sin campos declarados. */
+export type IncidentHistoryPage = Record<string, unknown>;
+
+/** Placeholder del contrato (x-mind-placeholder): object sin campos declarados. */
+export type IncidentPhotoContent = Record<string, unknown>;
+
+/** Placeholder del contrato (x-mind-placeholder): object sin campos declarados. */
+export type IncidentCategoryList = Record<string, unknown>;
+
+/** Placeholder del contrato (x-mind-placeholder): object sin campos declarados. */
+export type RoomList = Record<string, unknown>;
