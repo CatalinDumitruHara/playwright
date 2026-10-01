@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthenticationService } from './authentication.service';
-import { map } from 'rxjs';
+import { catchError, map, of } from 'rxjs';
 
 export const authGuard: CanActivateFn = () => {
   const authService = inject(AuthenticationService);
@@ -28,6 +28,8 @@ export const authGuard: CanActivateFn = () => {
       }
       router.navigate(['/acceso']);
       return false;
-    })
+    }),
+    // Sin sesión en servidor (401) o API caída: al formulario de acceso, nunca una pantalla en blanco.
+    catchError(() => of(router.createUrlTree(['/acceso'])))
   );
 };

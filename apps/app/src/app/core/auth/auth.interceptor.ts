@@ -27,7 +27,7 @@ export const authInterceptor: HttpInterceptorFn = (
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
         authService.logout();
-        router.navigate(['/login']);
+        router.navigate(['/acceso']);
       } else if (error.status === 403) {
         router.navigate(['/acceso-no-autorizado']);
       }

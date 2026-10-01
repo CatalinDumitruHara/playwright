@@ -1,18 +1,20 @@
 <b2b-container>
-  <h2>Inicio</h2>
-  <div *ngIf="user">
-    <p>Bienvenido, {{ user.name }}</p>
-    <p>Rol: {{ user.role }}</p>
+  <div b2b-container-body>
+    <h2>Inicio</h2>
+    <div *ngIf="user">
+      <p>Bienvenido, {{ user.name }}</p>
+      <p>Rol: {{ user.role }}</p>
+    </div>
+    <b2b-sidebar>
+      <b2b-sidebar-item
+        title="Opción 1"
+        *ngIf="user?.role === 'ROL-001' || user?.role === 'ROL-003'"
+        >Opción 1</b2b-sidebar-item
+      >
+      <b2b-sidebar-item title="Opción 2" *ngIf="user?.role === 'ROL-003'"
+        >Opción 2</b2b-sidebar-item
+      >
+    </b2b-sidebar>
+    <button b2b-button (click)="logout()">Cerrar sesión</button>
   </div>
-  <b2b-sidebar>
-    <b2b-sidebar-item
-      title="Opción 1"
-      *ngIf="user?.role === 'ROL-001' || user?.role === 'ROL-003'"
-      >Opción 1</b2b-sidebar-item
-    >
-    <b2b-sidebar-item title="Opción 2" *ngIf="user?.role === 'ROL-003'"
-      >Opción 2</b2b-sidebar-item
-    >
-  </b2b-sidebar>
-  <button b2b-button (click)="logout()">Cerrar sesión</button>
 </b2b-container>
