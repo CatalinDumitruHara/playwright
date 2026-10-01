@@ -19,9 +19,9 @@ const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
 const DAY = 24 * HOUR;
 
-/** Formatea un tiempo de permanencia en ms («2 d 3 h», «3 h 15 min», «12 min», «menos de 1 min»). null → «En curso». */
+/** Formatea un tiempo de permanencia en ms («2 d 3 h», «3 h 15 min», «12 min», «menos de 1 min»). null → «Estado actual». */
 export function formatDwell(ms: number | null): string {
-  if (ms === null || ms === undefined || !Number.isFinite(ms)) return 'En curso';
+  if (ms === null || ms === undefined || !Number.isFinite(ms)) return 'Estado actual';
   if (ms < MINUTE) return 'menos de 1 min';
   const days = Math.floor(ms / DAY);
   const hours = Math.floor((ms % DAY) / HOUR);
