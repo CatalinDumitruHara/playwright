@@ -1,0 +1,66 @@
+{
+  "task_code": "TSK-034",
+  "attempt": 1,
+  "at": "2026-10-01T11:11:45.279334+00:00",
+  "construction_id": "da3444f6-e379-4243-a009-23dc7ca198ed",
+  "status": "delivered",
+  "delivered": true,
+  "error": null,
+  "summary": "TSK-034: gestión de incidencias para empleados (alta y seguimiento) en apps/app, arquetipo frontend-application-spa con Angular 17.3 standalone y b2b-components 3.12.17.\n\nQué se ha construido:\n- ARC-023 «Alta de incidencia» (/incidencias/nueva), en features/report-incident/pages/report-incident. Al abrir carga los catálogos de categorías (EP-040) y salas (EP-042). Si fallan, muestra «No se han podido cargar las salas, reintenta» y bloquea el envío. Sugiere la última sala usada y valida en client",
+  "model": "claude-opus-5-5",
+  "input_tokens": 3057593,
+  "output_tokens": 29432,
+  "llm_calls": 194,
+  "cost_usd": 6.443593399999999,
+  "build_status": "artifact_red",
+  "build_output": "stub-delivery: hay features marcadas como entregadas cuyo cuerpo no hace nada. `TODO`, `not implemented` y un retorno vacío como cuerpo único son bloqueantes de entrega, no notas.\n- 1 de 18 rutas registradas que ninguna plantilla enlaza: `/incidencias/mias`. Una pantalla a la que sólo se llega escribiendo la URL no está entregada: móntala en el menú del shell con la `sección de menú` que declara su spec de UI\n- servicio(s) de producción que FABRICAN su respuesta en vez de pedirla: `apps/app/src/app/features/my-incidents/pages/my-incidents-list/my-incidents-list.page.ts::loadFilterCatalogs` (Observable/Promise resuelto con un literal), `apps/app/src/app/features/report-incident/report-incident.service.ts::readPhoto` (Observable/Promise resuelto con un literal). Un doble en el árbol de producto es un bloqueante: la pantalla se ve llena y no hay nada detrás — los dobles solo valen en tests",
+  "environment_status": "realized",
+  "environment_detail": "wiremock=wiremock/wiremock:3.13.1",
+  "schema_status": "skipped",
+  "commit_sha": "df1200a1a630b4109423a2cc4d096b07572a1c22",
+  "browser_status": "green",
+  "browser_coverage": {
+    "mapped": [
+      {
+        "code": "ARC-023",
+        "route": "/incidencias/nueva"
+      },
+      {
+        "code": "ARC-024",
+        "route": "/incidencias/nueva/confirmacion"
+      },
+      {
+        "code": "ARC-025",
+        "route": "/mis-incidencias"
+      },
+      {
+        "code": "ARC-026",
+        "route": "/mis-incidencias/{id}"
+      },
+      {
+        "code": "ARC-027",
+        "route": "/mis-incidencias/{id}/historial"
+      },
+      {
+        "code": "ARC-094",
+        "route": "/incidencias/{id}/foto"
+      },
+      {
+        "code": "ARC-095",
+        "route": "/incidencias/no-encontrada"
+      }
+    ],
+    "unmapped": [],
+    "tagged_specs_found": [
+      "e2e/ARC-023.alta-incidencia.e2e-spec.ts",
+      "e2e/ARC-024.confirmacion-alta.e2e-spec.ts",
+      "e2e/ARC-025.mis-incidencias.e2e-spec.ts",
+      "e2e/ARC-026.detalle-incidencia.e2e-spec.ts",
+      "e2e/ARC-027.historial-estados.e2e-spec.ts",
+      "e2e/ARC-094.foto-incidencia.e2e-spec.ts",
+      "e2e/ARC-095.incidencia-no-encontrada.e2e-spec.ts"
+    ],
+    "canonical_ran": true,
+    "selection_strategy": "hybrid"
+  }
+}
