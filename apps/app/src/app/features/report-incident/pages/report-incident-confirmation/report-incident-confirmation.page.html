@@ -1,0 +1,89 @@
+<b2b-container>
+  <div b2b-container-body>
+    <div class="incident-confirmation">
+      <ng-container *ngIf="hasIncident; else noIncident">
+        <h1 style="font-size: var(--b2b-titles-04-font-size)">Incidencia registrada</h1>
+
+        <b2b-notification-inline
+          [visible]="true"
+          state="ok"
+          type="ok"
+          title="Hemos registrado tu incidencia"
+          data-testid="confirmation-ok"
+        ></b2b-notification-inline>
+
+        <b2b-notification-inline
+          *ngIf="!photoStored"
+          [visible]="true"
+          state="alert"
+          type="alert"
+          title="La incidencia se ha creado pero no hemos podido guardar la foto"
+          data-testid="photo-not-stored"
+        ></b2b-notification-inline>
+
+        <div class="incident-confirmation__data">
+          <b2b-read-data>
+            <span b2b-read-data-label>Código de referencia</span>
+            <span b2b-read-data-value data-testid="reference-code">{{ referenceCode || '—' }}</span>
+          </b2b-read-data>
+
+          <b2b-read-data *ngIf="status">
+            <span b2b-read-data-label>Estado</span>
+            <span b2b-read-data-value>
+              <b2b-tag data-testid="incident-status">{{ statusText }}</b2b-tag>
+            </span>
+          </b2b-read-data>
+
+          <b2b-read-data *ngIf="createdAt">
+            <span b2b-read-data-label>Fecha de alta</span>
+            <span b2b-read-data-value data-testid="incident-created-at">{{
+              createdAt | date: 'dd/MM/yyyy HH:mm'
+            }}</span>
+          </b2b-read-data>
+        </div>
+
+        <div class="incident-confirmation__actions">
+          <button
+            *ngIf="referenceCode"
+            b2b-button
+            type="button"
+            variant="secondary"
+            class="b2b--secondary"
+            data-testid="copy-reference"
+            (click)="copyCode()"
+          >
+            Copiar código
+          </button>
+          <span *ngIf="copied" class="incident-confirmation__copied" role="status" data-testid="copied-feedback">
+            Código copiado
+          </span>
+        </div>
+
+        <div class="incident-confirmation__actions">
+          <a b2b-link [routerLink]="['/mis-incidencias', incidentId]" data-testid="incident-detail-link">
+            Ver detalle de la incidencia
+          </a>
+          <button b2b-button type="button" data-testid="register-another" (click)="registerAnother()">
+            Registrar otra incidencia
+          </button>
+        </div>
+      </ng-container>
+
+      <ng-template #noIncident>
+        <h1 style="font-size: var(--b2b-titles-04-font-size)">Confirmación del alta</h1>
+        <b2b-notification-inline
+          [visible]="true"
+          state="info"
+          type="info"
+          title="No hay ninguna incidencia recién registrada"
+          data-testid="no-incident"
+        ></b2b-notification-inline>
+        <div class="incident-confirmation__actions">
+          <button b2b-button type="button" data-testid="register-another" (click)="registerAnother()">
+            Registrar otra incidencia
+          </button>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</b2b-container>
