@@ -43,6 +43,16 @@ export class MainLayoutComponent implements OnInit {
       allowedRoles: ['ROL-001', 'ROL-002', 'ROL-003'],
     },
     {
+      label: 'Mis incidencias',
+      path: '/mis-incidencias',
+      allowedRoles: ['ROL-001', 'ROL-002'],
+    },
+    {
+      label: 'Nueva incidencia',
+      path: '/incidencias/nueva',
+      allowedRoles: ['ROL-001', 'ROL-002'],
+    },
+    {
       label: 'Incidencias',
       path: '/incidents',
       allowedRoles: ['ROL-002'],

@@ -1,0 +1,93 @@
+<b2b-container>
+  <div b2b-container-body>
+    <div class="incident-history">
+      <h1 style="font-size: var(--b2b-titles-04-font-size)">Historial de cambios de estado</h1>
+
+      <div class="incident-history__filter">
+        <b2b-dropdown-select
+          data-testid="history-filter"
+          label="Estado destino"
+          optionLabel="label"
+          optionValue="code"
+          [options]="filterOptions"
+          [selectedOption]="selectedStatus"
+          (selectionChange)="onFilterChange($event)"
+        ></b2b-dropdown-select>
+      </div>
+
+      <b2b-spinner *ngIf="loading" description="Cargando historial"></b2b-spinner>
+
+      <b2b-notification-inline
+        *ngIf="error"
+        [visible]="true"
+        state="error"
+        type="error"
+        title="No se ha podido recuperar el historial. Inténtalo de nuevo"
+        data-testid="history-error"
+      ></b2b-notification-inline>
+
+      <ng-container *ngIf="!loading && !error">
+        <b2b-notification-inline
+          *ngIf="visibleEntries.length === 0; else timeline"
+          [visible]="true"
+          state="info"
+          type="info"
+          title="No hay cambios de estado registrados"
+          data-testid="history-empty"
+        ></b2b-notification-inline>
+
+        <ng-template #timeline>
+          <ol class="incident-history__timeline">
+            <li
+              *ngFor="let entry of visibleEntries"
+              class="incident-history__entry"
+              data-testid="history-entry"
+            >
+              <b2b-read-data>
+                <span b2b-read-data-label>Estado origen</span>
+                <span b2b-read-data-value data-testid="history-from">{{ fromLabel(entry) }}</span>
+              </b2b-read-data>
+
+              <b2b-read-data>
+                <span b2b-read-data-label>Estado destino</span>
+                <span b2b-read-data-value>
+                  <b2b-tag data-testid="history-to">{{ toLabel(entry) }}</b2b-tag>
+                </span>
+              </b2b-read-data>
+
+              <b2b-read-data>
+                <span b2b-read-data-label>Autor</span>
+                <span b2b-read-data-value data-testid="history-author">{{ entry.actorName || '—' }}</span>
+              </b2b-read-data>
+
+              <b2b-read-data>
+                <span b2b-read-data-label>Fecha y hora</span>
+                <span b2b-read-data-value data-testid="history-date">{{
+                  entry.changedAt ? (entry.changedAt | date: 'dd/MM/yyyy HH:mm') : '—'
+                }}</span>
+              </b2b-read-data>
+
+              <b2b-read-data>
+                <span b2b-read-data-label>Tiempo de permanencia</span>
+                <span b2b-read-data-value data-testid="history-dwell">{{ dwell(entry) }}</span>
+              </b2b-read-data>
+            </li>
+          </ol>
+        </ng-template>
+      </ng-container>
+
+      <div class="incident-history__actions">
+        <button
+          b2b-button
+          type="button"
+          variant="secondary"
+          class="b2b--secondary"
+          data-testid="back-to-detail"
+          (click)="backToDetail()"
+        >
+          Volver al detalle de la incidencia
+        </button>
+      </div>
+    </div>
+  </div>
+</b2b-container>

@@ -1,0 +1,25 @@
+.incident-history__filter {
+  margin: 1.5rem 0;
+}
+
+.incident-history__timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 1.5rem;
+  border-left: 2px solid var(--b2b-neutral-03, currentColor);
+}
+
+.incident-history__entry {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--b2b-neutral-02, transparent);
+}
+
+.incident-history__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}

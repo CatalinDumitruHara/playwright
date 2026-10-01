@@ -1,0 +1,45 @@
+.report-incident__form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.report-incident__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.report-incident__counter {
+  align-self: flex-end;
+  font-size: var(--b2b-body-03-font-size, 0.875rem);
+}
+
+.report-incident__error {
+  color: var(--b2b-state-error-01, inherit);
+}
+
+.report-incident__file-input {
+  display: none;
+}
+
+.report-incident__preview {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
+
+  img {
+    max-width: 240px;
+    max-height: 240px;
+    object-fit: contain;
+  }
+}
+
+.report-incident__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}

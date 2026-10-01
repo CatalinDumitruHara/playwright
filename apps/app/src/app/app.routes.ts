@@ -38,6 +38,69 @@ export const appRoutes: Route[] = [
           ).then((p) => p.ChangePasswordConfirmationPage),
       },
       {
+        path: 'incidencias/nueva',
+        loadComponent: () =>
+          import(
+            './features/report-incident/pages/report-incident/report-incident.page'
+          ).then((p) => p.ReportIncidentPage),
+      },
+      {
+        path: 'incidencias/nueva/confirmacion',
+        loadComponent: () =>
+          import(
+            './features/report-incident/pages/report-incident-confirmation/report-incident-confirmation.page'
+          ).then((p) => p.ReportIncidentConfirmationPage),
+      },
+      {
+        path: 'incidencias/no-encontrada',
+        loadComponent: () =>
+          import(
+            './features/my-incidents/pages/incident-not-found/incident-not-found.page'
+          ).then((p) => p.IncidentNotFoundPage),
+      },
+      {
+        path: 'incidencias/mias',
+        loadComponent: () =>
+          import(
+            './features/my-incidents/pages/my-incidents-list/my-incidents-list.page'
+          ).then((p) => p.MyIncidentsListPage),
+      },
+      {
+        path: 'incidencias/:id/historial-estados',
+        loadComponent: () =>
+          import(
+            './features/my-incidents/pages/incident-history/incident-history.page'
+          ).then((p) => p.IncidentHistoryPage),
+      },
+      {
+        path: 'incidencias/:id/foto',
+        loadComponent: () =>
+          import(
+            './features/my-incidents/pages/incident-photo/incident-photo.page'
+          ).then((p) => p.IncidentPhotoPage),
+      },
+      {
+        path: 'mis-incidencias',
+        loadComponent: () =>
+          import(
+            './features/my-incidents/pages/my-incidents-list/my-incidents-list.page'
+          ).then((p) => p.MyIncidentsListPage),
+      },
+      {
+        path: 'mis-incidencias/:id',
+        loadComponent: () =>
+          import(
+            './features/my-incidents/pages/incident-detail/incident-detail.page'
+          ).then((p) => p.IncidentDetailPage),
+      },
+      {
+        path: 'mis-incidencias/:id/historial',
+        loadComponent: () =>
+          import(
+            './features/my-incidents/pages/incident-history/incident-history.page'
+          ).then((p) => p.IncidentHistoryPage),
+      },
+      {
         path: 'incidents',
         loadComponent: () =>
           import('./pages/welcome/welcome.page').then((p) => p.WelcomePage), // Placeholder
