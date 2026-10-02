@@ -21,6 +21,9 @@ export interface NavItem {
 /** Sección de menú de las pantallas de avisos/acceso de la spec de UI. */
 export const NAV_SECTION_AUTH = 'Auth';
 
+/** Sección de menú de incidencias (menú principal). */
+export const NAV_SECTION_INCIDENTS = 'incidents';
+
 export const APP_NAV_ITEMS: readonly NavItem[] = [
   { label: 'Inicio', path: '/inicio', roles: ALL_ROLES, shortcut: false },
   {
@@ -36,6 +39,22 @@ export const APP_NAV_ITEMS: readonly NavItem[] = [
     roles: ALL_ROLES,
     shortcut: true,
     description: 'Actualiza tu contraseña de acceso',
+  },
+  {
+    label: 'Mis incidencias',
+    path: '/mis-incidencias',
+    roles: ['ROL-001', 'ROL-002'],
+    shortcut: true,
+    description: 'Consulta el estado de las incidencias que has reportado',
+    section: NAV_SECTION_INCIDENTS,
+  },
+  {
+    label: 'Nueva incidencia',
+    path: '/incidencias/nueva',
+    roles: ['ROL-001', 'ROL-002'],
+    shortcut: true,
+    description: 'Reporta una incidencia de sala',
+    section: NAV_SECTION_INCIDENTS,
   },
   {
     label: 'Credencial temporal caducada',

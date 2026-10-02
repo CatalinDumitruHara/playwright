@@ -2,7 +2,9 @@ import { Route } from '@angular/router';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { authGuard } from './core/auth/auth.guard';
 import { roleGuardChild } from './core/auth/role.guard';
-import { ALL_ROLES } from './core/auth/session.model';
+import { ALL_ROLES, RoleCode } from './core/auth/session.model';
+
+const INCIDENT_ROLES: readonly RoleCode[] = ['ROL-001', 'ROL-002'];
 
 export const appRoutes: Route[] = [
   {
@@ -91,6 +93,78 @@ export const appRoutes: Route[] = [
           import(
             './features/profile/pages/change-password-confirmation/change-password-confirmation.page'
           ).then((p) => p.ChangePasswordConfirmationPage),
+      },
+      {
+        path: 'incidencias/nueva',
+        data: { roles: INCIDENT_ROLES },
+        loadComponent: () =>
+          import(
+            './features/report-incident/pages/report-incident/report-incident.page'
+          ).then((p) => p.ReportIncidentPage),
+      },
+      {
+        path: 'incidencias/nueva/confirmacion',
+        data: { roles: INCIDENT_ROLES },
+        loadComponent: () =>
+          import(
+            './features/report-incident/pages/report-incident-confirmation/report-incident-confirmation.page'
+          ).then((p) => p.ReportIncidentConfirmationPage),
+      },
+      {
+        path: 'incidencias/no-encontrada',
+        data: { roles: INCIDENT_ROLES },
+        loadComponent: () =>
+          import(
+            './features/my-incidents/pages/incident-not-found/incident-not-found.page'
+          ).then((p) => p.IncidentNotFoundPage),
+      },
+      {
+        path: 'incidencias/mias',
+        data: { roles: INCIDENT_ROLES },
+        loadComponent: () =>
+          import(
+            './features/my-incidents/pages/my-incidents-list/my-incidents-list.page'
+          ).then((p) => p.MyIncidentsListPage),
+      },
+      {
+        path: 'incidencias/:id/historial-estados',
+        data: { roles: INCIDENT_ROLES },
+        loadComponent: () =>
+          import(
+            './features/my-incidents/pages/incident-history/incident-history.page'
+          ).then((p) => p.IncidentHistoryPage),
+      },
+      {
+        path: 'incidencias/:id/foto',
+        data: { roles: INCIDENT_ROLES },
+        loadComponent: () =>
+          import(
+            './features/my-incidents/pages/incident-photo/incident-photo.page'
+          ).then((p) => p.IncidentPhotoPage),
+      },
+      {
+        path: 'mis-incidencias',
+        data: { roles: INCIDENT_ROLES },
+        loadComponent: () =>
+          import(
+            './features/my-incidents/pages/my-incidents-list/my-incidents-list.page'
+          ).then((p) => p.MyIncidentsListPage),
+      },
+      {
+        path: 'mis-incidencias/:id',
+        data: { roles: INCIDENT_ROLES },
+        loadComponent: () =>
+          import(
+            './features/my-incidents/pages/incident-detail/incident-detail.page'
+          ).then((p) => p.IncidentDetailPage),
+      },
+      {
+        path: 'mis-incidencias/:id/historial',
+        data: { roles: INCIDENT_ROLES },
+        loadComponent: () =>
+          import(
+            './features/my-incidents/pages/incident-history/incident-history.page'
+          ).then((p) => p.IncidentHistoryPage),
       },
       {
         path: 'acceso-no-autorizado',

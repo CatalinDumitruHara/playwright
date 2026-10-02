@@ -1,0 +1,239 @@
+<b2b-container>
+  <div b2b-container-body>
+    <div class="my-incidents">
+      <div class="my-incidents__heading">
+        <h1 style="font-size: var(--b2b-titles-04-font-size)">Mis incidencias</h1>
+        <button b2b-button type="button" data-testid="new-incident" (click)="newIncident()">
+          Nueva incidencia
+        </button>
+      </div>
+
+      <b2b-table-container>
+        <form
+          b2b-table-container-header
+          class="my-incidents__filters"
+          [formGroup]="form"
+          (ngSubmit)="applyFilters()"
+        >
+          <b2b-notification-inline
+            [visible]="!!catalogError()"
+            state="error"
+            type="error"
+            [title]="catalogError() ?? ''"
+            data-testid="catalog-error"
+          ></b2b-notification-inline>
+
+          <div class="my-incidents__field my-incidents__field--search">
+            <label b2b-label for="search-text">Buscar</label>
+            <input
+              b2b-input
+              class="b2b-width-full"
+              id="search-text"
+              type="search"
+              maxlength="100"
+              placeholder="Código, descripción, sala…"
+              formControlName="search_text"
+              data-testid="search-input"
+            />
+            <span *ngIf="searchError()" class="my-incidents__field-error" role="alert" data-testid="search-error">
+              {{ searchError() }}
+            </span>
+          </div>
+
+          <div class="my-incidents__field" data-testid="filter-status">
+            <b2b-dropdown-multiple-select
+              label="Estado"
+              placeHolder="Todos"
+              optionLabel="label"
+              optionValue="value"
+              [options]="statusOptions"
+              formControlName="status_code"
+            ></b2b-dropdown-multiple-select>
+          </div>
+
+          <div class="my-incidents__field" data-testid="filter-category">
+            <b2b-dropdown-multiple-select
+              label="Categoría"
+              placeHolder="Todas"
+              optionLabel="label"
+              optionValue="value"
+              [options]="categoryOptions()"
+              formControlName="category_id"
+            ></b2b-dropdown-multiple-select>
+          </div>
+
+          <div class="my-incidents__field" data-testid="filter-room">
+            <b2b-dropdown-multiple-select
+              label="Sala"
+              placeHolder="Todas"
+              optionLabel="label"
+              optionValue="value"
+              [options]="roomOptions()"
+              formControlName="room_id"
+            ></b2b-dropdown-multiple-select>
+          </div>
+
+          <div class="my-incidents__field" data-testid="filter-office">
+            <b2b-dropdown-select
+              label="Oficina"
+              placeHolder="Todas"
+              optionLabel="label"
+              optionValue="value"
+              [showCloseButton]="true"
+              [options]="officeOptions()"
+              formControlName="office_id"
+            ></b2b-dropdown-select>
+          </div>
+
+          <div class="my-incidents__field">
+            <label b2b-label for="created-from">Fecha de alta desde</label>
+            <input
+              b2b-input
+              class="b2b-width-full"
+              id="created-from"
+              type="date"
+              formControlName="created_from"
+              data-testid="filter-from"
+            />
+          </div>
+
+          <div class="my-incidents__field">
+            <label b2b-label for="created-to">Fecha de alta hasta</label>
+            <input
+              b2b-input
+              class="b2b-width-full"
+              id="created-to"
+              type="date"
+              formControlName="created_to"
+              data-testid="filter-to"
+            />
+            <span *ngIf="dateError()" class="my-incidents__field-error" role="alert" data-testid="date-error">
+              {{ dateError() }}
+            </span>
+          </div>
+
+          <div class="my-incidents__field" data-testid="sort-by">
+            <b2b-dropdown-select
+              label="Ordenar por"
+              placeHolder="Por defecto"
+              optionLabel="label"
+              optionValue="value"
+              [showCloseButton]="true"
+              [options]="sortByOptions"
+              formControlName="sort_by"
+            ></b2b-dropdown-select>
+          </div>
+
+          <div class="my-incidents__field" data-testid="sort-dir">
+            <b2b-dropdown-select
+              label="Sentido"
+              placeHolder="Por defecto"
+              optionLabel="label"
+              optionValue="value"
+              [showCloseButton]="true"
+              [options]="sortDirOptions"
+              formControlName="sort_dir"
+            ></b2b-dropdown-select>
+          </div>
+
+          <div class="my-incidents__filter-actions">
+            <button b2b-button type="submit" data-testid="apply-filters">Aplicar filtros</button>
+            <button
+              b2b-button
+              type="button"
+              variant="secondary"
+              class="b2b--secondary"
+              data-testid="clear-filters"
+              (click)="clearFilters()"
+            >
+              Limpiar filtros
+            </button>
+          </div>
+        </form>
+
+        <div b2b-table-container-body>
+          <div *ngIf="loading()" class="my-incidents__loading" data-testid="list-loading">
+            <b2b-spinner size="L" description="Cargando tus incidencias"></b2b-spinner>
+          </div>
+
+          <b2b-notification-inline
+            *ngIf="listError() as message"
+            [visible]="true"
+            state="error"
+            type="error"
+            [title]="message"
+            data-testid="list-error"
+          ></b2b-notification-inline>
+
+          <ng-container *ngIf="!loading() && !listError()">
+            <div *ngIf="isEmpty()" class="my-incidents__empty" data-testid="empty-state">
+              <b2b-notification-inline
+                [visible]="true"
+                state="info"
+                type="info"
+                [title]="hasFilters() ? 'No hay incidencias que coincidan con los filtros' : 'No tienes incidencias reportadas'"
+              ></b2b-notification-inline>
+              <button
+                *ngIf="hasFilters()"
+                b2b-button
+                type="button"
+                variant="secondary"
+                class="b2b--secondary"
+                data-testid="empty-clear-filters"
+                (click)="clearFilters()"
+              >
+                Limpiar filtros
+              </button>
+            </div>
+
+            <table *ngIf="rows().length > 0" class="my-incidents__table" data-testid="incidents-table">
+              <thead>
+                <tr>
+                  <th scope="col">Código</th>
+                  <th scope="col">Sala</th>
+                  <th scope="col">Oficina</th>
+                  <th scope="col">Categoría</th>
+                  <th scope="col">Descripción</th>
+                  <th scope="col">Estado</th>
+                  <th scope="col">Fecha de alta</th>
+                  <th scope="col">Técnico asignado</th>
+                  <th scope="col"><span class="my-incidents__sr-only">Acciones</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let row of rows(); trackBy: trackById" data-testid="incident-row">
+                  <td>{{ row.referenceCode }}</td>
+                  <td>{{ row.roomName }}</td>
+                  <td>{{ row.officeName }}</td>
+                  <td>{{ row.categoryName }}</td>
+                  <td class="my-incidents__description">{{ row.description }}</td>
+                  <td><b2b-tag>{{ statusLabel(row.statusCode) }}</b2b-tag></td>
+                  <td>{{ row.createdAt ? (row.createdAt | date: 'dd/MM/yyyy HH:mm') : '—' }}</td>
+                  <td>{{ row.assignedTechnicianName ?? 'Sin asignar' }}</td>
+                  <td>
+                    <a b2b-link [routerLink]="['/mis-incidencias', row.incidentId]" data-testid="incident-detail-link">
+                      Ver detalle
+                    </a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </ng-container>
+        </div>
+
+        <div b2b-table-container-footer class="my-incidents__footer">
+          <span data-testid="total-count">{{ total() }} {{ total() === 1 ? 'incidencia' : 'incidencias' }}</span>
+          <b2b-paginator
+            *ngIf="total() > pageSize"
+            [length]="total()"
+            [pageSize]="pageSize"
+            [pageSizeOptions]="pageSizeOptions"
+            [pageIndex]="pageIndex()"
+            [disabled]="loading()"
+            (pageIndexChange)="onPageIndexChange($event)"
+          ></b2b-paginator>
+        </div>
+      </b2b-table-container>
+    </div>
+  </div>
+</b2b-container>

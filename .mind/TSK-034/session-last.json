@@ -1,0 +1,66 @@
+{
+  "task_code": "TSK-034",
+  "attempt": 2,
+  "at": "2026-10-01T12:06:26.625761+00:00",
+  "construction_id": "da3444f6-e379-4243-a009-23dc7ca198ed",
+  "status": "delivered",
+  "delivered": true,
+  "error": null,
+  "summary": "Rework TSK-034. (1) Conflictos con dev: había una fusión con origin/dev (PR #7 scaffolding + PR #8 shell TSK-032) resuelta pero sin cerrar. La cerré en 4aa04c6. Ahora `git merge-tree HEAD origin/dev` sale limpio y la rama ya no está en `dirty`. (2) Lo que señaló el verificador (commit e616870, de la sesión concurrente 283; lo he verificado yo después): las rutas de incidencias van montadas dentro del MainLayout de dev con data.roles ROL-001/ROL-002; el menú tiene «Mis incidencias» y «Nueva incid",
+  "model": "claude-opus-5-5",
+  "input_tokens": 2693277,
+  "output_tokens": 10860,
+  "llm_calls": 57,
+  "cost_usd": 1.6901752,
+  "build_status": "green",
+  "build_output": "",
+  "environment_status": "degraded",
+  "environment_detail": "wiremock=wiremock/wiremock:3.13.1 — incidencias: wiremock: arrancó pero no llegó a estar listo",
+  "schema_status": "skipped",
+  "commit_sha": "e616870",
+  "browser_status": "green",
+  "browser_coverage": {
+    "mapped": [
+      {
+        "code": "ARC-023",
+        "route": "/incidencias/nueva"
+      },
+      {
+        "code": "ARC-024",
+        "route": "/incidencias/nueva/confirmacion"
+      },
+      {
+        "code": "ARC-025",
+        "route": "/mis-incidencias"
+      },
+      {
+        "code": "ARC-026",
+        "route": "/mis-incidencias/{id}"
+      },
+      {
+        "code": "ARC-027",
+        "route": "/mis-incidencias/{id}/historial"
+      },
+      {
+        "code": "ARC-094",
+        "route": "/incidencias/{id}/foto"
+      },
+      {
+        "code": "ARC-095",
+        "route": "/incidencias/no-encontrada"
+      }
+    ],
+    "unmapped": [],
+    "tagged_specs_found": [
+      "e2e/ARC-023.alta-incidencia.e2e-spec.ts",
+      "e2e/ARC-024.confirmacion-alta.e2e-spec.ts",
+      "e2e/ARC-025.mis-incidencias.e2e-spec.ts",
+      "e2e/ARC-026.detalle-incidencia.e2e-spec.ts",
+      "e2e/ARC-027.historial-estados.e2e-spec.ts",
+      "e2e/ARC-094.foto-incidencia.e2e-spec.ts",
+      "e2e/ARC-095.incidencia-no-encontrada.e2e-spec.ts"
+    ],
+    "canonical_ran": true,
+    "selection_strategy": "hybrid"
+  }
+}

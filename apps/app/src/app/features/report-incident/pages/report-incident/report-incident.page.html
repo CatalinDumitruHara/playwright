@@ -1,0 +1,156 @@
+<b2b-container>
+  <div b2b-container-body>
+    <div class="report-incident">
+      <h1 style="font-size: var(--b2b-titles-04-font-size)">Nueva incidencia</h1>
+
+      <b2b-notification-inline
+        *ngIf="catalogError"
+        [visible]="true"
+        state="error"
+        type="error"
+        title="No se han podido cargar las salas, reintenta"
+        [hasActions]="true"
+        data-testid="catalog-error"
+      >
+        <div b2b-notification-inline-actions>
+          <button
+            b2b-button
+            type="button"
+            variant="secondary"
+            class="b2b--secondary"
+            data-testid="retry-catalogs"
+            (click)="retryCatalogs()"
+          >
+            Reintentar
+          </button>
+        </div>
+      </b2b-notification-inline>
+
+      <form class="report-incident__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="report-incident__field">
+          <label b2b-label>Sala afectada</label>
+          <b2b-dropdown-select
+            class="b2b-width-full"
+            formControlName="roomId"
+            [options]="roomOptions"
+            optionLabel="label"
+            optionValue="id"
+            placeHolder="Selecciona la sala"
+            [required]="true"
+            [class.b2b--invalid]="!!roomError"
+            data-testid="room-select"
+          ></b2b-dropdown-select>
+          <span *ngIf="roomError" class="report-incident__error" role="alert" data-testid="error-room">
+            {{ roomError }}
+          </span>
+        </div>
+
+        <div class="report-incident__field">
+          <label b2b-label>Categoría</label>
+          <b2b-dropdown-select
+            class="b2b-width-full"
+            formControlName="categoryCode"
+            [options]="categoryOptions"
+            optionLabel="label"
+            optionValue="code"
+            placeHolder="Selecciona una categoría"
+            [required]="true"
+            [class.b2b--invalid]="!!categoryError"
+            data-testid="category-select"
+          ></b2b-dropdown-select>
+          <span *ngIf="categoryError" class="report-incident__error" role="alert" data-testid="error-category">
+            {{ categoryError }}
+          </span>
+        </div>
+
+        <div class="report-incident__field">
+          <label b2b-label for="incident-description">Descripción breve</label>
+          <textarea
+            b2b-text-area
+            class="b2b-width-full"
+            id="incident-description"
+            formControlName="description"
+            rows="5"
+            data-testid="description"
+          ></textarea>
+          <span class="report-incident__counter" data-testid="description-counter">
+            {{ descriptionLength }}/{{ descriptionMax }}
+          </span>
+          <span
+            *ngIf="descriptionError"
+            class="report-incident__error"
+            role="alert"
+            data-testid="error-description"
+          >
+            {{ descriptionError }}
+          </span>
+        </div>
+
+        <div class="report-incident__field">
+          <label b2b-label>Foto (opcional)</label>
+          <input
+            #photoInput
+            type="file"
+            class="report-incident__file-input"
+            [accept]="photoAccept"
+            (change)="onPhotoInputChange($event)"
+            data-testid="photo-input"
+          />
+          <div class="report-incident__actions">
+            <button
+              b2b-button
+              type="button"
+              variant="secondary"
+              class="b2b--secondary"
+              data-testid="attach-photo"
+              (click)="photoInput.click()"
+            >
+              Adjuntar foto
+            </button>
+          </div>
+          <div *ngIf="photoPreviewUrl" class="report-incident__preview">
+            <img [src]="photoPreviewUrl" [alt]="photoFile?.name ?? 'Foto adjunta'" data-testid="photo-preview" />
+            <button
+              b2b-button
+              type="button"
+              variant="secondary"
+              class="b2b--secondary"
+              data-testid="remove-photo"
+              (click)="removePhoto()"
+            >
+              Quitar la foto
+            </button>
+          </div>
+          <span *ngIf="photoError" class="report-incident__error" role="alert" data-testid="error-photo">
+            {{ photoError }}
+          </span>
+        </div>
+
+        <b2b-notification-inline
+          *ngIf="formError"
+          [visible]="true"
+          state="error"
+          type="error"
+          [title]="formError"
+          data-testid="form-error"
+        ></b2b-notification-inline>
+
+        <div class="report-incident__actions">
+          <button b2b-button type="submit" [disabled]="submitDisabled" data-testid="submit-incident">
+            Crear incidencia
+          </button>
+          <button
+            b2b-button
+            type="button"
+            variant="secondary"
+            class="b2b--secondary"
+            data-testid="cancel-incident"
+            (click)="cancel()"
+          >
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</b2b-container>

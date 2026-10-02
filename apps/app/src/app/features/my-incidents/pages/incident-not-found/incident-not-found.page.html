@@ -1,0 +1,37 @@
+<b2b-container>
+  <div b2b-container-body>
+    <div class="incident-not-found">
+      <h1 style="font-size: var(--b2b-titles-04-font-size)">Incidencia no encontrada</h1>
+
+      <b2b-notification-inline
+        [visible]="true"
+        state="info"
+        type="info"
+        title="No hemos encontrado esa incidencia"
+        description="La incidencia no existe o no está disponible para tu usuario."
+        data-testid="not-found-info"
+      ></b2b-notification-inline>
+
+      <div *ngIf="requestedId" class="incident-not-found__requested">
+        <label b2b-label for="requested-id">Incidencia solicitada</label>
+        <span id="requested-id" data-testid="requested-id">{{ requestedId }}</span>
+      </div>
+
+      <div class="incident-not-found__actions">
+        <button
+          b2b-button
+          type="button"
+          variant="secondary"
+          class="b2b--secondary"
+          data-testid="back-all"
+          (click)="backToAll()"
+        >
+          Volver a todas las incidencias
+        </button>
+        <button b2b-button type="button" data-testid="back-mine" routerLink="/incidencias/mias">
+          Volver a mis incidencias
+        </button>
+      </div>
+    </div>
+  </div>
+</b2b-container>

@@ -1,0 +1,65 @@
+<b2b-container>
+  <div b2b-container-body>
+    <div class="incident-photo">
+      <h1 style="font-size: var(--b2b-titles-04-font-size)">Foto adjunta</h1>
+
+      <div class="incident-photo__data">
+        <b2b-read-data>
+          <span b2b-read-data-label>Identificador de la incidencia</span>
+          <span b2b-read-data-value data-testid="photo-incident-id">Incidencia {{ id }}</span>
+        </b2b-read-data>
+      </div>
+
+      <b2b-spinner *ngIf="loading" description="Cargando foto"></b2b-spinner>
+
+      <b2b-notification-inline
+        *ngIf="error"
+        [visible]="true"
+        state="alert"
+        type="alert"
+        title="La imagen adjunta no está disponible en este momento"
+        data-testid="photo-error"
+      ></b2b-notification-inline>
+
+      <b2b-notification-inline
+        *ngIf="empty"
+        [visible]="true"
+        state="info"
+        type="info"
+        title="Esta incidencia no tiene foto adjunta"
+        data-testid="photo-empty"
+      ></b2b-notification-inline>
+
+      <figure *ngIf="photo && safeUrl" class="incident-photo__figure">
+        <img
+          class="incident-photo__image"
+          [src]="safeUrl"
+          alt="Foto adjunta de la incidencia"
+          data-testid="photo-image"
+        />
+      </figure>
+
+      <div class="incident-photo__actions">
+        <button
+          b2b-button
+          type="button"
+          variant="secondary"
+          class="b2b--secondary"
+          data-testid="back-to-detail"
+          (click)="backToDetail()"
+        >
+          Volver al detalle de la incidencia
+        </button>
+        <button
+          *ngIf="photo && safeUrl"
+          b2b-button
+          type="button"
+          data-testid="download-photo"
+          (click)="download()"
+        >
+          Descargar foto
+        </button>
+      </div>
+    </div>
+  </div>
+</b2b-container>

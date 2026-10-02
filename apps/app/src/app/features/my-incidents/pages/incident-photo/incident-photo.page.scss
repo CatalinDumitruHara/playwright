@@ -1,0 +1,21 @@
+.incident-photo__data {
+  margin: 1.5rem 0;
+}
+
+.incident-photo__figure {
+  margin: 1.5rem 0;
+}
+
+.incident-photo__image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.incident-photo__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}

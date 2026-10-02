@@ -1,0 +1,170 @@
+<b2b-container>
+  <div b2b-container-body>
+    <div class="incident-detail">
+      <h1 style="font-size: var(--b2b-titles-04-font-size)">Detalle de la incidencia</h1>
+
+      <b2b-spinner *ngIf="loading" description="Cargando incidencia"></b2b-spinner>
+
+      <div *ngIf="loadError && !loading" data-testid="detail-error">
+        <b2b-notification-inline
+          [visible]="true"
+          state="error"
+          type="error"
+          title="El detalle de la incidencia no se ha podido recuperar en este momento. Inténtalo de nuevo"
+        ></b2b-notification-inline>
+        <div class="incident-detail__actions">
+          <button b2b-button type="button" data-testid="retry" (click)="load()">Reintentar</button>
+        </div>
+      </div>
+
+      <ng-container *ngIf="incident as inc">
+        <div class="incident-detail__data">
+          <b2b-read-data>
+            <span b2b-read-data-label>Código de referencia</span>
+            <span b2b-read-data-value data-testid="detail-reference">{{ inc.referenceCode || '—' }}</span>
+          </b2b-read-data>
+          <b2b-read-data>
+            <span b2b-read-data-label>Sala</span>
+            <span b2b-read-data-value data-testid="detail-room">{{ inc.roomName || '—' }}</span>
+          </b2b-read-data>
+          <b2b-read-data>
+            <span b2b-read-data-label>Oficina</span>
+            <span b2b-read-data-value data-testid="detail-office">{{ inc.officeName || '—' }}</span>
+          </b2b-read-data>
+          <b2b-read-data>
+            <span b2b-read-data-label>Categoría</span>
+            <span b2b-read-data-value data-testid="detail-category">{{ inc.categoryName || '—' }}</span>
+          </b2b-read-data>
+          <b2b-read-data>
+            <span b2b-read-data-label>Descripción</span>
+            <span b2b-read-data-value class="incident-detail__description" data-testid="detail-description">{{
+              inc.description
+            }}</span>
+          </b2b-read-data>
+          <b2b-read-data>
+            <span b2b-read-data-label>Estado</span>
+            <span b2b-read-data-value>
+              <b2b-tag data-testid="detail-status">{{ statusText }}</b2b-tag>
+            </span>
+          </b2b-read-data>
+          <b2b-read-data>
+            <span b2b-read-data-label>Fecha de alta</span>
+            <span b2b-read-data-value data-testid="detail-created-at">{{
+              inc.createdAt ? (inc.createdAt | date: dateFormat) : '—'
+            }}</span>
+          </b2b-read-data>
+          <b2b-read-data>
+            <span b2b-read-data-label>Última actualización</span>
+            <span b2b-read-data-value data-testid="detail-updated-at">{{
+              inc.updatedAt ? (inc.updatedAt | date: dateFormat) : '—'
+            }}</span>
+          </b2b-read-data>
+          <b2b-read-data>
+            <span b2b-read-data-label>Técnico asignado</span>
+            <span b2b-read-data-value data-testid="detail-technician">{{
+              inc.assignedTechnicianName || 'Sin asignar'
+            }}</span>
+          </b2b-read-data>
+
+          <ng-container *ngIf="isClosed">
+            <b2b-read-data>
+              <span b2b-read-data-label>Comentario de resolución</span>
+              <span b2b-read-data-value data-testid="detail-resolution">{{ inc.resolutionComment || '—' }}</span>
+            </b2b-read-data>
+            <b2b-read-data>
+              <span b2b-read-data-label>Cerrada por</span>
+              <span b2b-read-data-value data-testid="detail-closed-by">{{ inc.closedByName || '—' }}</span>
+            </b2b-read-data>
+            <b2b-read-data>
+              <span b2b-read-data-label>Fecha de cierre</span>
+              <span b2b-read-data-value data-testid="detail-closed-at">{{
+                inc.closedAt ? (inc.closedAt | date: dateFormat) : '—'
+              }}</span>
+            </b2b-read-data>
+          </ng-container>
+        </div>
+
+        <section class="incident-detail__section">
+          <h2 style="font-size: var(--b2b-titles-05-font-size)">Foto adjunta</h2>
+          <ng-container *ngIf="inc.photoId; else noPhoto">
+            <div class="incident-detail__actions">
+              <a b2b-link [routerLink]="['/incidencias', id, 'foto']" data-testid="photo-link">Ver foto adjunta</a>
+              <button
+                b2b-button
+                type="button"
+                variant="secondary"
+                class="b2b--secondary"
+                data-testid="download-photo"
+                [disabled]="downloading"
+                (click)="downloadPhoto()"
+              >
+                Descargar foto
+              </button>
+            </div>
+          </ng-container>
+          <ng-template #noPhoto>
+            <p data-testid="no-photo">Sin foto adjunta</p>
+          </ng-template>
+          <b2b-notification-inline
+            *ngIf="photoUnavailable"
+            [visible]="true"
+            state="alert"
+            type="alert"
+            title="La imagen adjunta no está disponible en este momento"
+            data-testid="photo-unavailable"
+          ></b2b-notification-inline>
+        </section>
+
+        <section class="incident-detail__section">
+          <h2 style="font-size: var(--b2b-titles-05-font-size)">Historial de estados</h2>
+          <b2b-spinner *ngIf="historyLoading" size="S" description="Cargando historial"></b2b-spinner>
+          <b2b-notification-inline
+            *ngIf="historyError"
+            [visible]="true"
+            state="error"
+            type="error"
+            title="El historial de estados no se ha podido recuperar en este momento"
+            data-testid="history-error"
+          ></b2b-notification-inline>
+          <ng-container *ngIf="!historyLoading && !historyError">
+            <ul b2b-list *ngIf="history.length > 0; else historyEmpty" data-testid="history-list">
+              <li
+                b2b-list-basic
+                *ngFor="let entry of history"
+                [title]="historyTitle(entry)"
+                data-testid="history-entry"
+              ></li>
+            </ul>
+            <ng-template #historyEmpty>
+              <b2b-notification-inline
+                [visible]="true"
+                state="info"
+                type="info"
+                title="No hay cambios de estado registrados"
+                data-testid="history-empty"
+              ></b2b-notification-inline>
+            </ng-template>
+          </ng-container>
+          <div class="incident-detail__actions">
+            <a b2b-link [routerLink]="['/mis-incidencias', id, 'historial']" data-testid="full-history-link">
+              Ver historial completo
+            </a>
+          </div>
+        </section>
+      </ng-container>
+
+      <div class="incident-detail__actions">
+        <button
+          b2b-button
+          type="button"
+          variant="secondary"
+          class="b2b--secondary"
+          data-testid="back-to-list"
+          (click)="back()"
+        >
+          Volver a mis incidencias
+        </button>
+      </div>
+    </div>
+  </div>
+</b2b-container>

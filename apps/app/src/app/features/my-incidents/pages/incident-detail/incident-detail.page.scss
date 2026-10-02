@@ -1,0 +1,23 @@
+.incident-detail__data {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.incident-detail__description {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.incident-detail__section {
+  margin-top: 2rem;
+}
+
+.incident-detail__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
