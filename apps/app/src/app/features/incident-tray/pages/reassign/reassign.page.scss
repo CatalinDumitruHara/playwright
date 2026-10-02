@@ -1,0 +1,39 @@
+.tray-action {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.tray-action__data {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.tray-action__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tray-action__counter {
+  align-self: flex-end;
+  font-size: var(--b2b-body-03-font-size, 0.875rem);
+}
+
+.tray-action__error {
+  color: var(--b2b-state-error-01, inherit);
+}
+
+.tray-action__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+.tray-action__section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}

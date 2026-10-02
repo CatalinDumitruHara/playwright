@@ -1,0 +1,16 @@
+.lifecycle__section {
+  margin: 1.5rem 0;
+}
+
+.lifecycle__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 1rem;
+}
+
+.lifecycle__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}

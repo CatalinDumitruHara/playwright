@@ -1,0 +1,297 @@
+<b2b-container>
+  <div b2b-container-body>
+    <div class="incident-tray">
+      <div class="incident-tray__heading">
+        <h1 style="font-size: var(--b2b-titles-04-font-size)">Bandeja de incidencias</h1>
+      </div>
+
+      <b2b-table-container>
+        <form
+          b2b-table-container-header
+          class="incident-tray__filters"
+          [formGroup]="form"
+          (ngSubmit)="applyFilters()"
+        >
+          <b2b-notification-inline
+            class="incident-tray__full"
+            [visible]="!!catalogError()"
+            state="error"
+            type="error"
+            [title]="catalogError() ?? ''"
+            data-testid="tray-catalog-error"
+          ></b2b-notification-inline>
+
+          <div class="incident-tray__field incident-tray__full">
+            <label b2b-label for="tray-search-text">Buscar</label>
+            <input
+              b2b-input
+              class="b2b-width-full"
+              id="tray-search-text"
+              type="search"
+              [attr.maxlength]="searchMax"
+              placeholder="Código, descripción, sala…"
+              formControlName="search_text"
+              data-testid="tray-search"
+            />
+            <b2b-notification-inline
+              [visible]="!!searchHint()"
+              state="info"
+              type="info"
+              [title]="searchHint() ?? ''"
+              data-testid="tray-search-hint"
+            ></b2b-notification-inline>
+            <b2b-notification-inline
+              [visible]="!!searchError()"
+              state="error"
+              type="error"
+              [title]="searchError() ?? ''"
+              data-testid="tray-search-error"
+            ></b2b-notification-inline>
+          </div>
+
+          <div class="incident-tray__field" data-testid="tray-filter-room">
+            <b2b-dropdown-multiple-select
+              class="b2b-width-full"
+              label="Sala"
+              placeHolder="Todas"
+              optionLabel="label"
+              optionValue="value"
+              [options]="roomOptions()"
+              formControlName="room_id"
+            ></b2b-dropdown-multiple-select>
+          </div>
+
+          <div class="incident-tray__field" data-testid="tray-filter-office">
+            <b2b-dropdown-select
+              class="b2b-width-full"
+              label="Oficina"
+              placeHolder="Todas"
+              optionLabel="label"
+              optionValue="value"
+              [showCloseButton]="true"
+              [options]="officeOptions()"
+              formControlName="office_id"
+            ></b2b-dropdown-select>
+          </div>
+
+          <div class="incident-tray__field" data-testid="tray-filter-category">
+            <b2b-dropdown-multiple-select
+              class="b2b-width-full"
+              label="Categoría"
+              placeHolder="Todas"
+              optionLabel="label"
+              optionValue="value"
+              [options]="categoryOptions()"
+              formControlName="category_code"
+            ></b2b-dropdown-multiple-select>
+          </div>
+
+          <div class="incident-tray__field" data-testid="tray-filter-status">
+            <b2b-dropdown-multiple-select
+              class="b2b-width-full"
+              label="Estado"
+              placeHolder="Todos"
+              optionLabel="label"
+              optionValue="value"
+              [options]="statusOptions"
+              formControlName="status"
+            ></b2b-dropdown-multiple-select>
+          </div>
+
+          <div class="incident-tray__field" data-testid="tray-filter-assignment">
+            <b2b-dropdown-select
+              class="b2b-width-full"
+              label="Asignación"
+              placeHolder="Todas"
+              optionLabel="label"
+              optionValue="value"
+              [showCloseButton]="false"
+              [options]="assignmentOptions"
+              formControlName="assignment_filter"
+            ></b2b-dropdown-select>
+          </div>
+
+          <div class="incident-tray__field">
+            <label b2b-label for="tray-created-from">Fecha de alta desde</label>
+            <input
+              b2b-input
+              class="b2b-width-full"
+              id="tray-created-from"
+              type="date"
+              formControlName="created_from"
+              data-testid="tray-from"
+            />
+          </div>
+
+          <div class="incident-tray__field">
+            <label b2b-label for="tray-created-to">Fecha de alta hasta</label>
+            <input
+              b2b-input
+              class="b2b-width-full"
+              id="tray-created-to"
+              type="date"
+              formControlName="created_to"
+              data-testid="tray-to"
+            />
+          </div>
+
+          <div class="incident-tray__shortcuts incident-tray__full">
+            <button b2b-button type="button" variant="secondary" class="b2b--secondary" data-testid="tray-date-today" (click)="setToday()">
+              Hoy
+            </button>
+            <button b2b-button type="button" variant="secondary" class="b2b--secondary" data-testid="tray-date-7d" (click)="setLast7Days()">
+              Últimos 7 días
+            </button>
+            <button b2b-button type="button" variant="secondary" class="b2b--secondary" data-testid="tray-date-month" (click)="setCurrentMonth()">
+              Mes en curso
+            </button>
+          </div>
+
+          <b2b-notification-inline
+            class="incident-tray__full"
+            [visible]="!!dateError()"
+            state="error"
+            type="error"
+            [title]="dateError() ?? ''"
+            data-testid="tray-date-error"
+          ></b2b-notification-inline>
+
+          <div class="incident-tray__field" data-testid="tray-sort-by">
+            <b2b-dropdown-select
+              class="b2b-width-full"
+              label="Ordenar por"
+              placeHolder="Fecha de alta"
+              optionLabel="label"
+              optionValue="value"
+              [showCloseButton]="false"
+              [options]="sortByOptions"
+              formControlName="sort_by"
+            ></b2b-dropdown-select>
+          </div>
+
+          <div class="incident-tray__field" data-testid="tray-sort-dir">
+            <b2b-dropdown-select
+              class="b2b-width-full"
+              label="Sentido"
+              placeHolder="Descendente"
+              optionLabel="label"
+              optionValue="value"
+              [showCloseButton]="false"
+              [options]="sortDirOptions"
+              formControlName="sort_dir"
+            ></b2b-dropdown-select>
+          </div>
+
+          <div class="incident-tray__actions incident-tray__full">
+            <button b2b-button type="submit" data-testid="tray-apply">Aplicar filtros</button>
+            <button
+              b2b-button
+              type="button"
+              variant="secondary"
+              class="b2b--secondary"
+              data-testid="tray-clear"
+              (click)="clearFilters()"
+            >
+              Limpiar filtros
+            </button>
+          </div>
+        </form>
+
+        <div b2b-table-container-body>
+          <p class="incident-tray__count" data-testid="tray-count">{{ countLabel() }}</p>
+
+          <div *ngIf="loading()" class="incident-tray__loading" data-testid="tray-loading">
+            <b2b-spinner size="L" description="Cargando incidencias"></b2b-spinner>
+          </div>
+
+          <b2b-notification-inline
+            [visible]="!!listError()"
+            state="error"
+            type="error"
+            [title]="listError() ?? ''"
+            data-testid="tray-error"
+          ></b2b-notification-inline>
+
+          <div *ngIf="isEmpty()" class="incident-tray__empty" data-testid="tray-empty">
+            <b2b-notification-inline
+              [visible]="isEmpty()"
+              state="info"
+              type="info"
+              [title]="emptyMessage"
+            ></b2b-notification-inline>
+            <button
+              b2b-button
+              type="button"
+              variant="secondary"
+              class="b2b--secondary"
+              data-testid="tray-empty-clear"
+              (click)="clearFilters()"
+            >
+              Limpiar filtros
+            </button>
+          </div>
+
+          <table
+            *ngIf="!loading() && !listError() && rows().length > 0"
+            class="incident-tray__table"
+            data-testid="tray-table"
+          >
+            <thead>
+              <tr>
+                <th scope="col">Código</th>
+                <th scope="col">Sala</th>
+                <th scope="col">Oficina</th>
+                <th scope="col">Categoría</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Técnico asignado</th>
+                <th scope="col">Reportante</th>
+                <th scope="col">Fecha de alta</th>
+                <th scope="col">Antigüedad (días)</th>
+                <th scope="col">Foto</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of rows(); trackBy: trackById" data-testid="tray-row">
+                <td>
+                  <a
+                    b2b-link
+                    [routerLink]="['/incidencias', row.incidentId]"
+                    queryParamsHandling="preserve"
+                    data-testid="tray-detail-link"
+                  >
+                    {{ row.incidentCode }}
+                  </a>
+                </td>
+                <td>{{ row.roomName }}</td>
+                <td>{{ row.officeName }}</td>
+                <td>{{ row.categoryName }}</td>
+                <td>
+                  <b2b-tag [ngClass]="statusTagClass(row.status)">{{ statusLabel(row.status) }}</b2b-tag>
+                </td>
+                <td data-testid="tray-assignee">{{ row.assignedTechnicianName ?? unassignedLabel }}</td>
+                <td>{{ row.reporterName }}</td>
+                <td>{{ row.createdAt ? (row.createdAt | date: 'dd/MM/yyyy HH:mm') : '—' }}</td>
+                <td>{{ row.ageDays ?? '—' }}</td>
+                <td>{{ row.hasPhoto ? 'Sí' : 'No' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div b2b-table-container-footer class="incident-tray__footer">
+          <b2b-paginator
+            *ngIf="totalCount() > 0"
+            data-testid="tray-paginator"
+            [length]="totalCount()"
+            [pageSize]="pageSize()"
+            [pageSizeOptions]="pageSizeOptions"
+            [pageIndex]="pageIndex()"
+            [disabled]="loading()"
+            (pageIndexChange)="onPageIndexChange($event)"
+            (pageSizeChange)="onPageSizeChange($event)"
+          ></b2b-paginator>
+        </div>
+      </b2b-table-container>
+    </div>
+  </div>
+</b2b-container>

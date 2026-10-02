@@ -1,0 +1,64 @@
+<b2b-container>
+  <div b2b-container-body>
+    <div class="assignment-history">
+      <h1 style="font-size: var(--b2b-titles-04-font-size)">Historial de la incidencia</h1>
+
+      <section class="assignment-history__section">
+        <h2 style="font-size: var(--b2b-titles-08-font-size)">Filtros</h2>
+        <b2b-dropdown-select
+          class="b2b-width-full"
+          data-testid="ah-filter"
+          label="Tipo de entrada"
+          optionLabel="label"
+          optionValue="code"
+          [options]="filterOptions"
+          [selectedOption]="selectedType()"
+          (selectionChange)="onFilterChange($event)"
+        ></b2b-dropdown-select>
+      </section>
+
+      <section class="assignment-history__section">
+        <h2 style="font-size: var(--b2b-titles-08-font-size)">Línea temporal</h2>
+
+        <b2b-spinner *ngIf="loading()" description="Cargando historial"></b2b-spinner>
+
+        <b2b-notification-inline
+          [visible]="errorMessage() !== null"
+          state="error"
+          type="error"
+          [title]="errorMessage() ?? ''"
+          data-testid="load-error"
+        ></b2b-notification-inline>
+
+        <ul b2b-list *ngIf="visibleEntries().length > 0">
+          <li
+            b2b-list-basic
+            *ngFor="let entry of visibleEntries()"
+            [title]="entryTitle(entry)"
+            data-testid="ah-entry"
+          ></li>
+        </ul>
+
+        <b2b-notification-inline
+          [visible]="showEmpty()"
+          state="info"
+          type="info"
+          title="No hay entradas de responsabilidad para esta incidencia"
+          data-testid="ah-empty"
+        ></b2b-notification-inline>
+      </section>
+
+      <div class="assignment-history__actions">
+        <button
+          b2b-button
+          type="button"
+          class="b2b--secondary"
+          data-testid="back-to-detail"
+          (click)="backToDetail()"
+        >
+          Volver al detalle de la incidencia
+        </button>
+      </div>
+    </div>
+  </div>
+</b2b-container>

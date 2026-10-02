@@ -41,6 +41,14 @@ export const APP_NAV_ITEMS: readonly NavItem[] = [
     description: 'Actualiza tu contraseña de acceso',
   },
   {
+    label: 'Bandeja de incidencias',
+    path: '/incidencias',
+    roles: ['ROL-002'],
+    shortcut: true,
+    description: 'Consulta y gestiona todas las incidencias de la organización',
+    section: NAV_SECTION_INCIDENTS,
+  },
+  {
     label: 'Mis incidencias',
     path: '/mis-incidencias',
     roles: ['ROL-001', 'ROL-002'],
