@@ -1,0 +1,64 @@
+<b2b-container>
+  <div b2b-container-body>
+    <div class="tray-action">
+      <h1 style="font-size: var(--b2b-titles-04-font-size)">Confirmación de inicio de atención</h1>
+
+      <b2b-spinner *ngIf="loading()" description="Cargando incidencia"></b2b-spinner>
+
+      <b2b-notification-inline
+        *ngIf="loadError() as msg"
+        [visible]="true"
+        state="error"
+        type="error"
+        [title]="msg"
+        data-testid="load-error"
+      ></b2b-notification-inline>
+
+      <ng-container *ngIf="incident() as inc">
+        <div class="tray-action__data">
+          <b2b-read-data>
+            <span b2b-read-data-label>Código de referencia</span>
+            <span b2b-read-data-value data-testid="summary-code">{{ inc.incidentCode || '—' }}</span>
+          </b2b-read-data>
+          <b2b-read-data>
+            <span b2b-read-data-label>Estado actual</span>
+            <span b2b-read-data-value data-testid="summary-status">{{ currentStatus() || '—' }}</span>
+          </b2b-read-data>
+          <b2b-read-data>
+            <span b2b-read-data-label>Estado destino</span>
+            <span b2b-read-data-value data-testid="summary-target-status">{{ targetStatusLabel }}</span>
+          </b2b-read-data>
+          <b2b-read-data>
+            <span b2b-read-data-label>Técnico asignado</span>
+            <span b2b-read-data-value data-testid="summary-assignee">{{ assignee() }}</span>
+          </b2b-read-data>
+        </div>
+      </ng-container>
+
+      <b2b-notification-inline
+        *ngIf="submitError() as msg"
+        [visible]="true"
+        state="error"
+        type="error"
+        [title]="msg"
+        data-testid="submit-error"
+      ></b2b-notification-inline>
+
+      <div class="tray-action__actions">
+        <button b2b-button type="button" [disabled]="confirmDisabled()" data-testid="confirm" (click)="confirm()">
+          Confirmar
+        </button>
+        <button
+          b2b-button
+          type="button"
+          variant="secondary"
+          class="b2b--secondary"
+          data-testid="cancel"
+          (click)="cancel()"
+        >
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</b2b-container>

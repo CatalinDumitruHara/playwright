@@ -1,0 +1,211 @@
+<b2b-container>
+  <div b2b-container-body>
+    <div class="tray-detail">
+      <div *ngIf="resultMessage() as result" data-testid="detail-result">
+        <b2b-notification-inline [visible]="true" state="ok" type="ok" [title]="result"></b2b-notification-inline>
+      </div>
+
+      <div *ngIf="errorMessage() as error" data-testid="detail-error">
+        <b2b-notification-inline [visible]="true" state="error" type="error" [title]="error"></b2b-notification-inline>
+      </div>
+
+      <b2b-spinner *ngIf="loading()" description="Cargando incidencia"></b2b-spinner>
+
+      <ng-container *ngIf="incident() as inc">
+        <div class="tray-detail__header">
+          <h1 style="font-size: var(--b2b-titles-04-font-size)" data-testid="detail-code">{{ inc.incidentCode }}</h1>
+          <b2b-tag data-testid="detail-status">{{ inc.statusLabel }}</b2b-tag>
+        </div>
+
+        <section class="tray-detail__section">
+          <h2 style="font-size: var(--b2b-titles-08-font-size)">Clasificación</h2>
+          <div class="tray-detail__grid">
+            <b2b-read-data>
+              <span b2b-read-data-label>Sala</span>
+              <span b2b-read-data-value data-testid="detail-room">{{ inc.roomName || '—' }}</span>
+            </b2b-read-data>
+            <b2b-read-data>
+              <span b2b-read-data-label>Oficina</span>
+              <span b2b-read-data-value data-testid="detail-office">{{ inc.officeName || '—' }}</span>
+            </b2b-read-data>
+            <b2b-read-data>
+              <span b2b-read-data-label>Categoría</span>
+              <span b2b-read-data-value data-testid="detail-category">{{ inc.categoryName || '—' }}</span>
+            </b2b-read-data>
+            <b2b-read-data>
+              <span b2b-read-data-label>Fecha de alta</span>
+              <span b2b-read-data-value data-testid="detail-created-at">{{
+                inc.createdAt ? (inc.createdAt | date: dateFormat) : '—'
+              }}</span>
+            </b2b-read-data>
+          </div>
+        </section>
+
+        <section class="tray-detail__section">
+          <h2 style="font-size: var(--b2b-titles-08-font-size)">Descripción y foto</h2>
+          <b2b-read-data>
+            <span b2b-read-data-label>Descripción</span>
+            <span b2b-read-data-value class="tray-detail__description" data-testid="detail-description">{{
+              inc.description || '—'
+            }}</span>
+          </b2b-read-data>
+          <div *ngIf="inc.hasPhoto" class="tray-detail__links">
+            <a b2b-link [routerLink]="['/incidencias', id(), 'foto']" data-testid="link-photo">Ver la foto adjunta</a>
+          </div>
+        </section>
+
+        <section class="tray-detail__section">
+          <h2 style="font-size: var(--b2b-titles-08-font-size)">Responsable</h2>
+          <div class="tray-detail__grid">
+            <ng-container *ngIf="isAssigned(); else pending">
+              <b2b-read-data>
+                <span b2b-read-data-label>Técnico asignado</span>
+                <span b2b-read-data-value data-testid="detail-assignee">{{ inc.assignedTechnicianName || '—' }}</span>
+              </b2b-read-data>
+              <b2b-read-data>
+                <span b2b-read-data-label>Asignada el</span>
+                <span b2b-read-data-value data-testid="detail-assigned-at">{{
+                  inc.assignedAt ? (inc.assignedAt | date: dateFormat) : '—'
+                }}</span>
+              </b2b-read-data>
+            </ng-container>
+            <ng-template #pending>
+              <b2b-read-data>
+                <span b2b-read-data-label>Técnico asignado</span>
+                <span b2b-read-data-value data-testid="detail-pending-assignment">Pendiente de asignar</span>
+              </b2b-read-data>
+            </ng-template>
+            <b2b-read-data>
+              <span b2b-read-data-label>Reportante</span>
+              <span b2b-read-data-value data-testid="detail-reporter">{{ inc.reporterName || '—' }}</span>
+            </b2b-read-data>
+          </div>
+        </section>
+
+        <section class="tray-detail__section">
+          <h2 style="font-size: var(--b2b-titles-08-font-size)">Acciones</h2>
+          <div class="tray-detail__actions">
+            <button
+              *ngIf="canSelfAssign() && !confirmingSelfAssign()"
+              b2b-button
+              type="button"
+              data-testid="action-self-assign"
+              [disabled]="assigning()"
+              (click)="askSelfAssign()"
+            >
+              Asignarme la incidencia
+            </button>
+            <button
+              *ngIf="canRelease()"
+              b2b-button
+              type="button"
+              variant="secondary"
+              class="b2b--secondary"
+              data-testid="action-release"
+              (click)="release()"
+            >
+              Liberar
+            </button>
+            <button
+              *ngIf="canReassign()"
+              b2b-button
+              type="button"
+              variant="secondary"
+              class="b2b--secondary"
+              data-testid="action-reassign"
+              (click)="reassign()"
+            >
+              Reasignar
+            </button>
+            <span *ngFor="let t of transitions()" class="tray-detail__transition">
+              <button
+                b2b-button
+                type="button"
+                data-testid="transition-button"
+                [disabled]="!!t.blockedReason"
+                (click)="startTransition(t)"
+              >
+                {{ t.label }}
+              </button>
+              <span *ngIf="t.blockedReason" data-testid="transition-blocked-reason">{{ t.blockedReason }}</span>
+            </span>
+            <button
+              b2b-button
+              type="button"
+              variant="secondary"
+              class="b2b--secondary"
+              data-testid="action-refresh"
+              [disabled]="loading()"
+              (click)="refresh()"
+            >
+              Actualizar transiciones
+            </button>
+          </div>
+
+          <div *ngIf="canSelfAssign() && confirmingSelfAssign()" class="tray-detail__confirm">
+            <b2b-notification-inline
+              [visible]="true"
+              state="info"
+              type="info"
+              title="¿Quieres asignarte esta incidencia? Pasarás a ser su técnico responsable."
+            ></b2b-notification-inline>
+            <div class="tray-detail__actions">
+              <button
+                b2b-button
+                type="button"
+                data-testid="action-self-assign-confirm"
+                [disabled]="assigning()"
+                (click)="confirmSelfAssign()"
+              >
+                Confirmar
+              </button>
+              <button
+                b2b-button
+                type="button"
+                variant="secondary"
+                class="b2b--secondary"
+                data-testid="action-self-assign-cancel"
+                [disabled]="assigning()"
+                (click)="cancelSelfAssign()"
+              >
+                Cancelar
+              </button>
+            </div>
+            <b2b-spinner *ngIf="assigning()" size="S" description="Asignando incidencia"></b2b-spinner>
+          </div>
+        </section>
+
+        <section class="tray-detail__section">
+          <h2 style="font-size: var(--b2b-titles-08-font-size)">Historial</h2>
+          <div class="tray-detail__links">
+            <a
+              b2b-link
+              [routerLink]="['/incidencias', id(), 'historial', 'asignaciones']"
+              data-testid="link-assignment-history"
+              >Ver historial de la incidencia</a
+            >
+            <a b2b-link [routerLink]="['/incidencias', id(), 'historial-estados']" data-testid="link-status-history"
+              >Ver historial de cambios de estado</a
+            >
+            <a b2b-link [routerLink]="['/incidencias', id(), 'ciclo-vida']" data-testid="link-lifecycle"
+              >Marcas temporales del ciclo de vida</a
+            >
+          </div>
+        </section>
+      </ng-container>
+
+      <div class="tray-detail__actions tray-detail__footer">
+        <button
+          b2b-button
+          type="button"
+          variant="secondary"
+          class="b2b--secondary"
+          data-testid="back-to-tray"
+          (click)="backToTray()"
+        >
+          Volver a la bandeja
+        </button>
+      </div>
+    </div>
+  </div>
+</b2b-container>

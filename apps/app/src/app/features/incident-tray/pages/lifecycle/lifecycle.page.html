@@ -1,0 +1,77 @@
+<b2b-container>
+  <div b2b-container-body>
+    <div class="lifecycle">
+      <h1 style="font-size: var(--b2b-titles-04-font-size)">Marcas temporales del ciclo de vida</h1>
+
+      <b2b-spinner *ngIf="loading()" description="Cargando ciclo de vida"></b2b-spinner>
+
+      <b2b-notification-inline
+        [visible]="errorMessage() !== null"
+        state="error"
+        type="error"
+        [title]="errorMessage() ?? ''"
+        data-testid="load-error"
+      ></b2b-notification-inline>
+
+      <ng-container *ngIf="detail() as d">
+        <section class="lifecycle__section">
+          <h2 style="font-size: var(--b2b-titles-08-font-size)">Estado actual</h2>
+          <div class="lifecycle__grid">
+            <b2b-read-data>
+              <span b2b-read-data-label>Estado</span>
+              <span b2b-read-data-value>
+                <b2b-tag data-testid="lc-status">{{ d.statusLabel || d.status || '—' }}</b2b-tag>
+              </span>
+            </b2b-read-data>
+            <b2b-read-data>
+              <span b2b-read-data-label>Días en el estado actual</span>
+              <span b2b-read-data-value data-testid="lc-days">{{ daysLabel(d) }}</span>
+            </b2b-read-data>
+          </div>
+        </section>
+
+        <section class="lifecycle__section">
+          <h2 style="font-size: var(--b2b-titles-08-font-size)">Marcas temporales</h2>
+          <div class="lifecycle__grid">
+            <b2b-read-data>
+              <span b2b-read-data-label>Fecha de apertura</span>
+              <span b2b-read-data-value data-testid="lc-opened">{{
+                d.openedAt ? (d.openedAt | date: 'dd/MM/yyyy HH:mm') : notReached
+              }}</span>
+            </b2b-read-data>
+            <b2b-read-data>
+              <span b2b-read-data-label>Fecha de inicio de atención</span>
+              <span b2b-read-data-value data-testid="lc-in-progress">{{
+                d.inProgressAt ? (d.inProgressAt | date: 'dd/MM/yyyy HH:mm') : notReached
+              }}</span>
+            </b2b-read-data>
+            <b2b-read-data>
+              <span b2b-read-data-label>Fecha de resolución</span>
+              <span b2b-read-data-value data-testid="lc-resolved">{{
+                d.resolvedAt ? (d.resolvedAt | date: 'dd/MM/yyyy HH:mm') : notReached
+              }}</span>
+            </b2b-read-data>
+            <b2b-read-data>
+              <span b2b-read-data-label>Fecha de cierre</span>
+              <span b2b-read-data-value data-testid="lc-closed">{{
+                d.closedAt ? (d.closedAt | date: 'dd/MM/yyyy HH:mm') : notReached
+              }}</span>
+            </b2b-read-data>
+          </div>
+        </section>
+      </ng-container>
+
+      <div class="lifecycle__actions">
+        <button
+          b2b-button
+          type="button"
+          class="b2b--secondary"
+          data-testid="back-to-detail"
+          (click)="backToDetail()"
+        >
+          Volver al detalle de la incidencia
+        </button>
+      </div>
+    </div>
+  </div>
+</b2b-container>

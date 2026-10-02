@@ -5,6 +5,7 @@ import { roleGuardChild } from './core/auth/role.guard';
 import { ALL_ROLES, RoleCode } from './core/auth/session.model';
 
 const INCIDENT_ROLES: readonly RoleCode[] = ['ROL-001', 'ROL-002'];
+const TECHNICIAN_ROLES: readonly RoleCode[] = ['ROL-002'];
 
 export const appRoutes: Route[] = [
   {
@@ -141,6 +142,70 @@ export const appRoutes: Route[] = [
           import(
             './features/my-incidents/pages/incident-photo/incident-photo.page'
           ).then((p) => p.IncidentPhotoPage),
+      },
+      {
+        path: 'incidencias',
+        data: { roles: TECHNICIAN_ROLES },
+        loadComponent: () =>
+          import(
+            './features/incident-tray/pages/incident-tray/incident-tray.page'
+          ).then((p) => p.IncidentTrayPage),
+      },
+      {
+        path: 'incidencias/:id/reasignar',
+        data: { roles: TECHNICIAN_ROLES },
+        loadComponent: () =>
+          import(
+            './features/incident-tray/pages/reassign/reassign.page'
+          ).then((p) => p.ReassignIncidentPage),
+      },
+      {
+        path: 'incidencias/:id/liberar',
+        data: { roles: TECHNICIAN_ROLES },
+        loadComponent: () =>
+          import(
+            './features/incident-tray/pages/release/release.page'
+          ).then((p) => p.ReleaseIncidentPage),
+      },
+      {
+        path: 'incidencias/:id/historial/asignaciones',
+        data: { roles: TECHNICIAN_ROLES },
+        loadComponent: () =>
+          import(
+            './features/incident-tray/pages/assignment-history/assignment-history.page'
+          ).then((p) => p.AssignmentHistoryPage),
+      },
+      {
+        path: 'incidencias/:id/iniciar-atencion',
+        data: { roles: TECHNICIAN_ROLES },
+        loadComponent: () =>
+          import(
+            './features/incident-tray/pages/start-attention/start-attention.page'
+          ).then((p) => p.StartAttentionPage),
+      },
+      {
+        path: 'incidencias/:id/resolver',
+        data: { roles: TECHNICIAN_ROLES },
+        loadComponent: () =>
+          import(
+            './features/incident-tray/pages/resolve/resolve.page'
+          ).then((p) => p.ResolveIncidentPage),
+      },
+      {
+        path: 'incidencias/:id/ciclo-vida',
+        data: { roles: TECHNICIAN_ROLES },
+        loadComponent: () =>
+          import(
+            './features/incident-tray/pages/lifecycle/lifecycle.page'
+          ).then((p) => p.LifecyclePage),
+      },
+      {
+        path: 'incidencias/:id',
+        data: { roles: TECHNICIAN_ROLES },
+        loadComponent: () =>
+          import(
+            './features/incident-tray/pages/tray-incident-detail/tray-incident-detail.page'
+          ).then((p) => p.TrayIncidentDetailPage),
       },
       {
         path: 'mis-incidencias',

@@ -1,0 +1,71 @@
+{
+  "task_code": "TSK-035",
+  "attempt": 1,
+  "at": "2026-10-02T08:30:38.873701+00:00",
+  "construction_id": "0075d70f-6fe5-43cf-baae-ff2be359c25a",
+  "status": "delivered",
+  "delivered": true,
+  "error": null,
+  "summary": "TSK-035: bandeja y gestión de incidencias para el técnico (ROL-002) en apps/app/src/app/features/incident-tray/.\n\nQué se ha hecho:\n- IncidentTrayService (HttpClient real, una sola base API_BASE_URL leída de environments.json → '/api', paths literales del contrato) con EP-026 GET /incidents (filtros de sala, oficina, categoría, estado, asignación y fechas, más search_text, sort_by/sort_dir y page/page_size 10|25|50), EP-028, EP-029, EP-031 POST /assignment (cuerpo {}; el responsable lo pone el se",
+  "model": "claude-opus-5-5",
+  "input_tokens": 4831179,
+  "output_tokens": 32360,
+  "llm_calls": 288,
+  "cost_usd": 8.130359000000002,
+  "build_status": "green",
+  "build_output": "",
+  "environment_status": "realized",
+  "environment_detail": "wiremock=wiremock/wiremock:3.13.1",
+  "schema_status": "skipped",
+  "commit_sha": "696d99d",
+  "browser_status": "green",
+  "browser_coverage": {
+    "mapped": [
+      {
+        "code": "ARC-033",
+        "route": "/incidencias/{id}/iniciar-atencion"
+      },
+      {
+        "code": "ARC-028",
+        "route": "/incidencias"
+      },
+      {
+        "code": "ARC-029",
+        "route": "/incidencias/{id}"
+      },
+      {
+        "code": "ARC-030",
+        "route": "/incidencias/{id}/reasignar"
+      },
+      {
+        "code": "ARC-031",
+        "route": "/incidencias/{id}/liberar"
+      },
+      {
+        "code": "ARC-032",
+        "route": "/incidencias/{id}/historial/asignaciones"
+      },
+      {
+        "code": "ARC-034",
+        "route": "/incidencias/{id}/resolver"
+      },
+      {
+        "code": "ARC-035",
+        "route": "/incidencias/{id}/ciclo-vida"
+      }
+    ],
+    "unmapped": [],
+    "tagged_specs_found": [
+      "e2e/ARC-028.bandeja-incidencias.e2e-spec.ts",
+      "e2e/ARC-029.detalle-incidencia-tecnico.e2e-spec.ts",
+      "e2e/ARC-030.reasignacion.e2e-spec.ts",
+      "e2e/ARC-031.liberacion.e2e-spec.ts",
+      "e2e/ARC-032.historial-asignaciones.e2e-spec.ts",
+      "e2e/ARC-033.inicio-atencion.e2e-spec.ts",
+      "e2e/ARC-034.marcar-resuelta.e2e-spec.ts",
+      "e2e/ARC-035.ciclo-vida.e2e-spec.ts"
+    ],
+    "canonical_ran": true,
+    "selection_strategy": "hybrid"
+  }
+}

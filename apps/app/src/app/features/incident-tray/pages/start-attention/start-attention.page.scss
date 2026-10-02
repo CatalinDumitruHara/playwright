@@ -1,0 +1,18 @@
+.tray-action {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.tray-action__data {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.tray-action__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}

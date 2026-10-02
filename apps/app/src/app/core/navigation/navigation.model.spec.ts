@@ -34,6 +34,12 @@ describe('navigation.model', () => {
       expect(navItemsForRole(APP_NAV_ITEMS, role).map((i) => i.path)).toContain('/inicio');
     });
 
+    it('TSK-035: la bandeja de incidencias solo se ofrece a ROL-002', () => {
+      expect(navItemsForRole(APP_NAV_ITEMS, 'ROL-002').map((i) => i.path)).toContain('/incidencias');
+      expect(navItemsForRole(APP_NAV_ITEMS, 'ROL-001').map((i) => i.path)).not.toContain('/incidencias');
+      expect(navItemsForRole(APP_NAV_ITEMS, 'ROL-003').map((i) => i.path)).not.toContain('/incidencias');
+    });
+
     it.each(ALL_ROLES)('incluye las tres pantallas de la sección Auth para %s', (role) => {
       const paths = navItemsForRole(APP_NAV_ITEMS, role).map((i) => i.path);
       expect(paths).toEqual(
