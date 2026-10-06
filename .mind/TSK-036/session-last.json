@@ -1,0 +1,82 @@
+{
+  "task_code": "TSK-036",
+  "attempt": 1,
+  "at": "2026-10-06T10:11:02.849014+00:00",
+  "construction_id": "379afa35-b574-464b-a9ff-7d6512b6c529",
+  "status": "delivered",
+  "delivered": true,
+  "error": null,
+  "summary": "TSK-036 (ARC-011): pantallas del técnico para cerrar, reclasificar y consultar el historial de incidencias, en `apps/app/src/app/features/incident-tray/`. Están montadas en `app.routes.ts`, dentro del layout principal con authGuard y roleGuardChild.\n\nLo entregado:\n- **Modelos y servicio** (`IncidentTrayService`). Los paths y verbos son los literales del contrato, sobre la base `API_BASE_URL`, que sale de `environments.json` (`/api`):\n  - EP-035: POST `/incidents/{id}/closure`, con `{resolution_c",
+  "model": "claude-opus-5-5",
+  "input_tokens": 4021014,
+  "output_tokens": 30357,
+  "llm_calls": 165,
+  "cost_usd": 4.958022400000001,
+  "build_status": "green",
+  "build_output": "",
+  "environment_status": "realized",
+  "environment_detail": "wiremock=wiremock/wiremock:3.13.1",
+  "schema_status": "skipped",
+  "commit_sha": "32576bed2d7015214febd827894fbb3185688a28",
+  "browser_status": "green",
+  "browser_coverage": {
+    "mapped": [
+      {
+        "code": "ARC-036",
+        "route": "/incidencias/{id}/cierres-similares"
+      },
+      {
+        "code": "ARC-037",
+        "route": "/incidencias/{id}/cerrar"
+      },
+      {
+        "code": "ARC-038",
+        "route": "/incidencias/{id}/resolucion"
+      },
+      {
+        "code": "ARC-039",
+        "route": "/incidencias/{id}/reclasificar"
+      },
+      {
+        "code": "ARC-040",
+        "route": "/incidencias/{id}/historial/reclasificaciones"
+      },
+      {
+        "code": "ARC-056",
+        "route": "/incidencias/cerradas/{id}/historial"
+      }
+    ],
+    "unmapped": [],
+    "tagged_specs_found": [],
+    "canonical_ran": true,
+    "selection_strategy": "smoke-canonical",
+    "catalog_ran": true,
+    "catalog_codes": [
+      "E2E-007",
+      "E2E-008"
+    ],
+    "catalog_omitted": [],
+    "catalog_missing": [],
+    "catalog_skeleton": [],
+    "catalog_results": [
+      {
+        "test_name": "Dado un técnico, cuando cierra una incidencia resuelta con comentario, entonces el estado final es 'Cerrada'",
+        "class_or_file": "E2E-007.e2e-spec.ts",
+        "status": "passed",
+        "duration_ms": 1254,
+        "message": "",
+        "framework": "playwright",
+        "test_code": "E2E-007"
+      },
+      {
+        "test_name": "Dado un técnico, cuando intenta cerrar una incidencia sin comentario, entonces el sistema lo impide",
+        "class_or_file": "E2E-008.e2e-spec.ts",
+        "status": "passed",
+        "duration_ms": 696,
+        "message": "",
+        "framework": "playwright",
+        "test_code": "E2E-008"
+      }
+    ]
+  }
+}
