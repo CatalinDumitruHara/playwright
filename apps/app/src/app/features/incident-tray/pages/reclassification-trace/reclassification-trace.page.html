@@ -1,0 +1,80 @@
+<b2b-container>
+  <div b2b-container-body>
+    <div class="reclassification-trace">
+      <h1 style="font-size: var(--b2b-titles-04-font-size)">Traza de reclasificaciones</h1>
+
+      <b2b-notification-inline
+        *ngIf="showSuccess"
+        [visible]="true"
+        state="ok"
+        type="ok"
+        [title]="msgSuccess"
+        data-testid="trace-success"
+      ></b2b-notification-inline>
+
+      <b2b-spinner *ngIf="loading" description="Cargando historial de reclasificaciones"></b2b-spinner>
+
+      <div *ngIf="error" class="reclassification-trace__error">
+        <b2b-notification-inline
+          [visible]="true"
+          state="error"
+          type="error"
+          [title]="error"
+          data-testid="trace-error"
+        ></b2b-notification-inline>
+        <div class="reclassification-trace__actions">
+          <button b2b-button type="button" data-testid="trace-retry" (click)="retry()">Reintentar</button>
+        </div>
+      </div>
+
+      <b2b-notification-inline
+        *ngIf="isEmpty"
+        [visible]="true"
+        state="info"
+        type="info"
+        [title]="msgEmpty"
+        data-testid="trace-empty"
+      ></b2b-notification-inline>
+
+      <b2b-table-container *ngIf="rows.length > 0">
+        <div b2b-table-container-body>
+          <table class="reclassification-trace__table" data-testid="trace-table">
+            <thead>
+              <tr>
+                <th scope="col">Sala anterior</th>
+                <th scope="col">Sala nueva</th>
+                <th scope="col">Categoría anterior</th>
+                <th scope="col">Categoría nueva</th>
+                <th scope="col">Autor</th>
+                <th scope="col">Fecha y hora</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of rows; trackBy: trackById" data-testid="trace-row">
+                <td>{{ row.previousRoom }}</td>
+                <td>{{ row.newRoom }}</td>
+                <td>{{ row.previousCategory }}</td>
+                <td>{{ row.newCategory }}</td>
+                <td>{{ row.author }}</td>
+                <td>{{ row.occurredAt ? (row.occurredAt | date: 'dd/MM/yyyy HH:mm') : '—' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </b2b-table-container>
+
+      <div class="reclassification-trace__actions">
+        <button
+          b2b-button
+          type="button"
+          variant="secondary"
+          class="b2b--secondary"
+          data-testid="trace-back"
+          (click)="back()"
+        >
+          Volver al detalle de la incidencia
+        </button>
+      </div>
+    </div>
+  </div>
+</b2b-container>

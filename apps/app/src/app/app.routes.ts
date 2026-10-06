@@ -192,12 +192,38 @@ export const appRoutes: Route[] = [
           ).then((p) => p.SimilarClosuresPage),
       },
       {
+        // ARC-038: el bloque de resolución lo consultan reportante y técnico (REQ-115).
         path: 'incidencias/:id/resolucion',
-        data: { roles: TECH_ROLES },
+        data: { roles: INCIDENT_ROLES },
         loadComponent: () =>
           import(
             './features/incident-tray/pages/incident-resolution/incident-resolution.page'
           ).then((p) => p.IncidentResolutionPage),
+      },
+      {
+        path: 'incidencias/:id/reclasificar',
+        data: { roles: TECH_ROLES },
+        loadComponent: () =>
+          import(
+            './features/incident-tray/pages/reclassify-incident/reclassify-incident.page'
+          ).then((p) => p.ReclassifyIncidentPage),
+      },
+      {
+        path: 'incidencias/:id/historial/reclasificaciones',
+        data: { roles: TECH_ROLES },
+        loadComponent: () =>
+          import(
+            './features/incident-tray/pages/reclassification-trace/reclassification-trace.page'
+          ).then((p) => p.ReclassificationTracePage),
+      },
+      {
+        // ARC-056: historial consolidado, mismo alcance que el detalle (REQ-127/151).
+        path: 'incidencias/cerradas/:id/historial',
+        data: { roles: INCIDENT_ROLES },
+        loadComponent: () =>
+          import(
+            './features/incident-tray/pages/incident-timeline/incident-timeline.page'
+          ).then((p) => p.IncidentTimelinePage),
       },
       {
         path: '',

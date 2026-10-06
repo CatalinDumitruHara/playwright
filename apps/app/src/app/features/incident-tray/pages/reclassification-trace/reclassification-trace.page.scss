@@ -1,0 +1,30 @@
+.reclassification-trace {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+.reclassification-trace__table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--b2b-brand-blue-05, currentColor);
+  }
+
+  th {
+    font-weight: var(--b2b-font-weight-bold, 700);
+  }
+}
+
+.reclassification-trace__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
