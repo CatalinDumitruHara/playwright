@@ -184,6 +184,14 @@ export const appRoutes: Route[] = [
           ).then((p) => p.CloseIncidentPage),
       },
       {
+        path: 'incidencias/:id/cierres-similares',
+        data: { roles: TECH_ROLES },
+        loadComponent: () =>
+          import(
+            './features/incident-tray/pages/similar-closures/similar-closures.page'
+          ).then((p) => p.SimilarClosuresPage),
+      },
+      {
         path: 'incidencias/:id/resolucion',
         data: { roles: TECH_ROLES },
         loadComponent: () =>

@@ -1,0 +1,39 @@
+.similar-closures__current {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin: 1.5rem 0 1rem;
+}
+
+.similar-closures__list {
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+/* La tarjeta primaria siempre pinta un bloque de imagen; aquí no hay imagen. */
+.similar-closures__card ::ng-deep .b2b-card-image {
+  display: none;
+}
+
+.similar-closures__card-body {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.similar-closures__comment {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.similar-closures__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}

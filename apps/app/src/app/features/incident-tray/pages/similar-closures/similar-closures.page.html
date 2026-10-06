@@ -1,0 +1,150 @@
+<b2b-container>
+  <div b2b-container-body>
+    <div class="similar-closures">
+      <h1 style="font-size: var(--b2b-titles-04-font-size)">Cierres anteriores en esta sala y categoría</h1>
+
+      <b2b-spinner *ngIf="loading" description="Cargando cierres anteriores"></b2b-spinner>
+
+      <ng-container *ngIf="incident as inc">
+        <div class="similar-closures__current">
+          <b2b-read-data>
+            <span b2b-read-data-label>Código de referencia</span>
+            <span b2b-read-data-value data-testid="similar-current-reference">{{ inc.referenceCode || '—' }}</span>
+          </b2b-read-data>
+          <b2b-read-data>
+            <span b2b-read-data-label>Sala</span>
+            <span b2b-read-data-value>{{ inc.roomName || '—' }}</span>
+          </b2b-read-data>
+          <b2b-read-data>
+            <span b2b-read-data-label>Categoría</span>
+            <span b2b-read-data-value>{{ inc.categoryName || '—' }}</span>
+          </b2b-read-data>
+          <b2b-read-data>
+            <span b2b-read-data-label>Estado</span>
+            <span b2b-read-data-value>
+              <b2b-tag data-testid="similar-current-status">{{ currentStatusLabel }}</b2b-tag>
+            </span>
+          </b2b-read-data>
+        </div>
+
+        <div *ngIf="isResolved" class="similar-closures__actions">
+          <button b2b-button type="button" data-testid="similar-close-action" (click)="closeIncident()">
+            Cerrar incidencia
+          </button>
+        </div>
+      </ng-container>
+
+      <div *ngIf="closuresError" class="similar-closures__error">
+        <b2b-notification-inline
+          [visible]="true"
+          state="error"
+          type="error"
+          [title]="closuresError"
+          data-testid="similar-error"
+        ></b2b-notification-inline>
+        <div *ngIf="closuresRetryable" class="similar-closures__actions">
+          <button b2b-button type="button" data-testid="similar-retry" (click)="retry()">Reintentar</button>
+        </div>
+      </div>
+
+      <b2b-notification-inline
+        *ngIf="isEmpty"
+        [visible]="true"
+        state="info"
+        type="info"
+        [title]="msgEmpty"
+        data-testid="similar-empty"
+      ></b2b-notification-inline>
+
+      <ul *ngIf="closures.length > 0" class="similar-closures__list">
+        <li *ngFor="let c of closures; let i = index">
+          <div b2b-card-primary class="similar-closures__card" [title]="c.referenceCode" data-testid="similar-closure-card">
+            <div b2b-card-placeholder-lower class="similar-closures__card-body">
+              <b2b-read-data>
+                <span b2b-read-data-label>Código de referencia</span>
+                <span b2b-read-data-value>{{ c.referenceCode || '—' }}</span>
+              </b2b-read-data>
+              <b2b-read-data>
+                <span b2b-read-data-label>Sala</span>
+                <span b2b-read-data-value>{{ c.roomName || '—' }}</span>
+              </b2b-read-data>
+              <b2b-read-data>
+                <span b2b-read-data-label>Categoría</span>
+                <span b2b-read-data-value>{{ c.categoryName || '—' }}</span>
+              </b2b-read-data>
+              <b2b-read-data>
+                <span b2b-read-data-label>Comentario de resolución</span>
+                <span b2b-read-data-value class="similar-closures__comment" data-testid="similar-closure-comment">{{
+                  commentText(c, i)
+                }}</span>
+              </b2b-read-data>
+              <div *ngIf="isTruncatable(c)">
+                <button
+                  b2b-button
+                  type="button"
+                  variant="secondary"
+                  class="b2b--secondary"
+                  data-testid="similar-comment-toggle"
+                  [attr.aria-expanded]="isExpanded(i)"
+                  (click)="toggleComment(i)"
+                >
+                  {{ isExpanded(i) ? 'Ver menos' : 'Ver comentario completo' }}
+                </button>
+              </div>
+              <b2b-read-data>
+                <span b2b-read-data-label>Técnico que cerró</span>
+                <span b2b-read-data-value>{{ c.closedByName || '—' }}</span>
+              </b2b-read-data>
+              <b2b-read-data>
+                <span b2b-read-data-label>Fecha de cierre</span>
+                <span b2b-read-data-value>{{ c.closedAt ? (c.closedAt | date: 'dd/MM/yyyy HH:mm') : '—' }}</span>
+              </b2b-read-data>
+
+              <div class="similar-closures__actions">
+                <button
+                  *ngIf="isResolved"
+                  b2b-button
+                  type="button"
+                  variant="secondary"
+                  class="b2b--secondary"
+                  data-testid="similar-reuse"
+                  (click)="reuse(c)"
+                >
+                  Reutilizar comentario
+                </button>
+                <a b2b-link [routerLink]="['/incidencias', c.incidentId, 'resolucion']" data-testid="similar-open">
+                  Abrir incidencia
+                </a>
+              </div>
+            </div>
+          </div>
+        </li>
+      </ul>
+
+      <div class="similar-closures__actions">
+        <button
+          *ngIf="hasMore && !closuresError"
+          b2b-button
+          type="button"
+          variant="secondary"
+          class="b2b--secondary"
+          data-testid="similar-load-more"
+          [disabled]="loadingClosures"
+          (click)="loadMore()"
+        >
+          Cargar más cierres anteriores
+        </button>
+        <button
+          b2b-button
+          type="button"
+          variant="secondary"
+          class="b2b--secondary"
+          data-testid="similar-back"
+          (click)="back()"
+        >
+          Volver al detalle de la incidencia
+        </button>
+      </div>
+    </div>
+  </div>
+</b2b-container>
