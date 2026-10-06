@@ -1,0 +1,107 @@
+<b2b-container>
+  <div b2b-container-body>
+    <div class="incident-resolution">
+      <h1 style="font-size: var(--b2b-titles-04-font-size)">Resolución de la incidencia</h1>
+
+      <b2b-notification-inline
+        *ngIf="justClosed"
+        [visible]="true"
+        state="ok"
+        type="ok"
+        title="Incidencia cerrada correctamente"
+        data-testid="resolution-success"
+      ></b2b-notification-inline>
+
+      <b2b-spinner *ngIf="loading" description="Cargando incidencia"></b2b-spinner>
+
+      <div *ngIf="loadError && !loading" data-testid="resolution-error">
+        <b2b-notification-inline
+          [visible]="true"
+          state="error"
+          type="error"
+          title="La resolución de la incidencia no se ha podido recuperar en este momento. Inténtalo de nuevo"
+        ></b2b-notification-inline>
+        <div class="incident-resolution__actions">
+          <button b2b-button type="button" data-testid="resolution-retry" (click)="load()">Reintentar</button>
+        </div>
+      </div>
+
+      <ng-container *ngIf="incident as inc">
+        <div class="incident-resolution__data">
+          <b2b-read-data>
+            <span b2b-read-data-label>Código de referencia</span>
+            <span b2b-read-data-value data-testid="resolution-reference">{{ inc.referenceCode || '—' }}</span>
+          </b2b-read-data>
+          <b2b-read-data>
+            <span b2b-read-data-label>Estado</span>
+            <span b2b-read-data-value>
+              <b2b-tag data-testid="resolution-status">{{ statusText }}</b2b-tag>
+            </span>
+          </b2b-read-data>
+        </div>
+
+        <section *ngIf="isClosed; else notClosed" class="incident-resolution__section">
+          <h2 style="font-size: var(--b2b-titles-06-font-size)">Resolución</h2>
+          <div class="incident-resolution__data">
+            <b2b-read-data>
+              <span b2b-read-data-label>Comentario de resolución</span>
+              <span b2b-read-data-value class="incident-resolution__comment" data-testid="resolution-comment">{{
+                inc.resolutionComment || 'Dato no disponible'
+              }}</span>
+            </b2b-read-data>
+            <b2b-read-data>
+              <span b2b-read-data-label>Técnico que cerró la incidencia</span>
+              <span b2b-read-data-value data-testid="resolution-closed-by">{{
+                inc.closedByName || 'Dato no disponible'
+              }}</span>
+            </b2b-read-data>
+            <b2b-read-data>
+              <span b2b-read-data-label>Fecha de cierre</span>
+              <span b2b-read-data-value data-testid="resolution-closed-at">{{
+                inc.closedAt ? (inc.closedAt | date: dateFormat) : 'Dato no disponible'
+              }}</span>
+            </b2b-read-data>
+          </div>
+          <div class="incident-resolution__actions">
+            <button
+              b2b-button
+              type="button"
+              variant="secondary"
+              class="b2b--secondary"
+              data-testid="resolution-copy"
+              [disabled]="!inc.resolutionComment"
+              (click)="copyComment()"
+            >
+              Copiar comentario
+            </button>
+          </div>
+        </section>
+        <ng-template #notClosed>
+          <b2b-notification-inline
+            [visible]="true"
+            state="info"
+            type="info"
+            title="La incidencia no está cerrada; no hay resolución que mostrar"
+            data-testid="resolution-not-closed"
+          ></b2b-notification-inline>
+        </ng-template>
+      </ng-container>
+
+      <div class="incident-resolution__actions">
+        <button
+          b2b-button
+          type="button"
+          variant="secondary"
+          class="b2b--secondary"
+          data-testid="resolution-back"
+          (click)="back()"
+        >
+          Volver al detalle de la incidencia
+        </button>
+        <a b2b-link [routerLink]="['/incidencias/cerradas', id, 'historial']" data-testid="resolution-history-link">
+          Ver historial completo
+        </a>
+      </div>
+    </div>
+  </div>
+</b2b-container>

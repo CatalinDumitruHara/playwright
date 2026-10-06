@@ -1,0 +1,41 @@
+.close-incident__data {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.close-incident__description {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.close-incident__form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.close-incident__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.close-incident__counter {
+  align-self: flex-end;
+  font-size: var(--b2b-body-03-font-size, 0.875rem);
+}
+
+.close-incident__error {
+  color: var(--b2b-state-error-01, inherit);
+}
+
+.close-incident__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}

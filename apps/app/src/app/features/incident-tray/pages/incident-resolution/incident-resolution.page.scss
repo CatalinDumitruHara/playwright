@@ -1,0 +1,23 @@
+.incident-resolution__data {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.incident-resolution__comment {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.incident-resolution__section {
+  margin-top: 2rem;
+}
+
+.incident-resolution__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
