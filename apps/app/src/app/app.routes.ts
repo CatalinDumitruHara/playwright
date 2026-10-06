@@ -5,6 +5,7 @@ import { roleGuardChild } from './core/auth/role.guard';
 import { ALL_ROLES, RoleCode } from './core/auth/session.model';
 
 const INCIDENT_ROLES: readonly RoleCode[] = ['ROL-001', 'ROL-002'];
+const TECH_ROLES: readonly RoleCode[] = ['ROL-002'];
 
 export const appRoutes: Route[] = [
   {
@@ -173,6 +174,56 @@ export const appRoutes: Route[] = [
           import('./pages/unauthorized-access/unauthorized-access.page').then(
             (p) => p.UnauthorizedAccessPage
           ),
+      },
+      {
+        path: 'incidencias/:id/cerrar',
+        data: { roles: TECH_ROLES },
+        loadComponent: () =>
+          import(
+            './features/incident-tray/pages/close-incident/close-incident.page'
+          ).then((p) => p.CloseIncidentPage),
+      },
+      {
+        path: 'incidencias/:id/cierres-similares',
+        data: { roles: TECH_ROLES },
+        loadComponent: () =>
+          import(
+            './features/incident-tray/pages/similar-closures/similar-closures.page'
+          ).then((p) => p.SimilarClosuresPage),
+      },
+      {
+        // ARC-038: el bloque de resolución lo consultan reportante y técnico (REQ-115).
+        path: 'incidencias/:id/resolucion',
+        data: { roles: INCIDENT_ROLES },
+        loadComponent: () =>
+          import(
+            './features/incident-tray/pages/incident-resolution/incident-resolution.page'
+          ).then((p) => p.IncidentResolutionPage),
+      },
+      {
+        path: 'incidencias/:id/reclasificar',
+        data: { roles: TECH_ROLES },
+        loadComponent: () =>
+          import(
+            './features/incident-tray/pages/reclassify-incident/reclassify-incident.page'
+          ).then((p) => p.ReclassifyIncidentPage),
+      },
+      {
+        path: 'incidencias/:id/historial/reclasificaciones',
+        data: { roles: TECH_ROLES },
+        loadComponent: () =>
+          import(
+            './features/incident-tray/pages/reclassification-trace/reclassification-trace.page'
+          ).then((p) => p.ReclassificationTracePage),
+      },
+      {
+        // ARC-056: historial consolidado, mismo alcance que el detalle (REQ-127/151).
+        path: 'incidencias/cerradas/:id/historial',
+        data: { roles: INCIDENT_ROLES },
+        loadComponent: () =>
+          import(
+            './features/incident-tray/pages/incident-timeline/incident-timeline.page'
+          ).then((p) => p.IncidentTimelinePage),
       },
       {
         path: '',

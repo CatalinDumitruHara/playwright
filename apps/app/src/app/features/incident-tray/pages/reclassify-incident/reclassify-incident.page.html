@@ -1,0 +1,133 @@
+<b2b-container>
+  <div b2b-container-body>
+    <div class="reclassify-incident">
+      <h1 style="font-size: var(--b2b-titles-04-font-size)">Reclasificación de sala y categoría</h1>
+
+      <b2b-spinner *ngIf="loading" description="Cargando incidencia"></b2b-spinner>
+
+      <div *ngIf="loadError && !loading" data-testid="reclassify-load-error">
+        <b2b-notification-inline
+          [visible]="true"
+          state="error"
+          type="error"
+          title="El detalle de la incidencia no se ha podido recuperar en este momento. Inténtalo de nuevo"
+        ></b2b-notification-inline>
+        <div class="reclassify-incident__actions">
+          <button b2b-button type="button" (click)="load()">Reintentar</button>
+        </div>
+      </div>
+
+      <b2b-notification-inline
+        *ngIf="submitError"
+        [visible]="true"
+        state="error"
+        type="error"
+        [title]="submitError"
+        data-testid="reclassify-error"
+      ></b2b-notification-inline>
+
+      <ng-container *ngIf="incident as inc">
+        <div class="reclassify-incident__data">
+          <b2b-read-data>
+            <span b2b-read-data-label>Sala actual</span>
+            <span b2b-read-data-value data-testid="reclassify-current-room">{{ inc.roomName || '—' }}</span>
+          </b2b-read-data>
+          <b2b-read-data>
+            <span b2b-read-data-label>Categoría actual</span>
+            <span b2b-read-data-value data-testid="reclassify-current-category">{{ inc.categoryName || '—' }}</span>
+          </b2b-read-data>
+        </div>
+
+        <b2b-notification-inline
+          *ngIf="isClosed"
+          [visible]="true"
+          state="alert"
+          type="alert"
+          [title]="msgClosed"
+          data-testid="reclassify-closed"
+        ></b2b-notification-inline>
+
+        <form *ngIf="!isClosed" class="reclassify-incident__form" [formGroup]="form" (ngSubmit)="confirm()" novalidate>
+          <div class="reclassify-incident__field">
+            <label b2b-label>Sala</label>
+            <b2b-dropdown-select
+              class="b2b-width-full"
+              formControlName="roomId"
+              [options]="roomOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeHolder="Selecciona la sala"
+              data-testid="reclassify-room"
+            ></b2b-dropdown-select>
+          </div>
+
+          <div class="reclassify-incident__field">
+            <label b2b-label>Categoría</label>
+            <b2b-dropdown-select
+              class="b2b-width-full"
+              formControlName="categoryCode"
+              [options]="categoryOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeHolder="Selecciona una categoría"
+              data-testid="reclassify-category"
+            ></b2b-dropdown-select>
+          </div>
+
+          <div class="reclassify-incident__field">
+            <label b2b-label for="reclassify-reason">Motivo de la reclasificación (opcional)</label>
+            <textarea
+              b2b-text-area
+              class="b2b-width-full"
+              id="reclassify-reason"
+              formControlName="reason"
+              rows="4"
+              [attr.maxlength]="maxLength"
+              data-testid="reclassify-reason"
+            ></textarea>
+            <span class="reclassify-incident__counter" data-testid="reclassify-reason-counter"
+              >{{ reasonLength }} / {{ maxLength }}</span
+            >
+          </div>
+
+          <div *ngIf="summary.length > 0" class="reclassify-incident__summary" data-testid="reclassify-summary">
+            <p *ngFor="let line of summary">{{ line.field }}: {{ line.from }} → {{ line.to }}</p>
+          </div>
+
+          <span *ngIf="!hasChange" class="reclassify-incident__hint" data-testid="reclassify-no-change">{{
+            msgNoChange
+          }}</span>
+
+          <div class="reclassify-incident__actions">
+            <button b2b-button type="submit" data-testid="reclassify-confirm" [disabled]="confirmDisabled">
+              Confirmar reclasificación
+            </button>
+            <button
+              b2b-button
+              type="button"
+              variant="secondary"
+              class="b2b--secondary"
+              data-testid="reclassify-cancel"
+              (click)="cancel()"
+            >
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </ng-container>
+
+      <div *ngIf="!incident || isClosed" class="reclassify-incident__actions">
+        <button
+          b2b-button
+          type="button"
+          variant="secondary"
+          class="b2b--secondary"
+          data-testid="reclassify-cancel"
+          (click)="cancel()"
+        >
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</b2b-container>

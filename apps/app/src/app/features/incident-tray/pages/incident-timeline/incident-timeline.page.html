@@ -1,0 +1,115 @@
+<b2b-container>
+  <div b2b-container-body>
+    <div class="incident-timeline">
+      <div class="incident-timeline__heading">
+        <h1 style="font-size: var(--b2b-titles-04-font-size)">Historial consolidado de la incidencia</h1>
+        <b2b-read-data>
+          <span b2b-read-data-label>Código de referencia</span>
+          <span b2b-read-data-value data-testid="timeline-reference">{{ referenceCode }}</span>
+        </b2b-read-data>
+      </div>
+
+      <div class="incident-timeline__toolbar">
+        <div class="incident-timeline__filter" data-testid="timeline-filter">
+          <b2b-dropdown-select
+            label="Tipo de evento"
+            placeHolder="Todos"
+            optionLabel="label"
+            optionValue="value"
+            [options]="filterOptions"
+            [formControl]="filterControl"
+          ></b2b-dropdown-select>
+        </div>
+        <div class="incident-timeline__actions">
+          <button
+            b2b-button
+            type="button"
+            variant="secondary"
+            class="b2b--secondary"
+            data-testid="timeline-print"
+            (click)="print()"
+          >
+            Imprimir historial
+          </button>
+        </div>
+      </div>
+
+      <b2b-spinner *ngIf="loading" description="Cargando historial"></b2b-spinner>
+
+      <div *ngIf="error" class="incident-timeline__error">
+        <b2b-notification-inline
+          [visible]="true"
+          state="error"
+          type="error"
+          [title]="error"
+          data-testid="timeline-error"
+        ></b2b-notification-inline>
+        <div *ngIf="retryable" class="incident-timeline__actions">
+          <button b2b-button type="button" data-testid="timeline-retry" (click)="retry()">Reintentar</button>
+        </div>
+      </div>
+
+      <b2b-notification-inline
+        *ngIf="isEmptyTotal"
+        [visible]="true"
+        state="info"
+        type="info"
+        [title]="msgNoActivity"
+        data-testid="timeline-empty"
+      ></b2b-notification-inline>
+
+      <b2b-notification-inline
+        *ngIf="isEmptyFilter"
+        [visible]="true"
+        state="info"
+        type="info"
+        [title]="msgFilterEmpty"
+        data-testid="timeline-empty"
+      ></b2b-notification-inline>
+
+      <ul b2b-list *ngIf="!error && visibleEntries.length > 0" class="incident-timeline__list" data-testid="timeline-list">
+        <li *ngFor="let e of visibleEntries; let i = index; trackBy: trackById" class="incident-timeline__entry" data-testid="timeline-entry">
+          <div class="incident-timeline__entry-header">
+            <h2 style="font-size: var(--b2b-titles-06-font-size)" data-testid="timeline-entry-type">{{ eventLabel(e) }}</h2>
+            <b2b-tag *ngIf="isCurrent(e)" data-testid="timeline-current">Estado actual</b2b-tag>
+          </div>
+          <b2b-read-data>
+            <span b2b-read-data-label>Fecha y hora</span>
+            <span b2b-read-data-value data-testid="timeline-entry-date">{{
+              e.occurredAt ? (e.occurredAt | date: 'dd/MM/yyyy HH:mm') : '—'
+            }}</span>
+          </b2b-read-data>
+          <b2b-read-data>
+            <span b2b-read-data-label>Autor</span>
+            <span b2b-read-data-value data-testid="timeline-entry-author">{{ author(e) }}</span>
+          </b2b-read-data>
+          <b2b-read-data *ngIf="detailLines(e).length > 0">
+            <span b2b-read-data-label>Detalle</span>
+            <span b2b-read-data-value data-testid="timeline-entry-detail">
+              <span *ngFor="let line of detailLines(e)" class="incident-timeline__detail-line">{{ line }}</span>
+            </span>
+          </b2b-read-data>
+          <b2b-read-data *ngIf="resolutionComment(e) as comment">
+            <span b2b-read-data-label>Comentario de resolución</span>
+            <span b2b-read-data-value class="incident-timeline__comment" data-testid="timeline-resolution-comment">{{
+              comment
+            }}</span>
+          </b2b-read-data>
+        </li>
+      </ul>
+
+      <div class="incident-timeline__actions">
+        <button
+          b2b-button
+          type="button"
+          variant="secondary"
+          class="b2b--secondary"
+          data-testid="timeline-back"
+          (click)="back()"
+        >
+          Volver al detalle de la incidencia cerrada
+        </button>
+      </div>
+    </div>
+  </div>
+</b2b-container>

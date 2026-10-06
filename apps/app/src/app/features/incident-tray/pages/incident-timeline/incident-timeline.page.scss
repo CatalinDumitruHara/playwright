@@ -1,0 +1,70 @@
+.incident-timeline {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+.incident-timeline__heading {
+  display: grid;
+  gap: 1rem;
+}
+
+.incident-timeline__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.incident-timeline__filter {
+  min-width: 16rem;
+}
+
+.incident-timeline__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.incident-timeline__entry {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--b2b-brand-blue-05, currentColor);
+}
+
+.incident-timeline__entry-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.incident-timeline__detail-line {
+  display: block;
+}
+
+.incident-timeline__comment {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.incident-timeline__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+@media print {
+  .incident-timeline__toolbar,
+  .incident-timeline__actions {
+    display: none;
+  }
+}

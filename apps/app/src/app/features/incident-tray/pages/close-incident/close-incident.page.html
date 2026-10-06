@@ -1,0 +1,114 @@
+<b2b-container>
+  <div b2b-container-body>
+    <div class="close-incident" role="dialog" aria-labelledby="close-incident-title">
+      <h1 id="close-incident-title" style="font-size: var(--b2b-titles-04-font-size)">Cierre de la incidencia</h1>
+
+      <b2b-spinner *ngIf="loading" description="Cargando incidencia"></b2b-spinner>
+
+      <div *ngIf="loadError && !loading" data-testid="close-load-error">
+        <b2b-notification-inline
+          [visible]="true"
+          state="error"
+          type="error"
+          title="El detalle de la incidencia no se ha podido recuperar en este momento. Inténtalo de nuevo"
+        ></b2b-notification-inline>
+        <div class="close-incident__actions">
+          <button b2b-button type="button" (click)="load()">Reintentar</button>
+        </div>
+      </div>
+
+      <b2b-notification-inline
+        *ngIf="submitError"
+        [visible]="true"
+        state="error"
+        type="error"
+        [title]="submitError"
+        data-testid="close-error"
+      ></b2b-notification-inline>
+
+      <ng-container *ngIf="incident as inc">
+        <div class="close-incident__data">
+          <b2b-read-data>
+            <span b2b-read-data-label>Código de referencia</span>
+            <span b2b-read-data-value data-testid="close-reference">{{ inc.referenceCode || '—' }}</span>
+          </b2b-read-data>
+          <b2b-read-data>
+            <span b2b-read-data-label>Sala</span>
+            <span b2b-read-data-value data-testid="close-room">{{ inc.roomName || '—' }}</span>
+          </b2b-read-data>
+          <b2b-read-data>
+            <span b2b-read-data-label>Oficina</span>
+            <span b2b-read-data-value data-testid="close-office">{{ inc.officeName || '—' }}</span>
+          </b2b-read-data>
+          <b2b-read-data>
+            <span b2b-read-data-label>Categoría</span>
+            <span b2b-read-data-value data-testid="close-category">{{ inc.categoryName || '—' }}</span>
+          </b2b-read-data>
+          <b2b-read-data>
+            <span b2b-read-data-label>Descripción</span>
+            <span b2b-read-data-value class="close-incident__description" data-testid="close-description">{{
+              inc.description
+            }}</span>
+          </b2b-read-data>
+        </div>
+
+        <b2b-notification-inline
+          *ngIf="!isResolved"
+          [visible]="true"
+          state="alert"
+          type="alert"
+          title="La incidencia ya no está en estado resuelta"
+          data-testid="close-not-resolved"
+        ></b2b-notification-inline>
+
+        <form *ngIf="isResolved" class="close-incident__form" [formGroup]="form" (ngSubmit)="confirm()" novalidate>
+          <div class="close-incident__field">
+            <label b2b-label for="resolution-comment">Comentario de resolución</label>
+            <textarea
+              b2b-text-area
+              class="b2b-width-full"
+              id="resolution-comment"
+              formControlName="resolutionComment"
+              rows="6"
+              [attr.maxlength]="maxLength"
+              data-testid="close-comment"
+            ></textarea>
+            <span class="close-incident__counter" data-testid="close-counter">{{ commentLength }} / {{ maxLength }}</span>
+            <span *ngIf="commentError" class="close-incident__error" role="alert" data-testid="close-comment-error">{{
+              commentError
+            }}</span>
+          </div>
+
+          <div class="close-incident__actions">
+            <button b2b-button type="submit" data-testid="close-confirm" [disabled]="confirmDisabled">
+              Confirmar cierre
+            </button>
+            <button
+              b2b-button
+              type="button"
+              variant="secondary"
+              class="b2b--secondary"
+              data-testid="close-cancel"
+              (click)="cancel()"
+            >
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </ng-container>
+
+      <div *ngIf="!incident || !isResolved" class="close-incident__actions">
+        <button
+          b2b-button
+          type="button"
+          variant="secondary"
+          class="b2b--secondary"
+          data-testid="close-cancel"
+          (click)="cancel()"
+        >
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</b2b-container>

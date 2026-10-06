@@ -1,0 +1,40 @@
+.reclassify-incident__data {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.reclassify-incident__form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.reclassify-incident__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.reclassify-incident__counter {
+  align-self: flex-end;
+  font-size: var(--b2b-body-03-font-size, 0.875rem);
+}
+
+.reclassify-incident__summary p {
+  margin: 0 0 0.25rem;
+}
+
+.reclassify-incident__hint {
+  font-size: var(--b2b-body-03-font-size, 0.875rem);
+}
+
+.reclassify-incident__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
