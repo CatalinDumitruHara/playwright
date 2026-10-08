@@ -20,16 +20,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
  * API de administración de usuarios (requiere rol ADMINISTRADOR, ver SecurityConfig).
+ * Paths literales del contrato (openapi.yaml); la base pública {@code /api}
+ * (servers[0].url) la añade el composition root ({@code Application}).
  */
 @RestController
 @Validated
-@RequestMapping("/api/admin/users")
 public class UsuarioController {
 
     private final UserService userService;
@@ -38,7 +38,7 @@ public class UsuarioController {
         this.userService = userService;
     }
 
-    @GetMapping
+    @GetMapping("/admin/users")
     public UserList list(
             @RequestParam(name = "user_role", required = false)
             @Pattern(regexp = "EMPLEADO|MANAGER", message = "debe ser EMPLEADO o MANAGER") String userRole,
@@ -49,23 +49,23 @@ public class UsuarioController {
         return userService.list(userRole, status, page, size);
     }
 
-    @PostMapping
+    @PostMapping("/admin/users")
     public ResponseEntity<UserDetail> create(@Valid @RequestBody UserCreateRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.create(request));
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/admin/users/{userId}")
     public UserDetail get(@PathVariable("userId") String userId) {
         return userService.get(userId);
     }
 
-    @PutMapping("/{userId}")
+    @PutMapping("/admin/users/{userId}")
     public UserDetail update(@PathVariable("userId") String userId,
                              @Valid @RequestBody UserUpdateRequest request) {
         return userService.update(userId, request);
     }
 
-    @PatchMapping("/{userId}/status")
+    @PatchMapping("/admin/users/{userId}/status")
     public UserDetail updateStatus(@PathVariable("userId") String userId,
                                    @Valid @RequestBody UserStatusUpdateRequest request,
                                    @AuthenticationPrincipal Jwt jwt) {
