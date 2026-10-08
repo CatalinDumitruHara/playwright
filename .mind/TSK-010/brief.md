@@ -519,7 +519,8 @@ NO se levanta ningún servicio de respaldo para esta tarea: verifica con tests u
 
 La sesión previa **no entregó**. Corrige la causa antes de ampliar alcance:
 
-> entrega vacía: no aterrizó ningún cambio de código fuera de `.mind/` (solo brief o sin commits nuevos)
+> delivery-gate: la verificaciÃ³n bloqueÃ³ la entrega.
+toolchain no disponible en el runtime: npm
 
 Acciones:
 - Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
