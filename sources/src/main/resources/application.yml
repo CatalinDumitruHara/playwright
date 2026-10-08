@@ -25,3 +25,10 @@ management:
     web:
       exposure:
         include: health
+
+documentos:
+  comprobante:
+    # Gap REQ-027: el RFP no proporciona el nombre de la empresa; parametrizado por entorno
+    company-name: ${DOCUMENTOS_COMPANY_NAME:MAPFRE}
+    pie-legal: ${DOCUMENTOS_PIE_LEGAL:}
+    max-intentos: ${DOCUMENTOS_PDF_MAX_INTENTOS:2}
