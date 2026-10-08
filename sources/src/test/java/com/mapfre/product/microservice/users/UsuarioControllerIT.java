@@ -215,4 +215,101 @@ class UsuarioControllerIT extends AbstractOracleIT {
                 .andExpect(jsonPath("$.status").value("Activo"));
         assertThat(userRepository.findById(u.getId()).orElseThrow().getIsActive()).isEqualTo("Y");
     }
+
+    @Test
+    @DisplayName("IT-014 / RT-007 / ST-010: admin no puede desactivar su propia cuenta -> 403 USR-403 y BBDD sigue 'Y'")
+    void selfDeactivationForbidden() throws Exception {
+        User me = seedUser("Admin Mapfre", "admin@mapfre.com", "ADMINISTRADOR", "Y");
+        String userId = UserIdCodec.encode(me.getId()).toString();
+
+        mockMvc.perform(patch("/api/admin/users/{id}/status", userId).with(admin())
+                        .contentType(MediaType.APPLICATION_JSON).content(json(Map.of("status", "Inactivo"))))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value("USR-403"))
+                .andExpect(jsonPath("$.message").isNotEmpty());
+
+        assertThat(userRepository.findById(me.getId()).orElseThrow().getIsActive()).isEqualTo("Y");
+    }
+
+    @Test
+    @DisplayName("ST-006: MANAGER no puede crear ni listar usuarios -> 403 y no se crea nada en BBDD")
+    void managerForbidden() throws Exception {
+        Map<String, Object> body = Map.of(
+                "full_name", "Hugo Torres",
+                "email", "hugo.torres@mapfre.com",
+                "user_role", "EMPLEADO",
+                "initial_password", "Secreta123!");
+
+        mockMvc.perform(post("/api/admin/users").with(manager())
+                        .contentType(MediaType.APPLICATION_JSON).content(json(body)))
+                .andExpect(status().isForbidden());
+        assertThat(userRepository.findByEmailIgnoreCase("hugo.torres@mapfre.com")).isEmpty();
+        assertThat(userRepository.count()).isZero();
+
+        mockMvc.perform(get("/api/admin/users").with(manager()))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("Sin credenciales: GET y POST /api/admin/users -> 401")
+    void unauthenticated() throws Exception {
+        mockMvc.perform(get("/api/admin/users"))
+                .andExpect(status().isUnauthorized());
+
+        Map<String, Object> body = Map.of(
+                "full_name", "Irene Blanco",
+                "email", "irene.blanco@mapfre.com",
+                "user_role", "EMPLEADO");
+        mockMvc.perform(post("/api/admin/users")
+                        .contentType(MediaType.APPLICATION_JSON).content(json(body)))
+                .andExpect(status().isUnauthorized());
+        assertThat(userRepository.count()).isZero();
+    }
+
+    @Test
+    @DisplayName("UT-020: validador API -> 400 USR-400-VALIDATION (email sin '@', user_role ADMINISTRADOR, sin full_name) y no se crea usuario")
+    void createUserValidation() throws Exception {
+        Map<String, Object> badEmail = Map.of(
+                "full_name", "Juan Prieto",
+                "email", "juan.prieto.mapfre.com",
+                "user_role", "EMPLEADO");
+        mockMvc.perform(post("/api/admin/users").with(admin())
+                        .contentType(MediaType.APPLICATION_JSON).content(json(badEmail)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("USR-400-VALIDATION"))
+                .andExpect(jsonPath("$.details").value(org.hamcrest.Matchers.hasItem(
+                        org.hamcrest.Matchers.containsString("email"))));
+
+        Map<String, Object> adminRole = Map.of(
+                "full_name", "Juan Prieto",
+                "email", "juan.prieto@mapfre.com",
+                "user_role", "ADMINISTRADOR");
+        mockMvc.perform(post("/api/admin/users").with(admin())
+                        .contentType(MediaType.APPLICATION_JSON).content(json(adminRole)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.details").value(org.hamcrest.Matchers.hasItem(
+                        org.hamcrest.Matchers.containsString("user_role"))));
+
+        Map<String, Object> noName = Map.of(
+                "email", "juan.prieto@mapfre.com",
+                "user_role", "EMPLEADO");
+        mockMvc.perform(post("/api/admin/users").with(admin())
+                        .contentType(MediaType.APPLICATION_JSON).content(json(noName)))
+                .andExpect(status().isBadRequest());
+
+        assertThat(userRepository.count()).isZero();
+    }
+
+    @Test
+    @DisplayName("PATCH desactivar cuenta ya inactiva -> 409 y BBDD sigue 'N'")
+    void deactivateAlreadyInactive() throws Exception {
+        User u = seedUser("Laura Mena", "laura.mena@mapfre.com", "EMPLEADO", "N");
+        String userId = UserIdCodec.encode(u.getId()).toString();
+
+        mockMvc.perform(patch("/api/admin/users/{id}/status", userId).with(admin())
+                        .contentType(MediaType.APPLICATION_JSON).content(json(Map.of("status", "Inactivo"))))
+                .andExpect(status().isConflict());
+
+        assertThat(userRepository.findById(u.getId()).orElseThrow().getIsActive()).isEqualTo("N");
+    }
 }
