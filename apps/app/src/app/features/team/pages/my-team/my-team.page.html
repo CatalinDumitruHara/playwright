@@ -1,0 +1,32 @@
+<section class="my-team">
+  <h1>Mi equipo</h1>
+
+  <p *ngIf="loading()" data-testid="my-team-loading">Cargando…</p>
+
+  <p *ngIf="error()" class="error" role="alert" data-testid="my-team-error">
+    {{ error() }}
+  </p>
+
+  <p *ngIf="!loading() && !error() && members().length === 0" data-testid="my-team-empty">
+    No tienes empleados asignados.
+  </p>
+
+  <table
+    *ngIf="!loading() && !error() && members().length > 0"
+    class="my-team-table"
+    data-testid="my-team-table"
+  >
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let m of members()" [attr.data-testid]="'team-member-row-' + m.employee_id">
+        <td data-testid="team-member-name">{{ m.full_name }}</td>
+        <td data-testid="team-member-email">{{ m.email }}</td>
+      </tr>
+    </tbody>
+  </table>
+</section>

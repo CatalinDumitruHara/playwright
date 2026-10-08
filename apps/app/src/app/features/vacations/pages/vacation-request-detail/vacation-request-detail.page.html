@@ -1,0 +1,50 @@
+<section class="page" data-testid="vacation-request-detail">
+  <h1>Detalle de la solicitud</h1>
+
+  <p *ngIf="loading()" data-testid="detail-loading">Cargando…</p>
+  <p *ngIf="error()" class="error" role="alert" data-testid="detail-error">{{ error() }}</p>
+
+  <ng-container *ngIf="data() as request">
+    <dl class="summary" data-testid="detail-summary">
+      <dt>Identificador</dt>
+      <dd data-testid="detail-request-id">{{ request.request_id }}</dd>
+      <dt>Empleado</dt>
+      <dd data-testid="detail-employee-name">{{ request.employee_name }}</dd>
+      <dt>Fecha de inicio</dt>
+      <dd data-testid="detail-start-date">{{ request.start_date }}</dd>
+      <dt>Fecha de fin</dt>
+      <dd data-testid="detail-end-date">{{ request.end_date }}</dd>
+      <dt>Motivo</dt>
+      <dd data-testid="detail-reason">{{ request.reason || '—' }}</dd>
+      <dt>Estado</dt>
+      <dd data-testid="detail-status">{{ request.status }}</dd>
+      <dt>Fecha de registro</dt>
+      <dd data-testid="detail-created-at">{{ request.created_at }}</dd>
+      <dt>Fecha de resolución</dt>
+      <dd data-testid="detail-resolution-date">{{ request.resolution_date || '—' }}</dd>
+      <dt>Observaciones del responsable</dt>
+      <dd data-testid="detail-manager-notes">{{ request.manager_notes || '—' }}</dd>
+    </dl>
+
+    <p *ngIf="downloadError()" class="error" role="alert" data-testid="download-error">{{ downloadError() }}</p>
+
+    <div class="actions">
+      <a routerLink="/solicitudes" data-testid="back-link">Volver a mis solicitudes</a>
+      <a
+        *ngIf="canCancel()"
+        [routerLink]="['/solicitudes', request.request_id, 'cancelar']"
+        data-testid="cancel-link"
+        >Cancelar solicitud</a
+      >
+      <button
+        *ngIf="canDownloadProof()"
+        type="button"
+        (click)="downloadProof()"
+        [disabled]="downloading()"
+        data-testid="download-proof"
+      >
+        {{ downloading() ? 'Descargando…' : 'Descargar comprobante' }}
+      </button>
+    </div>
+  </ng-container>
+</section>

@@ -1,0 +1,30 @@
+<section class="team-request-reject">
+  <h1>Rechazar solicitud</h1>
+
+  <p *ngIf="error()" class="error" role="alert" data-testid="reject-error">
+    {{ error() }}
+  </p>
+
+  <form [formGroup]="rejectForm" (ngSubmit)="onSubmit()" class="reject-form" data-testid="reject-form">
+    <label for="rejection_reason">Motivo del rechazo (opcional)</label>
+    <textarea
+      id="rejection_reason"
+      formControlName="rejection_reason"
+      rows="5"
+      data-testid="rejection-reason-input"
+    ></textarea>
+    <small data-testid="rejection-reason-counter">
+      {{ rejectForm.controls.rejection_reason.value.length }} / {{ maxLength }}
+    </small>
+    <p *ngIf="showMaxLengthError" class="error" data-testid="rejection-reason-maxlength-error">
+      El motivo no puede superar los {{ maxLength }} caracteres
+    </p>
+
+    <div class="actions">
+      <button type="button" (click)="cancel()" data-testid="reject-cancel">Cancelar</button>
+      <button type="submit" [disabled]="submitting()" data-testid="reject-submit">
+        Confirmar rechazo
+      </button>
+    </div>
+  </form>
+</section>

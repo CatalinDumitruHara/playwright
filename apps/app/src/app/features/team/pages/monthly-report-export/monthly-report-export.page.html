@@ -1,0 +1,65 @@
+<section class="monthly-report-export">
+  <h1>Informe mensual de solicitudes</h1>
+
+  <form
+    [formGroup]="exportForm"
+    (ngSubmit)="onSubmit()"
+    class="export-form"
+    data-testid="export-form"
+  >
+    <label for="report_month">Mes</label>
+    <select id="report_month" formControlName="report_month" data-testid="report-month-input">
+      <option *ngFor="let m of months" [ngValue]="m.value">{{ m.label }}</option>
+    </select>
+    <p
+      *ngIf="exportForm.controls.report_month.invalid && exportForm.controls.report_month.touched"
+      class="error"
+      data-testid="report-month-error"
+    >
+      Selecciona un mes válido
+    </p>
+
+    <label for="report_year">Año</label>
+    <input
+      id="report_year"
+      type="number"
+      formControlName="report_year"
+      data-testid="report-year-input"
+    />
+    <p
+      *ngIf="exportForm.controls.report_year.invalid && exportForm.controls.report_year.touched"
+      class="error"
+      data-testid="report-year-error"
+    >
+      Indica un año válido de 4 dígitos
+    </p>
+
+    <div class="actions">
+      <button
+        type="submit"
+        [disabled]="submitting() || inProgress"
+        data-testid="export-submit"
+      >
+        Generar informe
+      </button>
+    </div>
+  </form>
+
+  <p *ngIf="inProgress" data-testid="export-in-progress">
+    Generando informe ({{ job()?.status }})…
+  </p>
+
+  <p
+    *ngIf="job()?.status === 'COMPLETED' && job()?.download_url"
+    data-testid="export-completed"
+  >
+    Informe listo:
+    <a [href]="job()?.download_url" target="_blank" rel="noopener" data-testid="export-download-link">
+      Descargar
+    </a>
+  </p>
+
+  <p *ngIf="error()" class="error" role="alert" data-testid="export-error">
+    {{ error() }}
+  </p>
+</section>

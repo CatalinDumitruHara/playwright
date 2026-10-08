@@ -1,0 +1,32 @@
+<section class="page" data-testid="vacation-request-confirmation">
+  <h1>Solicitud registrada</h1>
+
+  <ng-container *ngIf="data() as request; else noData">
+    <p data-testid="confirmation-message">Tu solicitud de vacaciones se ha registrado correctamente.</p>
+    <dl class="summary" data-testid="confirmation-summary">
+      <dt>Identificador</dt>
+      <dd data-testid="confirmation-request-id">{{ request.request_id }}</dd>
+      <dt>Fecha de inicio</dt>
+      <dd data-testid="confirmation-start-date">{{ request.start_date }}</dd>
+      <dt>Fecha de fin</dt>
+      <dd data-testid="confirmation-end-date">{{ request.end_date }}</dd>
+      <ng-container *ngIf="request.reason">
+        <dt>Motivo</dt>
+        <dd data-testid="confirmation-reason">{{ request.reason }}</dd>
+      </ng-container>
+      <dt>Estado</dt>
+      <dd data-testid="confirmation-status">{{ request.status }}</dd>
+      <dt>Fecha de registro</dt>
+      <dd data-testid="confirmation-created-at">{{ request.created_at }}</dd>
+    </dl>
+    <div class="actions">
+      <a [routerLink]="['/solicitudes', request.request_id]" data-testid="detail-link">Ver detalle</a>
+      <a routerLink="/solicitudes" data-testid="my-requests-link">Ir a mis solicitudes</a>
+    </div>
+  </ng-container>
+
+  <ng-template #noData>
+    <p data-testid="confirmation-empty">No hay datos de la solicitud que mostrar.</p>
+    <a routerLink="/solicitudes" data-testid="my-requests-link">Ir a mis solicitudes</a>
+  </ng-template>
+</section>

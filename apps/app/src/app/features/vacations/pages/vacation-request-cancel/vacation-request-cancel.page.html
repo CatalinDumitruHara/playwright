@@ -1,0 +1,34 @@
+<section class="page" data-testid="vacation-request-cancel">
+  <h1>Cancelar solicitud</h1>
+
+  <p *ngIf="loading()" data-testid="cancel-loading">Cargando…</p>
+  <p *ngIf="error()" class="error" role="alert" data-testid="cancel-error">{{ error() }}</p>
+
+  <ng-container *ngIf="data() as request">
+    <dl class="summary" data-testid="cancel-summary">
+      <dt>Fecha de inicio</dt>
+      <dd>{{ request.start_date }}</dd>
+      <dt>Fecha de fin</dt>
+      <dd>{{ request.end_date }}</dd>
+      <dt>Estado</dt>
+      <dd data-testid="cancel-status">{{ request.status }}</dd>
+    </dl>
+
+    <ng-container *ngIf="canCancel(); else notCancellable">
+      <p data-testid="cancel-question">¿Seguro que quieres cancelar esta solicitud? Esta acción no se puede deshacer.</p>
+      <div class="actions">
+        <button type="button" (click)="back()" data-testid="cancel-back">No, volver</button>
+        <button type="button" (click)="confirm()" [disabled]="submitting()" data-testid="cancel-confirm">
+          {{ submitting() ? 'Cancelando…' : 'Sí, cancelar solicitud' }}
+        </button>
+      </div>
+    </ng-container>
+
+    <ng-template #notCancellable>
+      <p class="warning" data-testid="cancel-not-allowed">
+        Solo se pueden cancelar solicitudes en estado Pendiente. Esta solicitud está {{ request.status }}.
+      </p>
+      <a [routerLink]="['/solicitudes', request.request_id]" data-testid="detail-link">Volver al detalle</a>
+    </ng-template>
+  </ng-container>
+</section>

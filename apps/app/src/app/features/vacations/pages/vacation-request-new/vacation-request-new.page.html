@@ -1,0 +1,43 @@
+<section class="page" data-testid="vacation-request-new">
+  <h1>Nueva solicitud de vacaciones</h1>
+
+  <p *ngIf="error()" class="error" role="alert" data-testid="vacation-request-new-error">
+    {{ error() }}
+  </p>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form" data-testid="vacation-request-form">
+    <label for="start_date">Fecha de inicio</label>
+    <input id="start_date" type="date" formControlName="start_date" data-testid="start-date" />
+    <span
+      *ngIf="form.controls.start_date.touched && form.controls.start_date.hasError('required')"
+      class="field-error"
+      data-testid="start-date-required"
+      >La fecha de inicio es obligatoria</span
+    >
+
+    <label for="end_date">Fecha de fin</label>
+    <input id="end_date" type="date" formControlName="end_date" data-testid="end-date" />
+    <span
+      *ngIf="form.controls.end_date.touched && form.controls.end_date.hasError('required')"
+      class="field-error"
+      data-testid="end-date-required"
+      >La fecha de fin es obligatoria</span
+    >
+    <span *ngIf="showDateRangeError" class="field-error" data-testid="date-range-error"
+      >La fecha de fin no puede ser anterior a la de inicio</span
+    >
+
+    <label for="reason">Motivo (opcional)</label>
+    <textarea id="reason" formControlName="reason" maxlength="500" rows="4" data-testid="reason"></textarea>
+    <span *ngIf="form.controls.reason.hasError('maxlength')" class="field-error" data-testid="reason-maxlength"
+      >El motivo no puede superar 500 caracteres</span
+    >
+
+    <div class="actions">
+      <a routerLink="/solicitudes" data-testid="back-link">Volver a mis solicitudes</a>
+      <button type="submit" [disabled]="loading()" data-testid="vacation-request-submit">
+        {{ loading() ? 'Enviando…' : 'Enviar solicitud' }}
+      </button>
+    </div>
+  </form>
+</section>

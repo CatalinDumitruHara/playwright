@@ -1,0 +1,46 @@
+<section class="page" data-testid="my-vacation-requests">
+  <header class="header">
+    <h1>Mis solicitudes de vacaciones</h1>
+    <a routerLink="/solicitudes/nueva" data-testid="new-request-link">Nueva solicitud</a>
+  </header>
+
+  <p *ngIf="loading()" data-testid="my-requests-loading">Cargando…</p>
+  <p *ngIf="error()" class="error" role="alert" data-testid="my-requests-error">{{ error() }}</p>
+
+  <p *ngIf="!loading() && isEmpty()" data-testid="my-requests-empty">Todavía no tienes solicitudes de vacaciones.</p>
+
+  <ng-container *ngIf="data() as list">
+    <table *ngIf="list.items.length > 0" class="table" data-testid="my-requests-table">
+      <thead>
+        <tr>
+          <th>Fecha de inicio</th>
+          <th>Fecha de fin</th>
+          <th>Estado</th>
+          <th>Fecha de registro</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of list.items" data-testid="my-requests-row">
+          <td>{{ item.start_date }}</td>
+          <td>{{ item.end_date }}</td>
+          <td data-testid="my-requests-status">{{ item.status }}</td>
+          <td>{{ item.created_at }}</td>
+          <td>
+            <a [routerLink]="['/solicitudes', item.request_id]" data-testid="my-requests-detail-link">Ver detalle</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <nav *ngIf="list.items.length > 0" class="pagination" data-testid="my-requests-pagination">
+      <button type="button" (click)="previous()" [disabled]="!hasPrevious() || loading()" data-testid="previous-page">
+        Anterior
+      </button>
+      <span data-testid="page-indicator">Página {{ page() }} de {{ totalPages() }}</span>
+      <button type="button" (click)="next()" [disabled]="!hasNext() || loading()" data-testid="next-page">
+        Siguiente
+      </button>
+    </nav>
+  </ng-container>
+</section>

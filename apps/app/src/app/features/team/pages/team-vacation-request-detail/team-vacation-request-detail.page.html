@@ -1,0 +1,54 @@
+<section class="team-request-detail">
+  <a routerLink="/equipo/solicitudes" data-testid="back-to-team-requests">← Volver a solicitudes</a>
+  <h1>Detalle de la solicitud</h1>
+
+  <p *ngIf="loading()" data-testid="team-request-loading">Cargando…</p>
+
+  <p *ngIf="error()" class="error" role="alert" data-testid="team-request-error">
+    {{ error() }}
+  </p>
+
+  <ng-container *ngIf="request() as r">
+    <dl class="detail" data-testid="team-request-detail">
+      <dt>Empleado</dt>
+      <dd data-testid="detail-employee-name">{{ r.employee_name }}</dd>
+      <dt>Inicio</dt>
+      <dd data-testid="detail-start-date">{{ r.start_date | date: 'dd/MM/yyyy' }}</dd>
+      <dt>Fin</dt>
+      <dd data-testid="detail-end-date">{{ r.end_date | date: 'dd/MM/yyyy' }}</dd>
+      <dt>Motivo</dt>
+      <dd data-testid="detail-reason">{{ r.reason || '—' }}</dd>
+      <dt>Estado</dt>
+      <dd data-testid="detail-status">{{ r.status }}</dd>
+      <dt>Fecha de solicitud</dt>
+      <dd data-testid="detail-created-at">{{ r.created_at | date: 'dd/MM/yyyy HH:mm' }}</dd>
+      <ng-container *ngIf="r.resolution_date">
+        <dt>Fecha de resolución</dt>
+        <dd data-testid="detail-resolution-date">{{ r.resolution_date | date: 'dd/MM/yyyy HH:mm' }}</dd>
+      </ng-container>
+      <ng-container *ngIf="r.manager_notes">
+        <dt>Notas del manager</dt>
+        <dd data-testid="detail-manager-notes">{{ r.manager_notes }}</dd>
+      </ng-container>
+    </dl>
+
+    <p *ngIf="actionError()" class="error" role="alert" data-testid="team-request-action-error">
+      {{ actionError() }}
+    </p>
+
+    <div class="actions" *ngIf="isPending()" data-testid="team-request-actions">
+      <button
+        type="button"
+        (click)="approve()"
+        [disabled]="approving()"
+        data-testid="approve-button"
+      >
+        Aprobar
+      </button>
+      <a
+        [routerLink]="['/equipo/solicitudes', requestId(), 'rechazar']"
+        data-testid="reject-link"
+      >Rechazar</a>
+    </div>
+  </ng-container>
+</section>
