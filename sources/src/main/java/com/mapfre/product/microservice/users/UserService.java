@@ -1,14 +1,22 @@
 package com.mapfre.product.microservice.users;
 
+import com.mapfre.product.microservice.users.dto.HierarchyItem;
+import com.mapfre.product.microservice.users.dto.HierarchyList;
+import com.mapfre.product.microservice.users.dto.HierarchyNodeDetail;
+import com.mapfre.product.microservice.users.dto.ManagerAssignmentRequest;
 import com.mapfre.product.microservice.users.dto.UserCreateRequest;
 import com.mapfre.product.microservice.users.dto.UserDetail;
 import com.mapfre.product.microservice.users.dto.UserList;
 import com.mapfre.product.microservice.users.dto.UserStatusUpdateRequest;
 import com.mapfre.product.microservice.users.dto.UserSummary;
 import com.mapfre.product.microservice.users.dto.UserUpdateRequest;
+import com.mapfre.product.microservice.users.error.AutoAsignacionError;
 import com.mapfre.product.microservice.users.error.AutoDesactivacionError;
+import com.mapfre.product.microservice.users.error.ConflictoAsignacionError;
 import com.mapfre.product.microservice.users.error.EmailDuplicadoError;
 import com.mapfre.product.microservice.users.error.EstadoCuentaError;
+import com.mapfre.product.microservice.users.error.ManagerNoAsignadoError;
+import com.mapfre.product.microservice.users.error.MismoManagerError;
 import com.mapfre.product.microservice.users.error.RolInvalidoError;
 import com.mapfre.product.microservice.users.error.UsuarioNoEncontradoError;
 import java.security.SecureRandom;
@@ -31,6 +39,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
+
+    private static final String ROLE_MANAGER = "MANAGER";
+    private static final String MANAGER_NOT_FOUND = "El manager especificado no existe.";
 
     private static final int TEMP_PASSWORD_LENGTH = 16;
     private static final String TEMP_PASSWORD_ALPHABET =
@@ -123,6 +134,112 @@ public class UserService {
         User saved = userRepository.save(user);
         log.info("Estado de usuario cambiado id={} status={}", saved.getId(), request.status());
         return toDetail(saved);
+    }
+
+    @Transactional(readOnly = true)
+    public HierarchyList hierarchy(String filterByManager, Boolean filterByUnassigned, int page, int size) {
+        Specification<User> spec = (root, query, cb) -> cb.conjunction();
+        if (filterByManager != null && !filterByManager.isBlank()) {
+            Long managerId = UserIdCodec.decode(filterByManager)
+                    .flatMap(userRepository::findById)
+                    .filter(u -> ROLE_MANAGER.equals(u.getRole().getRoleName()))
+                    .map(User::getId)
+                    .orElseThrow(() -> new RolInvalidoError(
+                            "El filtro filter_by_manager no corresponde a un manager existente."));
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("manager").get("id"), managerId));
+        }
+        if (Boolean.TRUE.equals(filterByUnassigned)) {
+            spec = spec.and((root, query, cb) -> cb.isNull(root.get("manager")));
+        }
+        PageRequest pageable = PageRequest.of(page - 1, size, Sort.by("fullName").ascending());
+        Page<User> result = userRepository.findAll(spec, pageable);
+        List<HierarchyItem> items = result.getContent().stream().map(UserService::toHierarchyItem).toList();
+        return new HierarchyList(items, (int) result.getTotalElements(), page, size);
+    }
+
+    @Transactional
+    public HierarchyNodeDetail assignManager(String employeeId, ManagerAssignmentRequest request) {
+        User employee = load(employeeId);
+        Long managerId = decodeManagerId(request.managerId());
+        if (managerId.equals(employee.getId())) {
+            throw new AutoAsignacionError();
+        }
+        User manager = loadManager(managerId);
+        if (employee.getManager() != null) {
+            throw new ConflictoAsignacionError();
+        }
+        employee.setManager(manager);
+        employee.setUpdatedAt(OffsetDateTime.now());
+        User saved = userRepository.save(employee);
+        log.info("Manager asignado empleado={} manager={}", saved.getId(), manager.getId());
+        return toNode(saved);
+    }
+
+    @Transactional
+    public HierarchyNodeDetail changeManager(String employeeId, ManagerAssignmentRequest request) {
+        User employee = load(employeeId);
+        Long managerId = decodeManagerId(request.managerId());
+        if (managerId.equals(employee.getId())) {
+            throw new AutoAsignacionError();
+        }
+        if (employee.getManager() == null) {
+            throw new ManagerNoAsignadoError();
+        }
+        if (employee.getManager().getId().equals(managerId)) {
+            throw new MismoManagerError();
+        }
+        User manager = loadManager(managerId);
+        employee.setManager(manager);
+        employee.setUpdatedAt(OffsetDateTime.now());
+        User saved = userRepository.save(employee);
+        log.info("Manager modificado empleado={} manager={}", saved.getId(), manager.getId());
+        return toNode(saved);
+    }
+
+    @Transactional
+    public void removeManager(String employeeId) {
+        User employee = load(employeeId);
+        if (employee.getManager() == null) {
+            throw new ManagerNoAsignadoError();
+        }
+        Long previousManagerId = employee.getManager().getId();
+        employee.setManager(null);
+        employee.setUpdatedAt(OffsetDateTime.now());
+        User saved = userRepository.save(employee);
+        log.info("Manager eliminado empleado={} manager_anterior={}", saved.getId(), previousManagerId);
+    }
+
+    private Long decodeManagerId(String rawManagerId) {
+        return UserIdCodec.decode(rawManagerId)
+                .orElseThrow(() -> new UsuarioNoEncontradoError(MANAGER_NOT_FOUND));
+    }
+
+    private User loadManager(Long managerId) {
+        User manager = userRepository.findById(managerId)
+                .orElseThrow(() -> new UsuarioNoEncontradoError(MANAGER_NOT_FOUND));
+        if (!ROLE_MANAGER.equals(manager.getRole().getRoleName())) {
+            throw new RolInvalidoError("El usuario seleccionado como manager no tiene el rol MANAGER.");
+        }
+        return manager;
+    }
+
+    private static HierarchyNodeDetail toNode(User user) {
+        User manager = user.getManager();
+        return new HierarchyNodeDetail(
+                UserIdCodec.encode(user.getId()),
+                user.getFullName(),
+                manager != null ? UserIdCodec.encode(manager.getId()) : null,
+                manager != null ? manager.getFullName() : null);
+    }
+
+    private static HierarchyItem toHierarchyItem(User user) {
+        User manager = user.getManager();
+        return new HierarchyItem(
+                UserIdCodec.encode(user.getId()),
+                user.getFullName(),
+                user.getEmail(),
+                manager != null ? UserIdCodec.encode(manager.getId()) : null,
+                manager != null ? manager.getFullName() : null);
     }
 
     private User load(String userId) {

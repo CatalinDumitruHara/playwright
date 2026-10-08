@@ -48,6 +48,26 @@ public class UserApiExceptionHandler {
         return build(HttpStatus.CONFLICT, "USR-409-STATUS", ex.getMessage(), List.of());
     }
 
+    @ExceptionHandler(AutoAsignacionError.class)
+    public ResponseEntity<ErrorResponse> handleAutoAsignacion(AutoAsignacionError ex) {
+        return build(HttpStatus.BAD_REQUEST, "USR-400-SELF-MANAGER", ex.getMessage(), List.of());
+    }
+
+    @ExceptionHandler(MismoManagerError.class)
+    public ResponseEntity<ErrorResponse> handleMismoManager(MismoManagerError ex) {
+        return build(HttpStatus.BAD_REQUEST, "USR-400-SAME-MANAGER", ex.getMessage(), List.of());
+    }
+
+    @ExceptionHandler(ConflictoAsignacionError.class)
+    public ResponseEntity<ErrorResponse> handleConflictoAsignacion(ConflictoAsignacionError ex) {
+        return build(HttpStatus.CONFLICT, "USR-409-MANAGER", ex.getMessage(), List.of());
+    }
+
+    @ExceptionHandler(ManagerNoAsignadoError.class)
+    public ResponseEntity<ErrorResponse> handleManagerNoAsignado(ManagerNoAsignadoError ex) {
+        return build(HttpStatus.CONFLICT, "USR-409-NO-MANAGER", ex.getMessage(), List.of());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleBodyValidation(MethodArgumentNotValidException ex) {
         List<String> details = ex.getBindingResult().getAllErrors().stream()
