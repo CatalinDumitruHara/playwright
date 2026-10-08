@@ -1340,11 +1340,51 @@ Variables: `MIND_ENV_ORACLE_HOST`, `MIND_ENV_ORACLE_PORT`, `MIND_ENV_ORACLE_URL`
 ### Si el entorno no está disponible
 Comprueba `.mind/TSK-001/env.json`: si su `status` es `unavailable` o `degraded`, la plataforma no pudo darte (todo) el entorno. En ese caso ESCRIBE igualmente los tests de integración y déjalos en el entregable, y repórtalo como health check **Warning** con `check: entorno-de-prueba` — NO como Blocker: no es un defecto de tu tarea, y la verificación queda diferida al CI. Reserva el Blocker para cuando el entorno SÍ estaba y los tests fallan por el código o por el brief.
 
-## Fallo del intento anterior (OBLIGATORIO corregir)
+## Estado del build al cerrar el intento anterior
 
-La sesión previa **no entregó**. Corrige la causa antes de ampliar alcance:
+El intento anterior dejó el módulo COMPILANDO, pero el artefacto entregado **no arrancaría** (o incumple el contrato que declara). El compilador está en VERDE: **no busques ahí y no pierdas el intento intentando reproducir un fallo de compilación que no existe**. Lo que falla es exactamente lo que dice el informe de abajo, y es lo PRIMERO que tienes que arreglar, antes de añadir nada nuevo.
 
-> entrega vacía: no aterrizó ningún cambio de código fuera de `.mind/` (solo brief o sin commits nuevos)
+- Arregla lo que nombra el informe, en el sitio que nombra. No hace falta reproducirlo con el compilador: ya compila.
+- Si el defecto viene de la rama BASE y no de tu trabajo, arréglalo igual y decláralo como `health_check` de severidad Warning indicando el fichero y por qué lo tocaste.
+- **No borres ni desactives tests para que el informe calle.** Si crees que el informe se equivoca, entrégalo con un `health_check` Blocker explicando por qué; quitar cobertura para tapar una señal es peor que la señal.
 
-Acciones:
-- Reproduce el fallo lo primero. No amplíes alcance de negocio hasta corregirlo. No entregues basura para «pasar» el finalize.
+### Lo que reportó la verificación (literal)
+
+```
+boot-probe: el artefacto entregado NO ARRANCA. Se lanzó contra la base de datos de la sesión y el proceso murió con exit 1 sin llegar a servir. Compilar no es arrancar: el esquema, la validación de las entidades contra él y el registro de los endpoints ocurren aquí.
+Causa: Caused by: java.net.ConnectException: Connection refused
+```
+nd.jdbc.internal.DdlTransactionIsolatorNonJtaImpl.getIsolatedConnection(DdlTransactionIsolatorNonJtaImpl.java:46)
+	... 44 common frames omitted
+Caused by: oracle.net.ns.NetException: ORA-12541: Cannot connect. No listener at host localhost port 1521. (CONNECTION_ID=DIkHEgx+RwGeolwl2956KA==)
+https://docs.oracle.com/error-help/db/ora-12541/
+	at oracle.net.nt.TcpNTAdapter.handleEstablishSocketException(TcpNTAdapter.java:418)
+	at oracle.net.nt.TcpNTAdapter.establishSocket(TcpNTAdapter.java:350)
+	at oracle.net.nt.TcpNTAdapter.connect(TcpNTAdapter.java:228)
+	at oracle.net.nt.ConnOption.connect(ConnOption.java:346)
+	at oracle.net.nt.ConnStrategy.executeConnOption(ConnStrategy.java:1252)
+	at oracle.net.nt.ConnStrategy.execute(ConnStrategy.java:778)
+	at oracle.net.resolver.AddrResolution.resolveAndExecute(AddrResolution.java:718)
+	at oracle.net.ns.NSProtocol.establishConnection(NSProtocol.java:960)
+	at oracle.net.ns.NSProtocol.connect(NSProtocol.java:329)
+	at oracle.jdbc.driver.T4CConnection.connectNetworkSessionProtocol(T4CConnection.java:3684)
+	at oracle.jdbc.driver.T4CConnection.logon(T4CConnection.java:1083)
+	... 58 common frames omitted
+Caused by: java.net.ConnectException: Connection refused
+	at java.base/sun.nio.ch.Net.pollConnect(Native Method)
+	at java.base/sun.nio.ch.Net.pollConnectNow(Net.java:694)
+	at java.base/sun.nio.ch.SocketChannelImpl.finishTimedConnect(SocketChannelImpl.java:1194)
+	at java.base/sun.nio.ch.SocketChannelImpl.blockingConnect(SocketChannelImpl.java:1236)
+	at java.base/sun.nio.ch.SocketAdaptor.connect(SocketAdaptor.java:102)
+	at oracle.net.nt.TimeoutSocketChannel.doConnect(TimeoutSocketChannel.java:291)
+	at oracle.net.nt.TimeoutSocketChannel.initializeSocketChannel(TimeoutSocketChannel.java:271)
+	at oracle.net.nt.TimeoutSocketChannel.connect(TimeoutSocketChannel.java:238)
+	at oracle.net.nt.TimeoutSocketChannel.<init>(TimeoutSocketChannel.java:205)
+	at oracle.net.nt.TcpNTAdapter.establishSocket(TcpNTAdapter.java:339)
+	... 67 common frames omitted
+```
+api-contract: rutas del componente no alineadas con el contrato de esta tarea (EP del brief / `arch_api_endpoint`).
+Faltan en código (path/verbo del contrato): `GET /admin/users`, `POST /admin/users`.
+suite-exec: la red de seguridad entregada no se ejecuta. Los tests ESCRITOS y los tests EJECUTADOS tienen que ser los mismos, y tienen que correr en un clon limpio del repo sin variables de la plataforma.
+- los tests no declaran datasource propio: heredan el de producción y saldrán a buscar la base de datos real (aquí fue un `ORA-01017` contra el Oracle de otro proyecto). Usa Testcontainers con la imagen real, o H2 en modo Oracle como mínimo
+```
