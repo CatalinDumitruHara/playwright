@@ -1,0 +1,42 @@
+<section class="admin-user-new" data-testid="admin-user-new-page">
+  <h1>Nuevo usuario</h1>
+
+  @if (error()) {
+    <p class="error" role="alert" data-testid="admin-user-new-error">{{ error() }}</p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate data-testid="admin-user-new-form">
+    <label for="full_name">Nombre completo</label>
+    <input id="full_name" type="text" formControlName="full_name" data-testid="admin-user-new-full-name" />
+    @if (isInvalid('full_name')) {
+      <small class="field-error" data-testid="admin-user-new-full-name-error">El nombre es obligatorio</small>
+    }
+
+    <label for="email">Email</label>
+    <input id="email" type="email" formControlName="email" data-testid="admin-user-new-email" />
+    @if (isInvalid('email')) {
+      <small class="field-error" data-testid="admin-user-new-email-error">Introduce un email válido</small>
+    }
+
+    <label for="user_role">Rol</label>
+    <select id="user_role" formControlName="user_role" data-testid="admin-user-new-role">
+      <option value="" disabled>Selecciona un rol</option>
+      @for (role of roles; track role) {
+        <option [value]="role">{{ role }}</option>
+      }
+    </select>
+    @if (isInvalid('user_role')) {
+      <small class="field-error" data-testid="admin-user-new-role-error">El rol es obligatorio</small>
+    }
+
+    <label for="initial_password">Contraseña inicial (opcional)</label>
+    <input id="initial_password" type="password" formControlName="initial_password" autocomplete="new-password" data-testid="admin-user-new-password" />
+
+    <div class="actions">
+      <a routerLink="/admin/usuarios" data-testid="admin-user-new-cancel">Cancelar</a>
+      <button type="submit" [disabled]="loading()" data-testid="admin-user-new-submit">
+        {{ loading() ? 'Creando...' : 'Crear usuario' }}
+      </button>
+    </div>
+  </form>
+</section>

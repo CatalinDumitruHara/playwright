@@ -1,0 +1,66 @@
+<section class="admin-hierarchy" data-testid="admin-hierarchy-page">
+  <h1>Jerarquía</h1>
+
+  @if (loading()) {
+    <p data-testid="admin-hierarchy-loading">Cargando...</p>
+  }
+  @if (error()) {
+    <p class="error" role="alert" data-testid="admin-hierarchy-error">{{ error() }}</p>
+  }
+  @if (success()) {
+    <p class="success" role="status" data-testid="admin-hierarchy-success">{{ success() }}</p>
+  }
+
+  @if (!loading()) {
+    @if (items().length === 0) {
+      <p data-testid="admin-hierarchy-empty">No hay empleados.</p>
+    } @else {
+      <table data-testid="admin-hierarchy-table">
+        <thead>
+          <tr>
+            <th>Empleado</th>
+            <th>Email</th>
+            <th>Manager</th>
+            <th>Asignar manager</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of items(); track item.employee_id) {
+            <tr data-testid="admin-hierarchy-row">
+              <td>{{ item.employee_name }}</td>
+              <td>{{ item.employee_email }}</td>
+              <td data-testid="admin-hierarchy-manager-name">{{ item.manager_name || 'Sin manager' }}</td>
+              <td>
+                <form (ngSubmit)="save(item)" data-testid="admin-hierarchy-form">
+                  <select [formControl]="controlFor(item)" data-testid="admin-hierarchy-manager-select">
+                    <option value="" disabled>Selecciona un manager</option>
+                    @for (manager of managers(); track manager.user_id) {
+                      @if (manager.user_id !== item.employee_id) {
+                        <option [value]="manager.user_id">{{ manager.full_name }}</option>
+                      }
+                    }
+                  </select>
+                  <button type="submit" [disabled]="saving()" data-testid="admin-hierarchy-save">
+                    {{ item.manager_id ? 'Cambiar' : 'Asignar' }}
+                  </button>
+                </form>
+              </td>
+              <td>
+                @if (item.manager_id) {
+                  <button type="button" (click)="remove(item)" [disabled]="saving()" data-testid="admin-hierarchy-remove">Quitar manager</button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  }
+
+  <nav class="pagination" data-testid="admin-hierarchy-pagination">
+    <button type="button" (click)="previous()" [disabled]="loading() || page() <= 1" data-testid="admin-hierarchy-prev">Anterior</button>
+    <span data-testid="admin-hierarchy-page-info">Página {{ page() }} de {{ totalPages() }}</span>
+    <button type="button" (click)="next()" [disabled]="loading() || page() >= totalPages()" data-testid="admin-hierarchy-next">Siguiente</button>
+  </nav>
+</section>

@@ -1,0 +1,50 @@
+<section class="admin-users" data-testid="admin-users-page">
+  <header>
+    <h1>Usuarios</h1>
+    <a routerLink="/admin/usuarios/nuevo" data-testid="admin-users-new-link">Nuevo usuario</a>
+  </header>
+
+  @if (loading()) {
+    <p data-testid="admin-users-loading">Cargando...</p>
+  }
+  @if (error()) {
+    <p class="error" role="alert" data-testid="admin-users-error">{{ error() }}</p>
+  }
+
+  @if (!loading() && !error()) {
+    @if (users().length === 0) {
+      <p data-testid="admin-users-empty">No hay usuarios.</p>
+    } @else {
+      <table data-testid="admin-users-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of users(); track user.user_id) {
+            <tr data-testid="admin-users-row">
+              <td>{{ user.full_name }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.user_role }}</td>
+              <td>{{ user.status }}</td>
+              <td>
+                <a [routerLink]="['/admin/usuarios', user.user_id]" data-testid="admin-users-detail-link">Ver detalle</a>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  }
+
+  <nav class="pagination" data-testid="admin-users-pagination">
+    <button type="button" (click)="previous()" [disabled]="loading() || page() <= 1" data-testid="admin-users-prev">Anterior</button>
+    <span data-testid="admin-users-page-info">Página {{ page() }} de {{ totalPages() }}</span>
+    <button type="button" (click)="next()" [disabled]="loading() || page() >= totalPages()" data-testid="admin-users-next">Siguiente</button>
+  </nav>
+</section>

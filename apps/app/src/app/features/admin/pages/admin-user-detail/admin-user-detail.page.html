@@ -1,0 +1,47 @@
+<section class="admin-user-detail" data-testid="admin-user-detail-page">
+  <a routerLink="/admin/usuarios" data-testid="admin-user-detail-back">Volver al listado</a>
+  <h1>Detalle de usuario</h1>
+
+  @if (loading()) {
+    <p data-testid="admin-user-detail-loading">Cargando...</p>
+  }
+  @if (error()) {
+    <p class="error" role="alert" data-testid="admin-user-detail-error">{{ error() }}</p>
+  }
+  @if (success()) {
+    <p class="success" role="status" data-testid="admin-user-detail-success">{{ success() }}</p>
+  }
+
+  @if (user(); as u) {
+    <dl data-testid="admin-user-detail-info">
+      <dt>Email</dt>
+      <dd data-testid="admin-user-detail-email">{{ u.email }}</dd>
+      <dt>Estado</dt>
+      <dd data-testid="admin-user-detail-status">{{ u.status }}</dd>
+      <dt>Manager</dt>
+      <dd data-testid="admin-user-detail-manager">{{ u.manager_name || 'Sin manager' }}</dd>
+    </dl>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate data-testid="admin-user-detail-form">
+      <label for="full_name">Nombre completo</label>
+      <input id="full_name" type="text" formControlName="full_name" data-testid="admin-user-detail-full-name" />
+      @if (form.controls.full_name.invalid && form.controls.full_name.touched) {
+        <small class="field-error" data-testid="admin-user-detail-full-name-error">El nombre es obligatorio</small>
+      }
+
+      <label for="user_role">Rol</label>
+      <select id="user_role" formControlName="user_role" data-testid="admin-user-detail-role">
+        @for (role of roles; track role) {
+          <option [value]="role">{{ role }}</option>
+        }
+      </select>
+
+      <div class="actions">
+        <button type="submit" [disabled]="saving()" data-testid="admin-user-detail-save">Guardar cambios</button>
+        <button type="button" (click)="toggleStatus()" [disabled]="saving()" data-testid="admin-user-detail-toggle-status">
+          {{ u.status === 'Activo' ? 'Desactivar' : 'Activar' }}
+        </button>
+      </div>
+    </form>
+  }
+</section>
