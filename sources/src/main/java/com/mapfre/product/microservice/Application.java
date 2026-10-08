@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@SpringBootApplication
+// Monta también el componente de documentos (ARC-016, TSK-008)
+@SpringBootApplication(scanBasePackages = {"com.mapfre.product.microservice", "com.mapfre.product.batch.documents"})
 public class Application implements WebMvcConfigurer {
 
 	/** Base pública de la API: {@code servers[0].url} de openapi.yaml. */
