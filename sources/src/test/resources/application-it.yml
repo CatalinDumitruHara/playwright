@@ -1,0 +1,10 @@
+# Perfil de tests de integración. El datasource lo inyecta AbstractOracleIT
+# (entorno de la sesión vía MIND_ENV_ORACLE_* o Testcontainers oracle-free).
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  liquibase:
+    enabled: true
+    drop-first: true
+    change-log: classpath:db/changelog/t5-users-fixture.yaml
