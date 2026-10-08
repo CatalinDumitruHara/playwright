@@ -1,7 +1,7 @@
 # TSK-010 · Portal SPA — pantallas del Portal de Gestión de Vacaciones
 
 - Componente dueño: `ARC-013`
-- Arquetipo del repo: `private_spa` — respeta sus convenciones; NUNCA te salgas de él (ver «Contrato de salida del arquetipo»).
+- Arquetipo del repo: `frontend-application-spa` — respeta sus convenciones; NUNCA te salgas de él (ver «Contrato de salida del arquetipo»).
 - Zonas de código de ESTA tarea (trabajo principal): `frontend/src/app/`. Fuera de ellas NO amplíes alcance de negocio — **EXCEPTO** el composition root y el manifiesto del host necesarios para montar lo entregado (sección Composition root).
 
 ## Definition of Done
@@ -9,37 +9,30 @@ Implementar las pantallas Angular del portal (ARC-029..ARC-052) contra la API.
 
 ## Composition root (composition-root) — OBLIGATORIO
 
-Un módulo con router/controller que **no está montado** en el composition root del proceso NO cuenta como entregado.
+Una pantalla o componente que no está cableado al **host de la app** (routing, layout, scripts `start`/`build`) NO cuenta como entregado.
 
-En ESTA misma tarea (aunque `zone_paths` no lo liste):
-1. Localiza el composition root (`src/main.py`, `app/main.py`, `*Application.java` + scan, `Program.cs`, …).
-2. Si no existe (repo vacío / BYO), créalo siguiendo el arquetipo y monta ahí tu router — no dejes el módulo huérfano.
-3. Registra el router/controller nuevo (`include_router`, bean MVC, route config…). Si defines `public_router` (o equivalente público), **móntalo también**.
-4. Prefijos/paths alineados con `openapi.yaml` del repo (o `.mind`).
-5. Smoke: import/arranque del composition root no falla por tu cambio (p. ej. `from src.main import app` / `./mvnw -q compile`).
+Raíces reales del arquetipo `frontend-application-spa`: `apps/`, `libs/`. El composition root y el código nuevo viven BAJO esas raíces; no abras un segundo árbol (`src/` junto a `sources/`, `backend/` junto a `apps/`).
 
-**Excepción a zone_paths:** el composition root y el manifiesto de deps del host (`requirements.txt` / `pom.xml` / …) SÍ se tocan para cablear lo entregado. No refactores módulos ajenos ni amplíes alcance de negocio.
+En ESTA misma tarea (aunque `zone_paths` no liste el shell):
+1. Localiza o crea el host del arquetipo (`angular.json` / `vite.config` / `src/main.ts` / `AppModule` / equivalente SPA).
+2. Registra la ruta o el módulo nuevo en el router del host.
+3. Asegura scripts de app en `package.json` (`start`/`build`/`serve`) — NO dejes un `package.json` solo de migraciones/tests si entregas UI.
+4. Smoke: el host resuelve la ruta nueva sin error de módulo.
 
-## Lo entregado tiene que ARRANCAR (boot-gate) — OBLIGATORIO
+**Excepción a zone_paths:** el shell del host y su manifiesto SÍ se tocan para montar lo entregado. No refactores pantallas ajenas.
 
-Compilar no es arrancar. Antes de entregar, arranca el proceso y golpea un endpoint: es lo que separa «el módulo compila» de «el producto funciona», y no lo ve ningún compilador.
+## El front tiene que instalar y compilar (workspace-config) — OBLIGATORIO
 
-1. **Configuración por entorno.** Toda conexión a un sistema externo (base de datos, cola, API) parametrizada con valor por defecto (`${VAR:default}`). Nada de hosts fijos en el fuente.
-2. **Nada a medio cablear.** Si escribes una consulta, un repositorio o un cliente, INVÓCALO desde el camino real. El trabajo hecho y sin cablear es la firma de una feature entregada a medias.
-3. **Despliegue coherente.** Si tocas `docker-compose.yml`: el motor de la imagen, la URL de conexión y el driver declarado en el manifiesto son UN SOLO hecho. `depends_on` sobre un servicio con estado lleva `condition: service_healthy`. Imágenes base multiarch, y no referencies contextos ni Dockerfile que no existan.
+Antes de dar la tarea por hecha, `npm ci` y el build de **producción** tienen que pasar en un clon limpio. Los cuatro que fallaron:
 
-**Un `TODO`, un `not implemented` o un retorno vacío como cuerpo ÚNICO de una función es un bloqueante de entrega, no una nota.** Un endpoint que responde `200 OK` con algo que no depende de ninguna entrada ni de ninguna consulta no es una feature: es una fachada.
+1. **Dentro del `sourceRoot`.** Los ficheros nuevos van bajo el `sourceRoot` que declara `angular.json` (normalmente `src`). Un fichero fuera de él no lo ve el compilador: si algo lo importa, `TS2307`; si no, es código muerto que parece entregado.
+2. **Lockfile.** Toca deps → commitea `package-lock.json`. Y fija al major del framework cualquier librería acoplada a él: un `^` abierto resuelve a un major que pide otro Angular y `npm install` muere en `ERESOLVE`.
+3. **Configuración contra el disco.** Si `angular.json` nombra un fichero (`main`, `polyfills`, `fileReplacements`, `karmaConfig`), ese fichero existe. Y ninguna opción retirada del schema de la versión declarada (`extractCss`, `defaultProject`) ni builders inexistentes (`tslint`, `protractor`): el build muere con `Schema validation failed`.
+4. **Una sola base de API, desde el entorno.** `environment.ts` (y su `environment.prod.ts`). PROHIBIDO un host absoluto (`http://localhost:8080`) o una base inventada por servicio. Un `TODO` sobre la URL base en una tarea que entregas es un bloqueante, no una nota.
 
 ## Imports de tests (test-imports) — OBLIGATORIO
 
-Los tests y el `conftest` deben usar **el mismo composition root y el mismo prefijo de paquete** que el código productivo. Un árbol inventado (`src.app.main` cuando el app está en `src/main.py`) no es entrega.
-
-1. Localiza el composition root real (`src/main.py`, `app/main.py`, …) — el mismo composition root.
-2. Importa la app **solo** desde ese módulo (p. ej. si existe `src/main.py` y NO `src/app/main.py` → `from src.main import app`). **PROHIBIDO** `from src.app.main import app`.
-3. Elige UN prefijo de paquete alineado con el código productivo (`from src.app.<mod>…` **o** `from app.<mod>…` con `PYTHONPATH`/`pytest.ini` coherente). No mezcles ambos en la misma suite.
-4. Declara la política en `pytest.ini` / `pyproject.toml` (`pythonpath`) si aún no existe.
-5. Importa solo símbolos que **existen** en el fuente (lee el fichero): no inventes `get_page_service` en `service.py` si vive en `router.py`; no inventes clases (`Class` vs `ClassModel`).
-6. Smoke: `python -c "from src.main import app"` (o el import canónico) y, si hay pytest, una recolección sin `ModuleNotFoundError`.
+Los tests deben importar **el mismo árbol de módulos** que la app host (mismas rutas relativas / mismos barrels). No inventes paths `src.app.main` ni paquetes que no existan en el repo. Antes de importar un símbolo, ábrelo en el fuente productivo.
 
 ## Los tests tienen que EJECUTARSE (suite-exec) — OBLIGATORIO
 
@@ -48,19 +41,6 @@ Un fichero de test que ningún runner recoge es PEOR que no tenerlo: da una señ
 1. **Cuenta.** Los tests que has escrito y los que el runner ejecuta tienen que ser los mismos. Ejecuta la suite y comprueba el número.
 2. **Corre en un clon limpio.** Sin variables de entorno de la plataforma. Todo `process.env.X` con valor por defecto, y toda dependencia externa de test declarada y levantada por el propio repo.
 3. **No parchees la aplicación desde el test.** Si el contexto no levanta, el arreglo va en la configuración productiva. Un `@ComponentScan`/`@EntityScan`/`@EnableJpaRepositories` en una clase de test pone el test en verde y deja el producto roto.
-4. **Surefire vs failsafe.** Surefire recoge `*Test`/`Test*`/`*Tests`. Para `*IT` hace falta `maven-failsafe-plugin` **con sus ejecuciones declaradas** (`integration-test` + `verify`): sin él, un `AlgoIT.java` se compila, se commitea y no se ejecuta jamás.
-   - **Comprueba primero si el `pom.xml` ya lo trae**, que es lo normal en el esqueleto del arquetipo. Si no está, **configúralo**: el `pom.xml` del host es una EXCEPCIÓN explícita a `zone_paths` (ver composition-root), así que tocarlo para cablear lo que entregas es parte del encargo, no salirse de alcance.
-   - Y ojo al comando: `mvn test` ejecuta SOLO los unitarios y sale en verde aunque el IT no haya corrido. El que valida la entrega es **`mvn verify`**. Si cuentas los tests ejecutados con `mvn test`, vas a contar de menos.
-5. **Datasource de test propio.** Aislado y efímero (Testcontainers con la imagen real; H2 en modo Oracle como mínimo). Sin él los tests heredan el datasource de producción y salen a buscar la base de datos real.
-
-## Imports canónicos (canonical-imports) — OBLIGATORIO
-
-Usa **solo** módulos que existen en el repo o que sembró el scaffolding PR #0.
-
-- Entrypoint típico: `src/backend/app/main.py` con paquete `app` (PYTHONPATH = `src/backend/`).
-- DB / email / deps: `app.database`, `app.email` — **NO** inventar `app.core.database`, `app.core.email` ni `app.dependencies` si no hay fichero.
-- Tests y producto: **el mismo prefijo** (`from app.modules…`, no mezclar con `app.core…` fantasma).
-- Si importas un paquete de terceros (`sqlalchemy`, `motor`, …), decláralo pineado en `requirements.txt` / `pyproject.toml` del host.
 
 ## Dependencias pineadas (dependency-pins) — OBLIGATORIO
 
@@ -85,7 +65,7 @@ El runtime puede anexar la lista real de ficheros presentes en la zona al arranc
 
 ## Contrato API congelado (api-contract) — LEY
 
-El `openapi.yaml` del repo (PR #0 / C.2) es el contrato de esta API. Implementa **exactamente** estos endpoints — no inventes paths, verbos ni status distintos.
+Estos son los endpoints que publica el backend de este producto (`openapi.yaml`, PR #0 / C.2). Son los ÚNICOS que puedes llamar: no inventes paths, verbos ni parámetros, y si la pantalla necesita algo que no está en la tabla, SEÑÁLALO en el PR en vez de fabricarlo.
 
 | EP | Método | Path | Request | Response | Status | Public | Roles |
 |----|--------|------|---------|----------|--------|--------|-------|
@@ -134,159 +114,597 @@ El `openapi.yaml` del repo (PR #0 / C.2) es el contrato de esta API. Implementa 
 | `EP-022` | **GET** | `/reports/export-jobs/{jobId}` | `—` | `ExportJobStatus` | 200 | N | `ROL-002` |
 | | | _Consulta el estado de un trabajo de exportación y obtiene el enlace de descarga._ | | | | | |
 
-### Campos de los schemas de tus endpoints (LEY)
+Disciplina de consumo (client-contract):
+1. **Una sola base de API** para todo el front, inyectada desde la configuración de entorno. Ni una base por servicio, ni un host absoluto, ni el host/puerto del entorno de la sesión (`host.docker.internal`, `MIND_ENV_*`) en el fuente.
+2. La base es **`servers[0].url` del `openapi.yaml`** y se lee de `assets/environments.json` (`apiBaseUrl`, sembrado en el PR #0) — nunca del fuente. El `path` de la tabla se concatena **literal** detrás de ella; no le añadas versiones ni prefijos que la tabla no traiga. En `nx serve` el `proxy.conf.json` del PR #0 reenvía esa base al backend.
+5. Los tipos de los cuerpos y respuestas se importan de `libs/api-types` (generados desde el contrato en el PR #0): PROHIBIDO declarar a mano una `interface` con el nombre de un schema del contrato — es exactamente cómo el front acabó tipando `page_size` donde el back devolvía `size`.
+3. El verbo es el de la columna Método (`PATCH` no es `PUT`), y el identificador de la ruta es el que declara el path (`{tagId}` es el id del recurso, no su nombre).
+4. Los nombres de campo del cuerpo y de los parámetros son los del contrato. Los nombres FÍSICOS de la tabla (`note_id`, `note_title`…) son del modelo de datos, **no** del JSON: no los uses para tipar la respuesta de la API.
+5. Respeta Public/Roles: no llames un EP deny-all; un EP restringido exige el JWT de uno de esos `ROL-NNN`. No inventes roles.
 
-Los nombres, tipos y obligatoriedad de estos campos son el contrato de DATOS: el front tipa su JSON con ellos (`libs/api-types`). Un campo renombrado (`argumentario_content` por `argumentario_venta`, `size` por `page_size`) rompe la operación aunque el path acierte — 17 en el ciclo anterior.
+## Contrato de salida del arquetipo
 
-- `UserList`:
+> El repo se genera desde el arquetipo `frontend-application-spa` (ArqRef MAPFRE). Produce EXACTAMENTE ficheros con la estructura, rutas y HERRAMIENTA de este arquetipo, imitando el esqueleto/ejemplos de abajo. NO improvises otra herramienta ni otra disposición (p.ej. si el arquetipo usa Liquibase, NO uses Flyway). Extiende el esqueleto; no lo reinventes.
 
-  | Campo | Tipo | Oblig. | Descripción |
-  |---|---|---|---|
-  | `items` | array | sí | Array de objetos de usuario resumidos. Cada objeto contiene: user_id, full_name, email, user_role, status. |
-  | `total` | integer | sí | Número total de usuarios que coinciden con la consulta. |
-  | `page` | integer | sí | Número de la página actual (base 1). |
-  | `size` | integer | sí | Número de elementos por página. |
+**Raíz del proyecto**: el código va bajo `sources/`, `local/`, `apps/`, `libs/`, `src/` — donde el arquetipo pone el suyo. Si el repo está vacío y tienes que andamiarlo, respeta esa raíz en vez de elegir una nueva: el resto del aprovisionamiento (pipelines del arquetipo, verificación de build, empaquetado) espera encontrarlo ahí.
 
-- `UserCreateRequest`:
+### Esqueleto y ejemplos (imítalos exactamente)
+#### `apps/app/src/app/app.routes.ts`
+```ts
+import { Route } from '@angular/router';
 
-  | Campo | Tipo | Oblig. | Descripción |
-  |---|---|---|---|
-  | `full_name` | string | sí | Nombre completo del usuario. |
-  | `email` | string | sí | Email del usuario, que servirá como login y debe ser único. |
-  | `user_role` | enum | sí | Rol del usuario. Valores admitidos: EMPLEADO, MANAGER. |
-  | `initial_password` | string | no | Contraseña inicial. Si no se provee, el sistema podría generar una temporal. |
+export const appRoutes: Route[] = [
+  {
+    path: '',
+    loadComponent: () =>
+      import('./pages/welcome/welcome.page').then(p => p.WelcomePage),
+  },
+];
 
-- `UserDetail`:
+```
+#### `apps/app/src/app/app.config.ts`
+```ts
+import { ApplicationConfig } from '@angular/core';
+import { provideRouter } from '@angular/router';
+import { appRoutes } from './app.routes';
+import {
+  EnvironmentConfig,
+  provideEnvironment,
+} from '@mapfre-tech/ngx-multienvironment/core';
 
-  | Campo | Tipo | Oblig. | Descripción |
-  |---|---|---|---|
-  | `user_id` | uuid | sí | Identificador único del usuario. |
-  | `full_name` | string | sí | Nombre completo del usuario. |
-  | `email` | string | sí | Email del usuario. |
-  | `user_role` | enum | sí | Rol del usuario. Valores: EMPLEADO, MANAGER. |
-  | `status` | enum | sí | Estado de la cuenta. Valores: Activo, Inactivo. |
-  | `manager_name` | string | no | Nombre del manager directo del usuario, si está asignado. |
+export const getAppConfig: (config: {
+  env: string;
+  envConfig: EnvironmentConfig;
+}) => ApplicationConfig = config => ({
+  providers: [
+    provideRouter(appRoutes),
+    provideEnvironment(config.env, config.envConfig),
+  ],
+});
 
-- `UserUpdateRequest`:
+```
+#### `apps/app/src/main.ts`
+```ts
+import { bootstrapApplication } from '@angular/platform-browser';
+import { AppComponent } from './app/app.component';
+import { getAppConfig } from './app/app.config';
+import { initMultiEnvironmentApp } from '@mapfre-tech/ngx-multienvironment/core';
 
-  | Campo | Tipo | Oblig. | Descripción |
-  |---|---|---|---|
-  | `full_name` | string | sí | Nuevo nombre completo del usuario. |
-  | `user_role` | enum | sí | Nuevo rol del usuario. Valores admitidos: EMPLEADO, MANAGER. |
+async function bootstrapApp() {
+  const { env, envConfig } = await initMultiEnvironmentApp();
+  bootstrapApplication(AppComponent, getAppConfig({ env, envConfig })).catch(
+    err => console.error(err)
+  );
+}
 
-- `UserStatusUpdateRequest`:
+bootstrapApp();
 
-  | Campo | Tipo | Oblig. | Descripción |
-  |---|---|---|---|
-  | `status` | enum | sí | Nuevo estado de la cuenta. Valores admitidos: Activo, Inactivo. |
+```
+#### `apps/app/project.json`
+```json
+{
+  "name": "app",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "app",
+  "sourceRoot": "apps/app/src",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@mapfre-tech/nx-angular:webpack-browser",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/app/browser",
+        "index": "apps/app/src/index.html",
+        "main": "apps/app/src/main.ts",
+        "polyfills": ["zone.js"],
+        "tsConfig": "apps/app/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/app/public",
+            "output": "/"
+          }
+        ],
+        "styles": ["apps/app/src/styles.scss"],
+        "scripts": [],
+        "vendorChunk": true,
+        "allowedCommonJsDependencies": []
+      },
+      "configurations": {
+        "production": {
+          "outputHashing": "all",
+          "sourceMap": {
+            "hidden": true
+          },
+          "budgets": [
+            {
+              "type": "bundle",
+              "name": "vendor",
+              "maximumWarning": "500kb",
+              "maximumError": "800kb"
+            },
+            {
+              "type": "initial",
+              "maximumWarning": "600kb",
+              "maximumError": "900kb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "15kb",
+              "maximumError": "20kb"
+            }
+          ]
+        },
+        "development": {
+          "buildOptimizer": false,
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true,
+          "namedChunks": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@mapfre-tech/nx-angular:dev-server",
+      "configurations": {
+        "production": {
+          "buildTarget": "app:build:production"
+        },
+        "development": {
+          "buildTarget": "app:build:development"
+        }
+      },
+      "defaultConfiguration": "development",
+      "options": {
+        "host": "0.0.0.0"
+      }
+    },
+    "extract-i18n": {
+      "executor": "@angular-devkit/build-angular:extract-i18n",
+      "options": {
+        "buildTarget": "app:build"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/app/jest.config.ts"
+      }
+    },
+    "serve-static": {
+      "executor": "@nx/web:file-server",
+      "options": {
+        "spa": true
+      },
+      "configurations": {
+        "dev": {
+          "buildTarget": "app:build-with-env:dev"
+        },
+        "pre": {
+          "buildTarget": "app:build-with-env:pre"
+        },
+        "pro": {
+          "buildTarget": "app:build-with-env:pro"
+        }
+      },
+      "defaultConfiguration": "dev"
+    },
+    "optimize-assets": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx --yes @funboxteam/optimizt apps/app/public"
+      }
+    },
+    "build-with-env": {
+      "executor": "@mapfre-tech/nx-angular:build-with-env",
+      "options": {
+        "buildTarget": "app:build",
+        "outputPath": "dist/build-with-env/app"
+      },
+      "configurations": {
+        "dev": {
+          "environmentKey": "dev"
+        },
+        "pre": {
+          "environmentKey": "pre"
+        },
+        "pro": {
+          "environmentKey": "pro"
+        }
+      },
+      "defaultConfiguration": "dev"
+    },
+    "bundle-analyzer": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "nx run app:build:production --statsJson && npx --yes webpack-bundle-analyzer dist/apps/app/browser/stats.json"
+      }
+    },
+    "assemble-web": {
+      "executor": "@mapfre-tech/nx-angular:assemble-web",
+      "options": {
+        "buildTarget": "app:build:production",
+        "artifactName": "app",
+        "excludeSourceMaps": false
+      },
+      "configurations": {
+        "production": {
+          "excludeSourceMaps": true
+        }
+      }
+    },
+    "package-debug-files-web": {
+      "executor": "@mapfre-tech/nx-tools:zip",
+      "options": {
+        "filePath": "dist/apps/app",
+        "zipName": "app-debug-files-web"
+      }
+    },
+    "release-debug-files-web": {
+      "executor": "@mapfre-tech/nx-tools:release-debug-files-web",
+      "options": {
+        "file": "dist/artifacts/app/app-debug-files-web.zip"
+      }
+    },
+    "release-web": {
+      "executor": "@mapfre-tech/nx-tools:release-spa",
+      "options": {
+        "file": "dist/artifacts/app/app.zip"
+      }
+    }
+  }
+}
 
-- `HierarchyList`:
+```
+#### `apps/app/public/assets/environments.json`
+```json
+{
+  "dev": {},
+  "pre": {},
+  "pro": {}
+}
 
-  | Campo | Tipo | Oblig. | Descripción |
-  |---|---|---|---|
-  | `items` | array | sí | Array de relaciones jerárquicas. Cada objeto contiene: employee_id, employee_name, employee_email, manager_id, manager_name. |
-  | `total` | integer | sí | Número total de relaciones jerárquicas que coinciden con la consulta. |
-  | `page` | integer | sí | Número de la página actual (base 1). |
-  | `size` | integer | sí | Número de elementos por página. |
+```
+#### `apps/.gitkeep`
+```text
 
-- `ManagerAssignmentRequest`:
+```
+#### `libs/.gitkeep`
+```text
 
-  | Campo | Tipo | Oblig. | Descripción |
-  |---|---|---|---|
-  | `manager_id` | uuid | sí | Identificador único del usuario que será asignado como manager. |
+```
+#### `apps/app/eslint.config.mjs`
+```mjs
+import nx from '@nx/eslint-plugin';
+import baseConfig from '../../eslint.config.mjs';
 
-- `HierarchyNodeDetail`:
+export default [
+  ...baseConfig,
+  ...nx.configs['flat/angular'],
+  ...nx.configs['flat/angular-template'],
+  {
+    files: ['**/*.ts'],
+    rules: {
+      '@angular-eslint/directive-selector': [
+        'error',
+        {
+          type: 'attribute',
+          prefix: 'app',
+          style: 'camelCase',
+        },
+      ],
+      '@angular-eslint/component-selector': [
+        'error',
+        {
+          type: 'element',
+          prefix: 'app',
+          style: 'kebab-case',
+        },
+      ],
+    },
+  },
+  {
+    files: ['**/*.html'],
+    // Override or add rules here
+    rules: {},
+  },
+  {
+    files: ['**/*.ts'],
+    rules: {
+      '@angular-eslint/component-class-suffix': [
+        'error',
+        {
+          suffixes: ['Component', 'Container', 'Page'],
+        },
+      ],
+    },
+  },
+];
 
-  | Campo | Tipo | Oblig. | Descripción |
-  |---|---|---|---|
-  | `employee_id` | uuid | sí | ID del empleado. |
-  | `employee_name` | string | sí | Nombre del empleado. |
-  | `manager_id` | uuid | no | ID del manager asignado. Nulo si no tiene. |
-  | `manager_name` | string | no | Nombre del manager asignado. Nulo si no tiene. |
+```
+#### `apps/app/jest.config.ts`
+```ts
+export default {
+  displayName: 'app',
+  preset: '../../jest.preset.js',
+  setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
+  coverageDirectory: '../../coverage/apps/app',
+  transform: {
+    '^.+\\.(ts|mjs|js|html)$': [
+      'jest-preset-angular',
+      {
+        tsconfig: '<rootDir>/tsconfig.spec.json',
+        stringifyContentPathRegex: '\\.(html|svg)$',
+      },
+    ],
+  },
+  transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$)'],
+  snapshotSerializers: [
+    'jest-preset-angular/build/serializers/no-ng-attributes',
+    'jest-preset-angular/build/serializers/ng-snapshot',
+    'jest-preset-angular/build/serializers/html-comment',
+  ],
+};
 
-- `UserProfile`:
+```
+#### `apps/app/tsconfig.app.json`
+```json
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "types": []
+  },
+  "files": ["src/main.ts"],
+  "include": ["src/**/*.d.ts"],
+  "exclude": ["jest.config.ts", "src/**/*.test.ts", "src/**/*.spec.ts"]
+}
 
-  | Campo | Tipo | Oblig. | Descripción |
-  |---|---|---|---|
-  | `user_id` | uuid | sí | Identificador único del usuario. |
-  | `full_name` | string | sí | Nombre completo del usuario. |
-  | `email` | string | sí | Email del usuario. |
-  | `user_role` | enum | sí | Rol del usuario. Valores: EMPLEADO, MANAGER. |
-  | `manager_name` | string | no | Nombre del manager directo del usuario. |
+```
+#### `apps/app/tsconfig.editor.json`
+```json
+{
+  "extends": "./tsconfig.json",
+  "include": ["src/**/*.ts"],
+  "compilerOptions": {},
+  "exclude": ["jest.config.ts", "src/**/*.test.ts", "src/**/*.spec.ts"]
+}
 
-- `TeamMemberList`:
+```
+#### `apps/app/tsconfig.json`
+```json
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "files": [],
+  "include": [],
+  "references": [
+    {
+      "path": "./tsconfig.editor.json"
+    },
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    }
+  ],
+  "extends": "../../tsconfig.base.json",
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
+  }
+}
 
-  | Campo | Tipo | Oblig. | Descripción |
-  |---|---|---|---|
-  | `items` | array | sí | Array de objetos de miembro de equipo. Cada objeto contiene: employee_id, full_name, email. |
+```
+#### `apps/app/tsconfig.spec.json`
+```json
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "module": "commonjs",
+    "target": "es2016",
+    "types": ["jest", "node"]
+  },
+  "files": ["src/test-setup.ts"],
+  "include": [
+    "jest.config.ts",
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts",
+    "src/**/*.d.ts"
+  ]
+}
 
-- `VacationRequestCreate`:
+```
+#### `apps/app/src/index.html`
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>app</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  </head>
+  <body>
+    <app-root></app-root>
+  </body>
+</html>
 
-  | Campo | Tipo | Oblig. | Descripción |
-  |---|---|---|---|
-  | `start_date` | date | sí | Fecha de inicio de las vacaciones (formato YYYY-MM-DD). |
-  | `end_date` | date | sí | Fecha de fin de las vacaciones (formato YYYY-MM-DD). |
-  | `reason` | string | no | Motivo o comentario para la solicitud. |
+```
+#### `apps/app/src/styles.scss`
+```scss
+/* You can add global styles to this file, and also import other style files */
 
-- `VacationRequestDetail`:
+```
+#### `apps/app/src/test-setup.ts`
+```ts
+import { setupZoneTestEnv } from 'jest-preset-angular/setup-env/zone';
 
-  | Campo | Tipo | Oblig. | Descripción |
-  |---|---|---|---|
-  | `request_id` | uuid | sí | Identificador único de la solicitud. |
-  | `employee_name` | string | sí | Nombre del empleado que realizó la solicitud. |
-  | `start_date` | date | sí | Fecha de inicio de las vacaciones. |
-  | `end_date` | date | sí | Fecha de fin de las vacaciones. |
-  | `reason` | string | no | Motivo de la solicitud. |
-  | `status` | enum | sí | Estado de la solicitud. Valores: Pendiente, Aprobada, Rechazada, Cancelada. |
-  | `created_at` | datetime | sí | Fecha de creación de la solicitud. |
-  | `resolution_date` | datetime | no | Fecha en que fue aprobada o rechazada. |
-  | `manager_notes` | string | no | Comentarios del manager, como el motivo de rechazo. |
+setupZoneTestEnv({
+  errorOnUnknownElements: true,
+  errorOnUnknownProperties: true,
+});
 
-- `VacationRequestList`:
+```
+#### `apps/app/src/app/app.component.html`
+```html
+<router-outlet></router-outlet>
 
-  | Campo | Tipo | Oblig. | Descripción |
-  |---|---|---|---|
-  | `items` | array | sí | Array de solicitudes resumidas. Cada objeto contiene: request_id, employee_name, start_date, end_date, status, created_at. |
-  | `total` | integer | sí | Número total de solicitudes que coinciden con la consulta. |
-  | `page` | integer | sí | Número de la página actual (base 1). |
-  | `size` | integer | sí | Número de elementos por página. |
+```
+#### `apps/app/src/app/app.component.scss`
+```scss
 
-- `FileStream`: _germen sin campos en T.3 — rellénalo con el modelo real y repórtalo como health check `Warning` con `check: api-contract` para que arquitectura lo fije._
-- `RejectionRequest`:
+```
+#### `apps/app/src/app/app.component.ts`
+```ts
+import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
-  | Campo | Tipo | Oblig. | Descripción |
-  |---|---|---|---|
-  | `rejection_reason` | string | no | Motivo opcional por el cual la solicitud es rechazada. |
+@Component({
+  imports: [RouterModule],
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.scss',
+})
+export class AppComponent {}
 
-- `MonthlyReportRequest`:
+```
+#### `apps/app/src/app/pages/welcome/welcome.page.html`
+```html
+<div class="wrapper">
+  <div class="container">
+    <div
+      class="welcome"
+      style="
+        text-align: center;
+        flex-direction: row;
+        display: flex;
+        align-items: center;
+      ">
+      <div style="width: 164px">
+        <svg
+          id="Artwork"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 1282 715.5">
+          <defs>
+            <style>
+              .cls-1 {
+                fill: none;
+              }
+              .cls-2 {
+                fill: #ff002d;
+              }
+            </style>
+          </defs>
+          <path
+            class="cls-2"
+            d="M323.88,420.05c-25.55,0-45.34,7.77-59.87,23.8-11.77-15.78-29.56-23.8-53.36-23.8-21.29,0-38.33,7.01-49.85,20.54v-17.28h-35.57v125.25h37.57v-81.66c7.26-9.77,20.04-14.78,37.82-14.78,25.8,0,37.83,10.02,37.83,32.06v64.38h37.57v-81.66c7.26-9.77,20.04-14.78,37.82-14.78,25.8,0,37.83,10.02,37.83,32.06v64.38h37.57v-64.63c0-40.08-24.3-63.88-65.38-63.88Z" />
+          <path
+            class="cls-2"
+            d="M540.31,440.59c-13.53-12.78-35.32-20.54-58.12-20.54-43.34,0-74.15,27.3-74.15,65.88s30.81,65.88,74.15,65.88c22.79,0,44.59-7.77,58.12-20.54v17.28h35.57v-125.25h-35.57v17.28ZM538.3,502.46c-10.52,11.27-27.3,17.28-48.35,17.28-27.8,0-44.34-12.77-44.34-33.82s16.53-33.82,44.34-33.82c21.04,0,37.83,6.01,48.35,17.28v33.06Z" />
+          <path
+            class="cls-2"
+            d="M935.34,440.59v-17.28h-35.57v125.25h37.57v-81.66c6.01-10.02,17.53-14.78,36.32-14.78,9.02,0,16.78.75,24.05,2.5l3.01-32.31c-3.26-1.5-9.52-2.25-18.29-2.25-20.04,0-37.82,7.77-47.09,20.54Z" />
+          <path
+            class="cls-2"
+            d="M1144.5,509.97c-14.28,7.26-36.07,11.77-55.61,11.77-32.56,0-47.59-7.77-50.1-25.8h114.73c1-7.01,1.5-11.27,1.5-16.53,0-35.07-29.56-59.37-72.39-59.37-50.1,0-79.41,24.05-79.41,65.63s29.81,66.13,83.42,66.13c29.81,0,57.11-7.51,71.14-18.03l-13.28-23.8ZM1082.63,447.6c23.8,0,37.32,8.27,39.83,24.3h-83.67c2.76-17.03,16.03-24.3,43.84-24.3Z" />
+          <path
+            class="cls-2"
+            d="M787.54,424.56v123.99h37.57v-95.19h55.86v-30.06h-55.86v-2.5c0-16.28,8.77-22.54,31.56-22.54,7.26,0,20.29,1.25,35.07,3.51l2.51-26.55c-12.28-3.51-25.8-5.26-41.33-5.26-43.59,0-65.38,18.04-65.38,54.61Z" />
+          <path
+            class="cls-2"
+            d="M694.61,420.05c-22.8,0-44.59,7.77-58.12,20.54v-17.28h-35.57v166.83h37.57v-58.87c13.03,12.78,34.07,20.54,56.11,20.54,43.34,0,74.15-27.3,74.15-65.88s-30.81-65.88-74.15-65.88ZM686.84,519.74c-21.04,0-37.82-6.01-48.34-17.28v-33.06c10.52-11.27,27.3-17.28,48.34-17.28,27.81,0,44.34,12.77,44.34,33.82s-16.53,33.82-44.34,33.82Z" />
+          <path
+            class="cls-2"
+            d="M698.87,182.23c0-31.56-25.3-56.86-57.11-56.86s-57.36,25.05-57.36,56.86c0,29.56,16.03,58.62,45.09,82.41l-1,.5c-81.41-40.58-116.98-54.36-140.53-54.36-16.78,0-28.56,11.77-28.56,28.31,0,34.57,42.08,68.13,85.42,68.13,73.65,0,154.05-65.38,154.05-125Z" />
+          <path
+            class="cls-2"
+            d="M795.31,210.79c-27.05,0-61.12,16.28-142.28,68.13,38.83,20.54,62.12,28.31,85.17,28.31,43.34,0,85.42-33.57,85.42-68.13,0-16.53-11.77-28.31-28.31-28.31Z" />
+          <rect class="cls-1" y=".19" width="1282" height="715.13" />
+          <rect class="cls-1" y="1.75" width="1282" height="712" />
+        </svg>
+      </div>
+      <div style="text-align: left; margin-left: 16px">
+        <h1>
+          Bienvenido app
+          <span>Proyecto creado con la arquitectura de referencia MAPFRE</span>
+        </h1>
+      </div>
+    </div>
+    <div class="hero rounded">
+      <div class="text-container">
+        <h2>
+          <svg
+            fill="none"
+            stroke="white"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+          </svg>
+          <span>Comencemos con el desarrollo</span>
+        </h2>
+      </div>
+    </div>
+  </div>
+</div>
 
-  | Campo | Tipo | Oblig. | Descripción |
-  |---|---|---|---|
-  | `report_month` | integer | sí | Mes para el cual se generará el reporte (1-12). |
-  | `report_year` | integer | sí | Año para el cual se generará el reporte (formato YYYY). |
+```
+#### `apps/app/src/app/pages/welcome/welcome.page.spec.ts`
+```ts
+import { WelcomePage } from './welcome.page';
+import { createRoutingFactory } from '@ngneat/spectator/jest';
 
-- `ExportJobStatus`:
+describe('WelcomePage', () => {
+  const createComponent = createRoutingFactory({
+    component: WelcomePage,
+    detectChanges: false,
+  });
 
-  | Campo | Tipo | Oblig. | Descripción |
-  |---|---|---|---|
-  | `job_id` | uuid | sí | Identificador único del trabajo de exportación. |
-  | `status` | enum | sí | Estado del trabajo. Valores: PENDING, PROCESSING, COMPLETED, FAILED. |
-  | `download_url` | string | no | URL para descargar el fichero cuando el estado es COMPLETED. Es nulo en otros estados. |
+  it('should create', () => {
+    const spectator = createComponent();
+    expect(spectator.component).toBeTruthy();
+  });
+});
 
+```
+#### `apps/app/src/app/pages/welcome/welcome.page.ts`
+```ts
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
-Disciplina (api-contract):
-1. Path y verbo **literales** del contrato (`/membership-plans`, no `/plans/`; `PUT`, no `PATCH` si el contrato dice PUT).
-2. La base pública de la API es **`servers[0].url` del `openapi.yaml`** (p. ej. `/api`): monta los routers de forma que la URL pública sea `base + path` EXACTAMENTE. No inventes otra base ni añadas versiones (`/v1`) que el contrato no traiga: el cliente concatena `base + path` y cualquier otro prefijo le devuelve 404.
-3. Status HTTP de la columna Status (POST→201, DELETE→204, resto→200) salvo que `openapi.yaml` declare otro.
-4. Prefijos de montaje (`include_router`) deben hacer que la URL pública coincida con `base + path` del contrato.
-5. Los schemas CON campos (tabla de arriba) son LEY: mismos nombres, tipos y obligatoriedad en tus DTO. Los que aún no tienen campos son gérmenes: rellénalos con el modelo real; **no** reescribas `openapi.yaml` para legitimar un path inventado.
-6. Si el DoD te pide un comportamiento que ningún endpoint de la tabla cubre (desarchivar, restaurar, desmarcar…), NO lo resuelvas inventando una ruta: entrégalo con el endpoint que más se le parezca y **repórtalo como health check `Warning` con `check: api-contract`** para que arquitectura lo añada. Una ruta inventada es invisible para el cliente.
-7. Si el repo trae `.mind/contract-pending.json` (PR #0), **quita de `pending` los EP que implementas en este mismo PR**: el test de contrato del repo (`tests/contract/`) deja de exonerarlos y pasa a exigirlos, y el runtime comprueba que no dejas los tuyos pendientes. No quites los de otras tareas.
-7. Monta el guard con los códigos de la columna Roles. No inventes roles. Si Public=N y Roles=`deny-all`, NO expongas la ruta: avísalo en el PR.
+@Component({
+  selector: 'app-welcome-page',
+  imports: [CommonModule],
+  templateUrl: './welcome.page.html',
+  styleUrl: './welcome.page.scss',
+})
+export class WelcomePage {}
 
-## Arquetipo ArqRef (archetype-gate) — BLOCKER
-
-El código `private_spa` **no existe** en el catálogo ArqRef local. NO improvises toolchain. Health check **Blocker** `arquetipo-desconocido` y para.
+```
+> (Se omitieron ficheros del arquetipo por tamaño; respeta las convenciones mostradas en los ejemplos anteriores para el resto.)
 
 ## Guía del programador del proyecto (convenciones — T.7, aprobada)
 
@@ -373,72 +791,751 @@ public interface SolicitudRepository extends JpaRepository<Solicitud, Long> {
 - Loggear objetos de request/response completos que puedan contener datos sensibles. → usa: Implementar un mecanismo para enmascarar o filtrar campos sensibles (PII, contraseñas, tokens) antes de escribirlos en los logs. Se puede configurar en el `ObjectMapper` de Jackson o con un filtro de logging personalizado.
 - No especificar una política de propagación de transacciones, dejando la por defecto (`REQUIRED`). → usa: Ser explícito con la gestión de transacciones. Usar `@Transactional(readOnly = true)` para todas las operaciones de consulta para optimizar el rendimiento y prevenir modificaciones accidentales. Usar `@Transactional(propagation = Propagation.REQUIRES_NEW)` para operaciones que deban ser atómicas e independientes de la transacción principal (p. ej. auditoría).
 
-### Matriz de compatibilidad de tipos
-- `OffsetDateTime` en `oracle`: **OK** — Mapeo canónico a `TIMESTAMP WITH TIME ZONE`. Es la opción recomendada para todas las fechas y horas.
-- `LocalDateTime` en `oracle`: **PROHIBIDO** — Mapea a `TIMESTAMP`, perdiendo la información de zona horaria. Causa graves problemas de ambigüedad y errores de conversión.
-- `Instant` en `oracle`: **PROHIBIDO** — Aunque técnicamente representa un punto en el tiempo UTC, `OffsetDateTime` es más explícito y flexible al trabajar con Oracle. Se estandariza en `OffsetDateTime` para evitar confusión.
-- `LocalDate` en `oracle`: **OK** — Mapea correctamente al tipo `DATE` de Oracle, que almacena solo la fecha sin componente de hora.
-- `UUID` en `oracle`: **OK** — Mapear a `VARCHAR2(36)` o `RAW(16)` con un convertidor de atributos JPA. No hay un tipo UUID nativo, pero se puede manejar eficientemente como string. Se usará `VARCHAR2(36)` por simplicidad.
-- `BigDecimal` en `oracle`: **OK** — Mapeo estándar y preciso al tipo `NUMBER(precision, scale)` de Oracle. Ideal para valores monetarios o cálculos exactos.
-- `String (CLOB)` en `oracle`: **OK** — Usar `@Lob` o `@Column(columnDefinition = "CLOB")` para mapear un String a un tipo `CLOB` para textos largos, como el motivo de una solicitud.
-- `byte[] (BLOB)` en `oracle`: **OK** — Usar `@Lob` para mapear un array de bytes a un tipo `BLOB`, adecuado para almacenar datos binarios como ficheros pequeños (aunque para PDFs/CSVs se usará S3).
+### Plantillas canónicas del arquetipo
+#### `page-component-frontend`
+```
 
-## Modelo de datos a respetar (diseñado en arquitectura — T.5, schema-names)
+```
+#### `api-service-frontend`
+```
 
-> Nombres FÍSICOS canónicos. Úsalos en modelos, DTOs, queries y contratos. **PROHIBIDO** traducir (`titulo`→`title`, `contenido`→`content`, `estado` `publicada|borrador`→`published|draft`). La migración ya (o va a) crear estas entidades — no improvises un esquema paralelo.
+```
 
-**Inventario T.5 (4):** `user_roles`, `request_status`, `users`, `vacation_requests`
+## Design system corporativo (design-system) — LEY
 
-**Catálogos (`data_kind = catalog`): `user_roles`, `request_status`.** Los siembra la migración: LÉELOS de la base de datos (no hardcodees sus valores en enums ni en el front) y, si al arrancar están vacíos, es un defecto de la tarea de datos — repórtalo como health check `Warning` con `check: seeds`, no lo tapes con valores por defecto.
+La UI se construye con `@mapfre-tech/b2b-components`, la librería de componentes de MAPFRE. No es una recomendación: una pantalla montada con `<div>` y CSS propio, o con una librería pública, es un producto que **no cumple el design system** y hay que rehacerlo.
 
-- **Motor de datos del proyecto: Oracle** (capa `db` del stack, aprobada en T.2/T.3). TODO el DDL y el DML que escribas debe ser válido EN ESE MOTOR y en su dialecto. Nada de tipos ni sintaxis de otros motores: si un tipo o construcción no existe en Oracle, usa su equivalente nativo. Y no te fíes de tu criterio: APLICA el changelog contra el motor real del entorno de prueba antes de entregar (ver «Entorno de prueba de esta sesión»).
+**Prohibido** pintar la interfaz con `primeng`, `bootstrap`, `@ng-bootstrap/ng-bootstrap`, `ng-zorro-antd` o `@angular/material`. (Matiz: `@angular/material` es peer de `@mapfre-tech/formly-b2b`, así que si hay formularios dinámicos estará en el árbol de dependencias — legítimamente. Lo que no puede es aparecer en el `imports` de un componente tuyo.)
 
-### ARC-025 · `user_roles` (table) · **catalog**
-Catálogo de roles de usuario en el sistema.
-**Columnas:**
-- `id` NUMBER [PK, NOT NULL] — PK
-- `role_name` VARCHAR2(50) [NOT NULL] — Valores: 'EMPLEADO', 'MANAGER', 'ADMINISTRADOR'. Único.
+Si algo no se puede instalar, el problema es la credencial del registro privado: repórtalo como health check **Blocker** `registro-privado` y para. NO lo resuelvas quitando la dependencia, ni bajando la versión de Angular, ni sustituyendo la librería por una pública.
 
-### ARC-026 · `request_status` (table) · **catalog**
-Catálogo de los posibles estados de una solicitud de vacaciones.
-**Columnas:**
-- `id` NUMBER [PK, NOT NULL] — PK
-- `status_name` VARCHAR2(50) [NOT NULL] — Valores: 'Pendiente', 'Aprobada', 'Rechazada', 'Cancelada'. Único.
+### Instalación
 
-### ARC-027 · `users` (table) · **transactional**
-Almacena las cuentas de usuario (empleados, managers, administradores) y la estructura jerárquica.
-**Columnas:**
-- `id` NUMBER [PK, NOT NULL] — PK autogenerada
-- `full_name` VARCHAR2(255) [NOT NULL]
-- `email` VARCHAR2(255) [NOT NULL] — Debe ser único e inmutable.
-- `password_hash` VARCHAR2(255) [NOT NULL] — Hash de la contraseña.
-- `role_id` NUMBER [NOT NULL, FK→user_roles] — FK a user_roles.id
-- `manager_id` NUMBER [FK→users] — FK a users.id (auto-referencia)
-- `is_active` CHAR(1) [NOT NULL] — Y/N. Representa el estado 'Activo' o 'Inactivo'.
-- `created_at` TIMESTAMP [NOT NULL]
-- `updated_at` TIMESTAMP [NOT NULL]
-**Relaciones:**
-- → `user_roles`: N:1 tiene un rol
-- → `users`: N:1 reporta a un manager
+El arquetipo ya trae el `.npmrc` del feed privado (Azure Artifacts) y la sesión recibe el token por entorno: `npm ci` funciona tal cual. **No toques el `.npmrc`** y no escribas el token en ningún fichero.
 
-### ARC-028 · `vacation_requests` (table) · **transactional**
-Almacena cada solicitud de vacaciones y su ciclo de vida completo.
-**Columnas:**
-- `id` NUMBER [PK, NOT NULL] — PK autogenerada
-- `employee_id` NUMBER [NOT NULL, FK→users] — FK a users.id del empleado que solicita.
-- `status_id` NUMBER [NOT NULL, FK→request_status] — FK a request_status.id
-- `start_date` DATE [NOT NULL]
-- `end_date` DATE [NOT NULL]
-- `reason` VARCHAR2(500)
-- `manager_id` NUMBER [FK→users] — FK a users.id del manager que resuelve. Nulo si está pendiente.
-- `resolution_date` TIMESTAMP — Fecha de aprobación o rechazo.
-- `rejection_reason` VARCHAR2(1000) — Notas del manager en caso de rechazo.
-- `created_at` TIMESTAMP [NOT NULL]
-- `updated_at` TIMESTAMP [NOT NULL] — Fecha del último cambio de estado.
-**Relaciones:**
-- → `users`: N:1 pertenece a un empleado
-- → `request_status`: N:1 tiene un estado
-- → `users`: N:1 es resuelta por un manager
+| Angular del arquetipo | `b2b-components` | `formly-b2b` |
+|---|---|---|
+| Angular 17 – 19 | `3.12.17` | `1.2.0` |
+| Angular 21+ | `4.1.8` | `2.0.0` |
+
+Pinea la versión que corresponda a la versión de Angular **que ya declara el arquetipo** — no subas ni bajes Angular para encajar la librería.
+
+### Cableado de estilos y assets
+
+En el `project.json` de la aplicación (rutas verificadas contra el paquete publicado; la documentación que circula por ahí las da mal):
+
+```json
+"styles": ["node_modules/@mapfre-tech/b2b-components/src/styles.scss"],
+"assets": [
+  { "glob": "**/*", "input": "node_modules/@mapfre-tech/b2b-components/src/assets", "output": "/assets/b2b-components" },
+]
+```
+
+**Una sola salida, `/assets/b2b-components`**: la librería resuelve fuentes e iconos ahí. Tres salidas (`/assets/icons`, `/assets/fonts`, `/assets/img`) compilan igual y dan 404 en runtime — pasó en el ciclo anterior y el compilador no lo ve. El runtime comprueba que la entrada `input` existe en disco y que las `url(/assets/…)` de tus estilos las sirve alguna entrada `assets`.
+
+### Widget de la spec → componente real
+
+La pantalla declara `widget`; esta tabla dice qué importar. **El selector importa tanto como la clase**: media librería son DIRECTIVAS sobre elementos nativos (`button[b2b-button]`, `input[b2b-input]`), y escribir `<b2b-button>` no pinta nada ni da error.
+
+| widget | importar | selector | nota |
+|--------|----------|----------|------|
+| `amount` | `B2bReadDataComponent` | `b2b-read-data` | NO hay componente de importe: el formato es del pipe |
+| `autocomplete` | `B2bSearchAutoCompleteComponent` | `b2b-search-autocomplete` | — |
+| `badge` | `B2bTagComponent` | `b2b-tag` | el chip/etiqueta con texto es `b2b-tag`; `B2bBadgeComponent` (`b2b-badge`) es un PUNTO indicador de 8 px, no una etiqueta |
+| `banner` | `B2bNotificationInlineComponent` | `b2b-notification-inline` | `[visible]="true"` obligatorio (arranca oculta); `type` ∈ ok|error|alert|info; el toast flotante es `B2bNotificationFloatingComponent` |
+| `cancel` | `B2bButtonComponent` | `button[b2b-button]` | misma directiva, variante secundaria |
+| `card` | `B2bCardPrimaryComponent` | `[b2b-card-primary]` | variante secundaria: `B2bCardSecondaryComponent` |
+| `checkbox` | `B2bCheckBoxComponent` | `input[b2b-checkbox]` | ojo a la mayúscula: `CheckBox`, no `Checkbox` |
+| `currency` | `B2bInputComponent` | `input[b2b-input] type="text"` | NO hay componente de importe: formatea con el pipe de moneda de Angular |
+| `date` | `B2bDatePickerInputComponent` | `b2b-date-picker-input` | — |
+| `date_range` | `B2bDatePickerRangeInputComponent` | `b2b-date-picker-range-input` | — |
+| `date_text` | `B2bReadDataComponent` | `b2b-read-data` | — |
+| `document_link` | `B2bLinkComponent` | `a[b2b-link]` | — |
+| `empty_state` | `B2bNotificationInlineComponent` | `b2b-notification-inline` | NO hay componente de estado vacío: notificación en línea con `[visible]="true"` (arranca oculta) y `type` ∈ ok|error|alert|info |
+| `file_upload` | `B2bFileUploaderComponent` | `b2b-file-uploader` | para arrastrar y soltar, `B2bFileDropAreaComponent` |
+| `icon_button` | `B2bButtonComponent` | `button[b2b-button]` | el icono dentro, con `B2bIconComponent` (`b2b-icon`) |
+| `key_value` | `B2bReadDataComponent` | `b2b-read-data` | — |
+| `label` | `B2bLabelComponent` | `label[b2b-label]` | — |
+| `link` | `B2bLinkComponent` | `a[b2b-link]` | — |
+| `list` | `B2bListComponent` | `[b2b-list]` | cada fila, `B2bListBasicComponent` (`li[b2b-list-basic]`) |
+| `menu_item` | `B2bOptionsMenuItemComponent` | `li[b2b-options-menu-item]` | dentro de `B2bOptionsMenuComponent` |
+| `multiselect` | `B2bDropDownMultipleSelectComponent` | `b2b-dropdown-multiple-select` | — |
+| `number` | `B2bInputComponent` | `input[b2b-input] type="number"` | para un contador con +/− usa `B2bNumberPickerComponent` |
+| `password` | `B2bPasswordFieldComponent` | `b2b-password-field` | — |
+| `primary_button` | `B2bButtonComponent` | `button[b2b-button]` | es una DIRECTIVA sobre `<button>`; la variante va por atributo |
+| `radio_group` | `B2bRadioButtonListComponent` | `ul[b2b-radio-button-list]` | cada opción es un `B2bRadioButtonComponent` (`input[b2b-radio-button]`) |
+| `search` | `B2bSearchComponent` | `b2b-search` | — |
+| `secondary_button` | `B2bButtonComponent` | `button[b2b-button]` | misma directiva, variante secundaria |
+| `select` | `B2bDropDownSelectComponent` | `b2b-dropdown-select` | — |
+| `submit` | `B2bButtonComponent` | `button[b2b-button] type="submit"` | — |
+| `table` | `B2bTableContainerComponent` | `b2b-table-container` | filtros/búsqueda/acciones van en su slot de CABECERA (`*-header`), no encima; la paginación es `B2bPaginatorComponent`, aparte |
+| `text` | `B2bInputComponent` | `input[b2b-input]` | — |
+| `text_block` | `B2bReadDataComponent` | `b2b-read-data` | — |
+| `textarea` | `B2bTextAreaComponent` | `textarea[b2b-text-area]` | — |
+| `toggle` | `B2bToggleSwitchComponent` | `b2b-toggle-switch` | — |
+
+### Reglas verificadas contra el paquete (catálogo `3.12.17`, curated)
+
+Cada una de estas costó un commit humano en el ciclo anterior. El runtime pasa un lint de plantillas (`design-system`) que las comprueba sobre tu HTML/SCSS:
+
+- **Blocker** `notification-visible` — `b2b-notification-inline` arranca con `visible=false`: pon SIEMPRE `[visible]="true"` (o la señal que lo gobierna) o el aviso no se pinta — 0 de 25 avisos visibles en el ciclo 4.
+- **Blocker** `notification-type-enum` — `type` de `b2b-notification-inline` es `ok | error | alert | info`. `warning`, `success`, `danger` no existen y dejan el aviso sin estilo.
+- Warning `tag-not-badge` — Una etiqueta de estado con texto es `b2b-tag`. `b2b-badge` es un punto de 8 px (indicador de notificación), no un chip.
+- Warning `table-header-slot` — Filtros, búsqueda y botones de una tabla van en el slot de cabecera de `b2b-table-container` (`*-header`), no en un bloque separado encima: si no, la tabla sale «partida» (15 en el ciclo 4).
+- Warning `header-slots` — `b2b-header-desktop` se rellena por slots: `[b2b-header-logo]` para el logo y `[b2b-header-functions]` para las acciones. Sin ellos la cabecera queda vacía.
+- Warning `width-full` — Los controles de formulario llevan la clase `b2b-width-full` para ocupar el ancho del contenedor; sin ella salen con ancho fijo y el layout se desalinea.
+- **Blocker** `assets-path` — Los assets del paquete se sirven en `/assets/b2b-components/**` (una sola entrada `assets` con `input: …/src/assets`). `/assets/icons`, `/assets/fonts` o `/assets/img` compilan y dan 404 en fuentes e iconos.
+- **Blocker** `title-tokens` — Los tokens tipográficos son `--b2b-titles-NN-font-size` (con sufijo). `var(--b2b-titles-06)` a secas no existe: el título sale con el tamaño del navegador.
+- **Blocker** `attribute-directives` — Media librería son DIRECTIVAS sobre elementos nativos: `<button b2b-button>`, `<input b2b-input>`, `<input b2b-checkbox>`, `<a b2b-link>`. Escribir `<b2b-button>` no pinta nada ni da error de compilación.
+
+**Inputs y slots que importan:**
+
+- `B2bNotificationInlineComponent` · input `visible`: boolean — arranca en `false`: sin `[visible]="true"` (o una señal) el aviso NO se pinta
+- `B2bNotificationInlineComponent` · input `type`: enum `ok | error | alert | info` (no existe `warning` ni `success`)
+- `B2bTableContainerComponent` · slot cabecera (`*-header`): la ZONA DE ACCIONES de la tabla — filtros, búsqueda y botones van proyectados ahí, no en un bloque aparte encima
+
+- clase `b2b-width-full`: controles a ancho completo del contenedor; sin ella los inputs/selects salen con ancho fijo
+
+### Snippets (copia la forma, cambia los datos)
+
+`badge`:
+```html
+<b2b-tag>{{ estado }}</b2b-tag>
+```
+`banner`:
+```html
+<b2b-notification-inline [visible]="true" type="info">Texto del aviso</b2b-notification-inline>
+```
+`checkbox`:
+```html
+<input b2b-checkbox type="checkbox" [formControl]="form.controls.acepta" />
+```
+`empty_state`:
+```html
+<b2b-notification-inline [visible]="items().length === 0" type="info">No hay resultados</b2b-notification-inline>
+```
+`link`:
+```html
+<a b2b-link [routerLink]="['/detalle', id]">Ver detalle</a>
+```
+`primary_button`:
+```html
+<button b2b-button type="button" (click)="guardar()">Guardar</button>
+```
+`secondary_button`:
+```html
+<button b2b-button variant="secondary" type="button">Cancelar</button>
+```
+`select`:
+```html
+<b2b-dropdown-select class="b2b-width-full" [formControl]="form.controls.tipo" [options]="tipos"></b2b-dropdown-select>
+```
+`table`:
+```html
+<b2b-table-container>
+  <!-- slot de cabecera: filtros, búsqueda y acciones -->
+  ...
+</b2b-table-container>
+```
+`text`:
+```html
+<input b2b-input class="b2b-width-full" [formControl]="form.controls.nombre" />
+```
+`title`:
+```html
+<h1 style="font-size: var(--b2b-titles-04-font-size)">Título de la pantalla</h1>
+```
+
+### Estructura de la pantalla
+
+| componente | selector | para qué |
+|---|---|---|
+| `B2bContainerComponent` | `b2b-container` | envoltorio de contenido de la página |
+| `B2bGridLayoutComponent` | `b2b-grid-layout` | rejilla |
+| `B2bSubheaderComponent` | `b2b-subheader` | cabecera de sección |
+| `B2bHeaderDesktopComponent` | `b2b-header-desktop` | cabecera (móvil: `B2bHeaderMobileComponent`) — slots: `[b2b-header-logo]` — el logotipo (`b2b-mapfre-logo`); `[b2b-header-functions]` — acciones de cabecera (usuario, salir…) |
+| `B2bSidebarComponent` | `b2b-sidebar` | navegación lateral; cada entrada, `B2bSidebarItemComponent` |
+| `B2bBreadcrumbsComponent` | `b2b-breadcrumbs` | migas de pan |
+| `B2bTabGroupComponent` | `b2b-tab-group` | pestañas; cada una, `B2bTabComponent` |
+| `B2bStepperComponent` | `b2b-stepper` | asistente por pasos |
+| `B2bModalComponent` | `b2b-modal` | diálogo |
+| `B2bSidepanelComponent` | `b2b-sidepanel` | panel lateral deslizante |
+| `B2bSpinnerComponent` | `b2b-spinner` | indicador de carga |
+| `B2bPaginatorComponent` | `b2b-paginator` | paginación |
+| `B2bFooterComponent` | `b2b-footer` | pie |
+| `B2bMapfreLogoComponent` | `b2b-mapfre-logo` | logotipo |
+
+**El MARCO de la aplicación también se monta con esta tabla.** La cabecera, la navegación, el pie y el envoltorio de página son design system igual que un botón: `b2b-header-desktop`, `b2b-sidebar` (+ `B2bSidebarItemComponent` por entrada), `b2b-container`, `b2b-footer`, `b2b-mapfre-logo`. Un `<header><nav><ul><li><a>` a mano es **Blocker** `design-system`: se pinta como una lista con topos y enlaces azules del navegador, y es lo primero que se ve del producto. Pasó exactamente eso en NoteBase — las pantallas usaban la librería y el marco no, porque el marco no es ninguna de las pantallas de la lista de abajo. Si construyes o tocas el shell, va con estos componentes.
+
+### Tipografía
+
+Los widgets de la spec son CONTROLES; el texto no tiene widget. Un `<h1>` a secas se pinta con el tamaño por defecto del navegador aunque la hoja esté cargada. Usa la escala del design system — **con el sufijo `-font-size`**: `var(--b2b-titles-06)` a secas no existe y deja el título con el tamaño del navegador:
+
+| para | variable | tamaño |
+|---|---|---|
+| título de página | `var(--b2b-titles-04-font-size)` | 2.5rem — uno por pantalla |
+| título de sección | `var(--b2b-titles-06-font-size)` | 2rem |
+| subtítulo | `var(--b2b-titles-08-font-size)` | 1.5rem |
+| encabezado menor | `var(--b2b-titles-10-font-size)` | 1rem |
+| texto corrido | `var(--b2b-text-font-size)` | 1rem |
+| pie / leyenda | `var(--b2b-text-caption-m-font-size)` | 0.875rem |
+
+### Formularios
+
+Prefiere `@mapfre-tech/formly-b2b` (formularios dirigidos por JSON sobre los mismos componentes B2B) antes que montar el HTML a mano.
+
+**Sus peers de Angular hay que FIJARLOS al major del arquetipo.** Los paquetes corporativos los declaran abiertos por arriba (`>=17.3.9`), así que npm resuelve el último major publicado y la instalación muere con `ERESOLVE` — verificado: sobre Angular 19, `npm i @mapfre-tech/formly-b2b@1.2.0` a secas elige `@angular/material@22` y falla. Instálalos con la versión explícita:
+
+```
+npm i @angular/material@~<major-del-arquetipo> @angular/cdk@~<major-del-arquetipo> @angular/material-date-fns-adapter@~<major-del-arquetipo>
+```
+
+**Regla de oro:** si un componente no está en las tablas de arriba, compruébalo en el paquete instalado (`node_modules/@mapfre-tech/b2b-components`) antes de usarlo. No inventes nombres ni APIs — un `B2bEmptyStateComponent` que no existe es un `TS2305` en cuanto compilas, y hay nombres que se parecen mucho al que uno espera (`B2bCheckBoxComponent`, no `Checkbox`; `B2bTableContainerComponent`, no `Table`).
+
+## Pantallas a implementar (arquitectura T.5 + detalle de UI de B.7)
+
+> 24 pantalla(s) de esta tarea. TRANSCRIBE el detalle: no inventes pantallas, rutas, etiquetas ni navegación. Cuando una pantalla trae «Detalle de UI (B.7)», ESA es la fuente autoritativa — sus `label` son el texto a pintar y su `widget` el control a usar, ya decididos y aprobados. Los bloques de la fase FLOWS son contexto: sus textos son términos de dominio (glosario), NO etiquetas de UI. Respeta el design system del arquetipo.
+
+### ARC-029 · Formulario de Nueva Solicitud
+El empleado introduce las fechas y el motivo para crear una nueva solicitud de vacaciones.
+- **API** (enviar la nueva solicitud de vacaciones): `POST /vacation-requests` — Crea una nueva solicitud de vacaciones para el empleado autenticado.
+- **Campos del contrato de esta pantalla** (tipa el JSON con ESTOS nombres, vía `libs/api-types`): `VacationRequestCreate.start_date` (date), `VacationRequestCreate.end_date` (date), `VacationRequestCreate.reason` (string), `VacationRequestDetail.request_id` (uuid), `VacationRequestDetail.employee_name` (string), `VacationRequestDetail.start_date` (date), `VacationRequestDetail.end_date` (date), `VacationRequestDetail.reason` (string), `VacationRequestDetail.status` (enum), `VacationRequestDetail.created_at` (datetime), `VacationRequestDetail.resolution_date` (datetime), `VacationRequestDetail.manager_notes` (string)
+- **Detalle de UI (B.7) · `UIS-001`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
+  - Propósito: El empleado introduce las fechas y el motivo de sus vacaciones para crear una nueva solicitud y enviarla a su manager para aprobación.
+  - Disposición: **formulario** (`form`) — respétala; no rediseñes la pantalla.
+  - Navegación: sección de menú «Mis Solicitudes» (orden 0).
+  - **Sección «Fechas de la solicitud»** (2 columnas):
+    - «Fecha de inicio» (widget `date`, tipo `date`, obligatorio, campo `fecha_inicio` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`) — Debe ser anterior a la Fecha de fin.
+    - «Fecha de fin» (widget `date`, tipo `date`, obligatorio, campo `fecha_fin` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`) — Debe ser posterior a la Fecha de inicio.
+  - **Sección «Motivo»** (1 columna):
+    - «Motivo» (widget `textarea`, tipo `string`, opcional, campo `motivo` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`)
+  - **Acciones:**
+    - «Cancelar» (widget `cancel`, opcional)
+    - «Enviar solicitud» (widget `submit`, opcional, navega) — Si el formulario es válido
+- Flujo `FLOW-001` · pantalla `SCR-001`
+  - **Rutas:** `/solicitudes/nueva`
+  - **Componentes de UI:** Formulario de nueva solicitud de vacaciones; Campo de selección de fecha de inicio; Campo de selección de fecha de fin; Campo de texto para motivo de la solicitud; Botón para enviar solicitud
+  - **Datos que muestra:** Fecha de inicio de la solicitud; Fecha de fin de la solicitud; Motivo de la solicitud
+  - **Acciones del usuario:** Enviar solicitud de vacaciones; Cancelar y volver
+  - **Navegación:**
+    - Enviar solicitud → «Confirmación de Envío de Solicitud» si Si el formulario es válido [submit]
+
+### ARC-030 · Confirmación de Envío de Solicitud
+Muestra al empleado la confirmación de que su solicitud ha sido enviada correctamente.
+- **API**: esta pantalla no trae cableado pantalla→endpoint de T.5. NO lo interpretes como «no llama a la API»: elige los endpoints que necesita de la tabla del contrato congelado (sección api-contract), con su path y su verbo literales, y **repórtalo como health check `Warning` con `check: api-contract`** indicando cuáles has usado.
+- **Detalle de UI (B.7) · `UIS-002`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
+  - Propósito: Confirma al empleado que su solicitud de vacaciones se ha enviado correctamente y está pendiente de aprobación, y le permite volver a su historial de solicitudes.
+  - Disposición: **confirmación** (`confirmation`) — respétala; no rediseñes la pantalla.
+  - Navegación: sección de menú «Mis Solicitudes» (orden 1).
+  - **Datos que muestra:**
+    - «¡Solicitud enviada!» (widget `banner`, opcional) — Tu solicitud de vacaciones ha sido enviada correctamente. Recibirás una notificación cuando sea revisada.
+    - «Código de solicitud» (widget `key_value`, tipo `string`, opcional, campo `codigo_solicitud`)
+    - «Estado» (widget `badge`, tipo `string`, opcional, campo `estado_solicitud`) — El estado inicial es 'Pendiente'.
+  - **Acciones:**
+    - «Volver al historial» (widget `secondary_button`, opcional)
+    - «Solicitar otras vacaciones» (widget `primary_button`, opcional, navega)
+- Flujo `FLOW-001` · pantalla `SCR-002`
+  - **Rutas:** `/solicitudes/nueva/confirmacion`
+  - **Componentes de UI:** Mensaje de confirmación de envío; Botón para volver al historial
+  - **Datos que muestra:** Mensaje de confirmación de envío; Código de la solicitud; Estado de la solicitud
+  - **Acciones del usuario:** Volver al historial de solicitudes
+  - **Navegación:**
+    - Solicitar otras vacaciones → «Formulario de Nueva Solicitud» [navigate]
+
+### ARC-031 · Historial de Solicitudes
+El empleado consulta la lista de todas sus solicitudes de vacaciones y su estado.
+- **API** (consultar el historial de solicitudes propias): `GET /vacation-requests/my-requests` — Obtiene el listado de las solicitudes de vacaciones del empleado autenticado.
+- **Campos del contrato de esta pantalla** (tipa el JSON con ESTOS nombres, vía `libs/api-types`): `VacationRequestList.items` (array), `VacationRequestList.total` (integer), `VacationRequestList.page` (integer), `VacationRequestList.size` (integer)
+- **Detalle de UI (B.7) · `UIS-006`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
+  - Propósito: Permite al empleado consultar el historial de todas sus solicitudes de vacaciones, filtrarlas por estado y acceder a los detalles de cada una.
+  - Disposición: **listado** (`list`) — respétala; no rediseñes la pantalla.
+  - Navegación: es PUERTA DE ENTRADA de la aplicación; sección de menú «Mis Solicitudes» (orden 0).
+  - **Sección «Filtros»** (2 columnas):
+    - «Estado» (widget `select`, tipo `string`, opcional, campo `estado_solicitud_filtro` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`) — Valores posibles: Pendiente, Aprobada, Rechazada.
+    - «Aplicar filtros» (widget `submit`, opcional)
+  - **Sección «Historial de Solicitudes»** (1 columna):
+    - «Solicitudes de vacaciones» (widget `table`, opcional, cada fila navega)
+      - Columnas: «Código» (`label` ⚠ `codigo_solicitud` sin campo en el contrato), «Fecha de inicio» (`date_text` ⚠ `fecha_inicio` sin campo en el contrato), «Fecha de fin» (`date_text` ⚠ `fecha_fin` sin campo en el contrato), «Estado» (`badge` ⚠ `estado_solicitud` sin campo en el contrato)
+    - «Ver detalle» (widget `link`, opcional, navega)
+  - **Acciones:**
+    - «Nueva solicitud» (widget `primary_button`, opcional)
+- Flujo `FLOW-002` · pantalla `SCR-001`
+  - **Rutas:** `/solicitudes`
+  - **Componentes de UI:** Título de la pantalla: Historial de Solicitudes; Filtro por estado de solicitud; Tabla de historial de solicitudes; Botón para crear nueva solicitud
+  - **Datos que muestra:** Lista de solicitudes de vacaciones; Filtro por estado de solicitud
+  - **Acciones del usuario:** Filtrar solicitudes por estado; Ver detalle de solicitud; Iniciar nueva solicitud
+  - **Navegación:**
+    - Ver detalle de solicitud → «Detalle de Solicitud» si Al seleccionar una solicitud de la lista [navigate]
+
+### ARC-032 · Detalle de Solicitud
+El empleado consulta la información completa de una de sus solicitudes de vacaciones.
+- **API** (cargar el detalle de la solicitud): `GET /vacation-requests/{requestId}` — Obtiene el detalle de una solicitud de vacaciones del propio empleado.
+- **API** (descargar el comprobante PDF): `GET /vacation-requests/{requestId}/proof-document` — Descarga el comprobante en PDF de una solicitud de vacaciones aprobada.
+- **Campos del contrato de esta pantalla** (tipa el JSON con ESTOS nombres, vía `libs/api-types`): `VacationRequestDetail.request_id` (uuid), `VacationRequestDetail.employee_name` (string), `VacationRequestDetail.start_date` (date), `VacationRequestDetail.end_date` (date), `VacationRequestDetail.reason` (string), `VacationRequestDetail.status` (enum), `VacationRequestDetail.created_at` (datetime), `VacationRequestDetail.resolution_date` (datetime), `VacationRequestDetail.manager_notes` (string)
+- **Detalle de UI (B.7) · `UIS-007`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
+  - Propósito: El empleado consulta toda la información de una solicitud de vacaciones concreta, incluyendo las fechas, el motivo y su estado actual.
+  - Disposición: **detalle** (`detail`) — respétala; no rediseñes la pantalla.
+  - Navegación: sección de menú «Mis Solicitudes» (orden 1).
+  - **Sección «Datos de la solicitud»** (2 columnas):
+    - «Código de solicitud» (widget `label`, tipo `string`, opcional, campo `codigo_solicitud` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`)
+    - «Solicitante» (widget `label`, tipo `string`, opcional, campo `empleado_solicitante` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`)
+    - «Fecha de solicitud» (widget `date_text`, tipo `date`, opcional, campo `fecha_creacion` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`)
+    - «Estado» (widget `badge`, tipo `string`, opcional, campo `estado_solicitud` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`)
+    - «Fecha de inicio» (widget `date_text`, tipo `date`, opcional, campo `fecha_inicio` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`)
+    - «Fecha de fin» (widget `date_text`, tipo `date`, opcional, campo `fecha_fin` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`)
+    - «Motivo» (widget `text_block`, tipo `string`, opcional, campo `motivo_solicitud` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`)
+  - **Acciones:**
+    - «Volver» (widget `secondary_button`, opcional, navega)
+- Flujo `FLOW-002` · pantalla `SCR-002`
+  - **Rutas:** `/solicitudes/{id}`
+  - **Componentes de UI:** Vista de datos de la solicitud; Botón para volver al historial
+  - **Datos que muestra:** Código de la solicitud; Empleado solicitante; Fecha de inicio de la solicitud; Fecha de fin de la solicitud; Motivo de la solicitud; Estado de la solicitud; Fecha de creación de la solicitud
+  - **Acciones del usuario:** Volver al historial de solicitudes
+  - **Navegación:**
+    - Volver al historial → «Historial de Solicitudes» [back]
+
+### ARC-033 · Diálogo de Confirmación de Cancelación
+El empleado confirma que desea cancelar una solicitud de vacaciones pendiente.
+- **API** (confirmar la cancelación de la solicitud): `POST /vacation-requests/{requestId}/cancel` — Cancela una solicitud de vacaciones propia que esté en estado 'Pendiente'.
+- **Campos del contrato de esta pantalla** (tipa el JSON con ESTOS nombres, vía `libs/api-types`): `VacationRequestDetail.request_id` (uuid), `VacationRequestDetail.employee_name` (string), `VacationRequestDetail.start_date` (date), `VacationRequestDetail.end_date` (date), `VacationRequestDetail.reason` (string), `VacationRequestDetail.status` (enum), `VacationRequestDetail.created_at` (datetime), `VacationRequestDetail.resolution_date` (datetime), `VacationRequestDetail.manager_notes` (string)
+- **Detalle de UI (B.7) · `UIS-004`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
+  - Propósito: El empleado confirma que desea cancelar de forma definitiva su solicitud de vacaciones.
+  - Disposición: **genérico** (`generic`) — respétala; no rediseñes la pantalla.
+  - **Datos que muestra:**
+    - «¿Estás seguro de que quieres cancelar esta solicitud? Esta acción no se puede deshacer.» (widget `text_block`, opcional)
+  - **Acciones:**
+    - «No cancelar» (widget `cancel`, opcional, navega)
+    - «Confirmar cancelación» (widget `submit`, opcional, navega) — La solicitud debe estar en estado 'Pendiente'.
+- Flujo `FLOW-003` · pantalla `SCR-002`
+  - **Rutas:** `/solicitudes/{id}/cancelar`
+  - **Componentes de UI:** Diálogo de confirmación de cancelación; Botón para confirmar cancelación; Botón para cerrar diálogo
+  - **Datos que muestra:** Mensaje de confirmación de cancelación
+  - **Acciones del usuario:** Confirmar cancelación de la solicitud; No cancelar y volver al detalle
+  - **Navegación:**
+    - Confirmar cancelación → «Confirmación de Cancelación» [submit]
+    - No cancelar (cerrar diálogo) → «Detalle de Solicitud Pendiente» [close_modal]
+
+### ARC-034 · Confirmación de Cancelación
+Informa al empleado que su solicitud ha sido cancelada con éxito.
+- **API**: esta pantalla no trae cableado pantalla→endpoint de T.5. NO lo interpretes como «no llama a la API»: elige los endpoints que necesita de la tabla del contrato congelado (sección api-contract), con su path y su verbo literales, y **repórtalo como health check `Warning` con `check: api-contract`** indicando cuáles has usado.
+- **Detalle de UI (B.7) · `UIS-005`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
+  - Propósito: Informa al empleado del éxito de la cancelación y muestra el estado final de la solicitud.
+  - Disposición: **confirmación** (`confirmation`) — respétala; no rediseñes la pantalla.
+  - **Sección «Resultado de la operación»** (1 columna):
+    - «¡Solicitud cancelada con éxito!» (widget `banner`, opcional)
+    - «Código de solicitud» (widget `label`, tipo `string`, opcional, campo `codigo_solicitud`)
+    - «Estado» (widget `badge`, tipo `string`, opcional, campo `estado_solicitud`)
+  - **Acciones:**
+    - «Volver al historial» (widget `primary_button`, opcional)
+- Flujo `FLOW-003` · pantalla `SCR-003`
+  - **Rutas:** `/solicitudes/{id}`
+  - **Componentes de UI:** Notificación de cancelación exitosa; Vista de datos de la solicitud cancelada
+  - **Datos que muestra:** Código de la solicitud; Estado de la solicitud; Mensaje de confirmación de cancelación
+  - **Acciones del usuario:** Volver al historial de solicitudes
+
+### ARC-035 · Panel de Solicitudes Pendientes del Equipo
+El manager visualiza la lista de solicitudes de vacaciones pendientes de su equipo.
+- **API** (consultar las solicitudes pendientes del equipo): `GET /team/vacation-requests` — Obtiene las solicitudes de vacaciones del equipo del manager autenticado.
+- **Campos del contrato de esta pantalla** (tipa el JSON con ESTOS nombres, vía `libs/api-types`): `VacationRequestList.items` (array), `VacationRequestList.total` (integer), `VacationRequestList.page` (integer), `VacationRequestList.size` (integer)
+- **Detalle de UI (B.7) · `UIS-008`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
+  - Propósito: El manager consulta la lista de solicitudes de vacaciones pendientes de su equipo para seleccionar una y decidir si la aprueba o la rechaza.
+  - Disposición: **listado** (`list`) — respétala; no rediseñes la pantalla.
+  - Navegación: es PUERTA DE ENTRADA de la aplicación; sección de menú «Gestión de Equipo» (orden 0).
+  - **Sección «Solicitudes pendientes de revisión»** (1 columna):
+    - «Gestionar» (widget `link`, opcional, navega) — Al seleccionar una solicitud del panel
+    - «Solicitudes Pendientes» (widget `table`, opcional, cada fila navega)
+      - Columnas: «Empleado» (`label` ⚠ `empleado_solicitante` sin campo en el contrato), «Fecha de Inicio» (`date_text` ⚠ `fecha_inicio` sin campo en el contrato), «Fecha de Fin» (`date_text` ⚠ `fecha_fin` sin campo en el contrato), «Estado» (`badge` ⚠ `estado_solicitud` sin campo en el contrato)
+- Flujo `FLOW-005` · pantalla `SCR-001`
+  - **Rutas:** `/equipo/solicitudes`
+  - **Componentes de UI:** Título del panel: Solicitudes Pendientes del Equipo; Lista de solicitudes pendientes de revisión
+  - **Datos que muestra:** Lista de solicitudes pendientes del equipo
+  - **Acciones del usuario:** Ver detalle de solicitud para gestionar; Filtrar solicitudes pendientes
+  - **Navegación:**
+    - Revisar solicitud → «Detalle de Solicitud para Gestión» si Al seleccionar una solicitud del panel [navigate]
+
+### ARC-036 · Detalle de Solicitud para Gestión
+El manager revisa el detalle de una solicitud de su equipo para aprobarla o rechazarla.
+- **API** (cargar el detalle de la solicitud del equipo): `GET /team/vacation-requests/{requestId}` — Obtiene el detalle de la solicitud de un miembro del equipo del manager.
+- **API** (aprobar la solicitud): `POST /team/vacation-requests/{requestId}/approve` — Aprueba una solicitud de vacaciones de un miembro del equipo.
+- **Campos del contrato de esta pantalla** (tipa el JSON con ESTOS nombres, vía `libs/api-types`): `VacationRequestDetail.request_id` (uuid), `VacationRequestDetail.employee_name` (string), `VacationRequestDetail.start_date` (date), `VacationRequestDetail.end_date` (date), `VacationRequestDetail.reason` (string), `VacationRequestDetail.status` (enum), `VacationRequestDetail.created_at` (datetime), `VacationRequestDetail.resolution_date` (datetime), `VacationRequestDetail.manager_notes` (string)
+- **Detalle de UI (B.7) · `UIS-009`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
+  - Propósito: El manager revisa la información completa de una solicitud de vacaciones para tomar una decisión informada sobre su aprobación o rechazo.
+  - Disposición: **detalle** (`detail`) — respétala; no rediseñes la pantalla.
+  - Navegación: sección de menú «Gestión de Equipo» (orden 1).
+  - **Sección «Datos de la solicitud»** (2 columnas):
+    - «Código de solicitud» (widget `label`, tipo `string`, opcional, campo `codigo_solicitud` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`)
+    - «Empleado» (widget `label`, tipo `string`, opcional, campo `empleado_solicitante` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`)
+    - «Fecha de inicio» (widget `date_text`, tipo `date`, opcional, campo `fecha_inicio` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`)
+    - «Fecha de fin» (widget `date_text`, tipo `date`, opcional, campo `fecha_fin` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`)
+    - «Motivo» (widget `text_block`, tipo `string`, opcional, campo `motivo_solicitud` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`)
+    - «Estado» (widget `badge`, tipo `string`, opcional, campo `estado_solicitud` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`)
+  - **Acciones:**
+    - «Volver al panel» (widget `link`, opcional, navega)
+    - «Rechazar» (widget `secondary_button`, opcional, navega)
+    - «Aprobar» (widget `primary_button`, opcional, navega)
+- Flujo `FLOW-005` · pantalla `SCR-002`
+  - **Rutas:** `/equipo/solicitudes/{id}`
+  - **Componentes de UI:** Vista de detalle de la solicitud a gestionar; Botón para aprobar solicitud; Botón para rechazar solicitud
+  - **Datos que muestra:** Código de la solicitud; Empleado solicitante; Fecha de inicio de la solicitud; Fecha de fin de la solicitud; Motivo de la solicitud; Estado de la solicitud
+  - **Acciones del usuario:** Aprobar solicitud; Rechazar solicitud; Volver al panel de solicitudes
+  - **Navegación:**
+    - Volver al panel → «Panel de Solicitudes Pendientes del Equipo» [back]
+    - Aprobar solicitud → «Confirmación de Gestión de Solicitud» [submit]
+    - Rechazar solicitud → «Diálogo de Rechazo de Solicitud» [open_modal]
+
+### ARC-037 · Diálogo de Rechazo de Solicitud
+El manager introduce el motivo del rechazo de una solicitud de vacaciones.
+- **API** (rechazar la solicitud): `POST /team/vacation-requests/{requestId}/reject` — Rechaza una solicitud de vacaciones de un miembro del equipo.
+- **Campos del contrato de esta pantalla** (tipa el JSON con ESTOS nombres, vía `libs/api-types`): `RejectionRequest.rejection_reason` (string), `VacationRequestDetail.request_id` (uuid), `VacationRequestDetail.employee_name` (string), `VacationRequestDetail.start_date` (date), `VacationRequestDetail.end_date` (date), `VacationRequestDetail.reason` (string), `VacationRequestDetail.status` (enum), `VacationRequestDetail.created_at` (datetime), `VacationRequestDetail.resolution_date` (datetime), `VacationRequestDetail.manager_notes` (string)
+- **Detalle de UI (B.7) · `UIS-010`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
+  - Propósito: El manager introduce el motivo por el cual se rechaza la solicitud de vacaciones antes de confirmar la acción.
+  - Disposición: **formulario** (`form`) — respétala; no rediseñes la pantalla.
+  - **Sección «Motivo del rechazo»** (1 columna):
+    - «Motivo del rechazo (opcional)» (widget `textarea`, tipo `string`, opcional, campo `motivo_rechazo` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`)
+  - **Acciones:**
+    - «Cancelar» (widget `cancel`, opcional, navega)
+    - «Confirmar rechazo» (widget `submit`, opcional, navega)
+- Flujo `FLOW-005` · pantalla `SCR-003`
+  - **Rutas:** `/equipo/solicitudes/{id}/rechazar`
+  - **Componentes de UI:** Diálogo de rechazo de solicitud; Campo de texto para motivo del rechazo; Botón para confirmar rechazo; Botón para cancelar rechazo
+  - **Datos que muestra:** Motivo de rechazo
+  - **Acciones del usuario:** Confirmar rechazo con motivo; Confirmar rechazo sin motivo; Cancelar rechazo
+  - **Navegación:**
+    - Confirmar rechazo → «Confirmación de Gestión de Solicitud» [submit]
+    - No rechazar (cerrar diálogo) → «Detalle de Solicitud para Gestión» [close_modal]
+
+### ARC-038 · Confirmación de Gestión de Solicitud
+Informa al manager que la solicitud ha sido aprobada o rechazada correctamente.
+- **API**: esta pantalla no trae cableado pantalla→endpoint de T.5. NO lo interpretes como «no llama a la API»: elige los endpoints que necesita de la tabla del contrato congelado (sección api-contract), con su path y su verbo literales, y **repórtalo como health check `Warning` con `check: api-contract`** indicando cuáles has usado.
+- **Detalle de UI (B.7) · `UIS-011`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
+  - Propósito: Se confirma al manager que la solicitud de vacaciones ha sido aprobada o rechazada correctamente, y se le permite volver al panel principal.
+  - Disposición: **confirmación** (`confirmation`) — respétala; no rediseñes la pantalla.
+  - **Datos que muestra:**
+    - «La solicitud se ha gestionado correctamente.» (widget `banner`, tipo `string`, opcional, campo `mensaje_confirmacion`)
+    - «Código de solicitud» (widget `label`, tipo `string`, opcional, campo `codigo_solicitud`)
+    - «Nuevo estado» (widget `badge`, tipo `string`, opcional, campo `estado_solicitud`)
+  - **Acciones:**
+    - «Volver al panel» (widget `primary_button`, opcional, navega)
+- Flujo `FLOW-005` · pantalla `SCR-004`
+  - **Rutas:** `/equipo/solicitudes/gestion-confirmada`
+  - **Componentes de UI:** Notificación de gestión de solicitud; Botón para volver al panel de solicitudes
+  - **Datos que muestra:** Mensaje de confirmación de gestión; Código de la solicitud; Nuevo estado de la solicitud
+  - **Acciones del usuario:** Volver al panel de solicitudes pendientes
+  - **Navegación:**
+    - Volver al panel de solicitudes → «Panel de Solicitudes Pendientes del Equipo» [navigate]
+
+### ARC-039 · Configuración de Exportación de Informe
+El manager selecciona el periodo para exportar el informe de solicitudes de su equipo.
+- **API** (iniciar la exportación del informe mensual): `POST /reports/monthly-requests/export-jobs` — Inicia la generación asíncrona de un reporte CSV de solicitudes del equipo.
+- **Campos del contrato de esta pantalla** (tipa el JSON con ESTOS nombres, vía `libs/api-types`): `MonthlyReportRequest.report_month` (integer), `MonthlyReportRequest.report_year` (integer), `ExportJobStatus.job_id` (uuid), `ExportJobStatus.status` (enum), `ExportJobStatus.download_url` (string)
+- **Detalle de UI (B.7) · `UIS-013`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
+  - Propósito: El manager selecciona los parámetros, como el mes y el año, para generar un informe en formato CSV con las solicitudes de vacaciones de su equipo.
+  - Disposición: **formulario** (`form`) — respétala; no rediseñes la pantalla.
+  - Navegación: sección de menú «Gestión de Equipo» (orden 2).
+  - **Sección «Parámetros del Informe»** (1 columna):
+    - «Mes» (widget `select`, tipo `integer`, obligatorio, campo `mes_informe` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`) — El mes del informe es obligatorio.
+    - «Año» (widget `select`, tipo `integer`, obligatorio, campo `ano_informe` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`) — El año del informe es obligatorio.
+  - **Acciones:**
+    - «Ver historial» (widget `link`, opcional, navega)
+    - «Generar Informe» (widget `submit`, opcional, navega) — Si los parámetros de exportación son válidos
+- Flujo `FLOW-006` · pantalla `SCR-001`
+  - **Rutas:** `/informes/exportar`
+  - **Componentes de UI:** Formulario de configuración de exportación; Selector de mes para el informe; Selector de año para el informe; Botón para generar informe
+  - **Datos que muestra:** Mes del informe; Año del informe
+  - **Acciones del usuario:** Generar informe de vacaciones; Ver historial de exportaciones
+  - **Navegación:**
+    - Generar informe → «Historial de Exportaciones» si Si los parámetros de exportación son válidos [submit]
+
+### ARC-040 · Historial de Exportaciones
+El manager consulta el estado de las exportaciones y descarga los informes completados.
+- **API** (consultar el estado de un trabajo de exportación): `GET /reports/export-jobs/{jobId}` — Consulta el estado de un trabajo de exportación y obtiene el enlace de descarga.
+- **Campos del contrato de esta pantalla** (tipa el JSON con ESTOS nombres, vía `libs/api-types`): `ExportJobStatus.job_id` (uuid), `ExportJobStatus.status` (enum), `ExportJobStatus.download_url` (string)
+- **Detalle de UI (B.7) · `UIS-014`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
+  - Propósito: El manager consulta el estado de los informes que ha solicitado y descarga aquellos que ya han sido generados y están disponibles.
+  - Disposición: **listado** (`list`) — respétala; no rediseñes la pantalla.
+  - Navegación: sección de menú «Gestión de Equipo» (orden 3).
+  - **Sección «Informes Generados»** (1 columna):
+    - «Historial de Exportaciones» (widget `table`, opcional)
+      - Columnas: «Informe» (`label` ⚠ `informe_parametros` sin campo en el contrato), «Fecha de Solicitud» (`date_text` ⚠ `fecha_solicitud_exportacion` sin campo en el contrato), «Estado» (`badge` ⚠ `estado_exportacion` sin campo en el contrato), «Archivo» (`document_link` ⚠ `informe_exportado_csv` sin campo en el contrato)
+    - «Descargar» (widget `link`, opcional) — Disponible para informes con estado 'Completado'
+    - «No hay informes generados» (widget `empty_state`, opcional) — Aún no has solicitado ninguna exportación. Puedes generar tu primer informe desde la pantalla de configuración.
+    - «Actualizar» (widget `secondary_button`, opcional)
+  - **Acciones:**
+    - «Configurar nueva exportación» (widget `primary_button`, opcional, navega)
+- Flujo `FLOW-006` · pantalla `SCR-002`
+  - **Rutas:** `/informes`
+  - **Componentes de UI:** Tabla de historial de exportaciones; Indicador de estado por cada exportación; Enlace para descargar informes completados
+  - **Datos que muestra:** Lista de trabajos de exportación; Informe exportado
+  - **Acciones del usuario:** Descargar informe completado; Actualizar estado de exportaciones; Volver a la configuración de informes
+  - **Navegación:**
+    - Configurar nueva exportación → «Configuración de Exportación de Informe» [navigate]
+
+### ARC-041 · Perfil de Usuario
+El usuario consulta su información personal, rol y manager asignado.
+- **API** (consultar el perfil del usuario): `GET /profile/me` — Obtiene la información del perfil del usuario autenticado.
+- **Campos del contrato de esta pantalla** (tipa el JSON con ESTOS nombres, vía `libs/api-types`): `UserProfile.user_id` (uuid), `UserProfile.full_name` (string), `UserProfile.email` (string), `UserProfile.user_role` (enum), `UserProfile.manager_name` (string)
+- **Detalle de UI (B.7) · `UIS-015`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
+  - Propósito: El usuario consulta su información personal, rol y manager asignado, y puede acceder a las acciones para gestionar su cuenta.
+  - Disposición: **detalle** (`detail`) — respétala; no rediseñes la pantalla.
+  - Navegación: sección de menú «Mi Cuenta» (orden 0).
+  - **Sección «Datos Personales»** (2 columnas):
+    - «Nombre de usuario» (widget `label`, tipo `string`, opcional, campo `nombre_usuario` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`)
+    - «Email» (widget `label`, tipo `string`, opcional, campo `email_usuario` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`)
+  - **Sección «Rol y Jerarquía»** (2 columnas):
+    - «Rol» (widget `badge`, tipo `string`, opcional, campo `rol_usuario` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`)
+    - «Manager asignado» (widget `label`, tipo `string`, opcional, campo `manager_asignado` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`)
+  - **Acciones:**
+    - «Cambiar contraseña» (widget `link`, opcional)
+    - «Cerrar sesión» (widget `secondary_button`, opcional)
+    - «Editar perfil» (widget `primary_button`, opcional)
+- Flujo `FLOW-007` · pantalla `SCR-001`
+  - **Rutas:** `/profile`
+  - **Componentes de UI:** Tarjeta de Perfil de Usuario; Sección de Datos Personales; Sección de Rol y Jerarquía
+  - **Datos que muestra:** Nombre de usuario; Email de usuario; Rol de usuario; Manager asignado
+  - **Acciones del usuario:** Editar perfil; Cambiar contraseña; Cerrar sesión
+
+### ARC-042 · Listado del Equipo
+El manager consulta la lista de empleados que le reportan directamente.
+- **API** (consultar los miembros del equipo): `GET /profile/my-team` — Obtiene la lista de empleados que reportan al manager autenticado.
+- **Campos del contrato de esta pantalla** (tipa el JSON con ESTOS nombres, vía `libs/api-types`): `TeamMemberList.items` (array)
+- **Detalle de UI (B.7) · `UIS-016`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
+  - Propósito: Permite al manager consultar la lista de empleados que forman parte de su equipo directo, con sus datos de contacto principales.
+  - Disposición: **listado** (`list`) — respétala; no rediseñes la pantalla.
+  - Navegación: sección de menú «Gestión de Equipo» (orden 2).
+  - **Sección «Miembros del Equipo»** (1 columna):
+    - «Empleados del equipo» (widget `table`, opcional)
+      - Columnas: «Nombre» (`label` ⚠ `nombre_empleado` sin campo en el contrato), «Email» (`label` ⚠ `email_empleado` sin campo en el contrato)
+    - «Ver detalles» (widget `link`, opcional)
+  - **Acciones:**
+    - «Volver» (widget `secondary_button`, opcional)
+- Flujo `FLOW-008` · pantalla `SCR-001`
+  - **Rutas:** `/my-team`
+  - **Componentes de UI:** Título de la pantalla: Mi Equipo; Tabla de Empleados del Equipo
+  - **Datos que muestra:** Lista de empleados del equipo
+  - **Acciones del usuario:** Ver detalles de empleado; Volver al panel principal
+
+### ARC-043 · Formulario de Creación de Usuario
+El administrador introduce los datos para crear una nueva cuenta de usuario.
+- **API** (crear una nueva cuenta de usuario): `POST /admin/users` — Crea una nueva cuenta de usuario en el sistema.
+- **Campos del contrato de esta pantalla** (tipa el JSON con ESTOS nombres, vía `libs/api-types`): `UserCreateRequest.full_name` (string), `UserCreateRequest.email` (string), `UserCreateRequest.user_role` (enum), `UserCreateRequest.initial_password` (string), `UserDetail.user_id` (uuid), `UserDetail.full_name` (string), `UserDetail.email` (string), `UserDetail.user_role` (enum), `UserDetail.status` (enum), `UserDetail.manager_name` (string)
+- **Detalle de UI (B.7) · `UIS-017`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
+  - Propósito: El administrador proporciona los datos básicos y el rol de un nuevo usuario para darle de alta en el sistema.
+  - Disposición: **formulario** (`form`) — respétala; no rediseñes la pantalla.
+  - Navegación: sección de menú «Gestión de Usuarios» (orden 0).
+  - **Sección «Datos del usuario»** (2 columnas):
+    - «Nombre completo» (widget `text`, tipo `string`, obligatorio, campo `nombre_usuario` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`)
+    - «Email» (widget `text`, tipo `string`, obligatorio, campo `email_usuario` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`) — Debe ser un formato de email válido y no puede existir previamente en el sistema.
+    - «Rol» (widget `select`, tipo `enum`, obligatorio, campo `rol_usuario` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`)
+  - **Acciones:**
+    - «Cancelar» (widget `cancel`, opcional)
+    - «Crear Usuario» (widget `submit`, opcional) — El formulario debe ser válido y el email no puede estar en uso por otro usuario.
+- Flujo `FLOW-009` · pantalla `SCR-001`
+  - **Rutas:** `/admin/users/new`
+  - **Componentes de UI:** Formulario de Creación de Usuario; Botón Crear Usuario; Botón Cancelar
+  - **Datos que muestra:** Nombre de usuario; Email de usuario; Rol de usuario
+  - **Acciones del usuario:** Guardar nuevo usuario; Cancelar y volver al listado
+
+### ARC-044 · Listado de Usuarios
+El administrador consulta, filtra y gestiona todas las cuentas de usuario del sistema.
+- **API** (consultar el listado de usuarios): `GET /admin/users` — Consulta el listado de todos los usuarios del sistema (empleados y managers).
+- **API** (activar/desactivar una cuenta de usuario): `PATCH /admin/users/{userId}/status` — Activa o desactiva una cuenta de usuario.
+- **Campos del contrato de esta pantalla** (tipa el JSON con ESTOS nombres, vía `libs/api-types`): `UserList.items` (array), `UserList.total` (integer), `UserList.page` (integer), `UserList.size` (integer), `UserStatusUpdateRequest.status` (enum), `UserDetail.user_id` (uuid), `UserDetail.full_name` (string), `UserDetail.email` (string), `UserDetail.user_role` (enum), `UserDetail.status` (enum), `UserDetail.manager_name` (string)
+- **Detalle de UI (B.7) · `UIS-018`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
+  - Propósito: Permite al administrador consultar el listado completo de usuarios, aplicar filtros por rol y estado, y acceder a las acciones de gestión para cada usuario.
+  - Disposición: **listado** (`list`) — respétala; no rediseñes la pantalla.
+  - Navegación: es PUERTA DE ENTRADA de la aplicación; sección de menú «Gestión de Usuarios» (orden 0).
+  - **Sección «Filtros de búsqueda»** (1 columna):
+    - «Rol» (widget `select`, tipo `enum`, opcional, campo `filter_user_role` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`) — Filtra por el rol asignado al usuario
+    - «Aplicar Filtros» (widget `secondary_button`, opcional)
+    - «Estado» (widget `select`, tipo `enum`, opcional, campo `filter_account_status` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`) — Filtra por el estado de la cuenta del usuario (Activo/Inactivo)
+    - «Limpiar Filtros» (widget `link`, opcional)
+  - **Sección «Usuarios del sistema»** (1 columna):
+    - «Usuarios» (widget `table`, opcional)
+      - Columnas: «Nombre» (`label` ⚠ `user_full_name` sin campo en el contrato), «Email» (`label` ⚠ `user_email` sin campo en el contrato), «Rol» (`badge` → EP-005 · `UserDetail.user_role`), «Estado» (`badge` ⚠ `user_status` sin campo en el contrato)
+    - «Editar» (widget `icon_button`, opcional) — Acción a nivel de fila de la tabla
+    - «Desactivar» (widget `icon_button`, opcional) — Visible si el usuario está activo. Acción a nivel de fila de la tabla.
+    - «Reactivar» (widget `icon_button`, opcional) — Visible si el usuario está inactivo. Acción a nivel de fila de la tabla.
+    - «Asignar manager» (widget `icon_button`, opcional) — Acción a nivel de fila de la tabla
+  - **Acciones:**
+    - «Crear Nuevo Usuario» (widget `primary_button`, opcional)
+- Flujo `FLOW-010` · pantalla `SCR-001`
+  - **Rutas:** `/admin/users`
+  - **Componentes de UI:** Título de la pantalla: Gestión de Usuarios; Controles de Filtrado (por rol, por estado); Tabla de Usuarios; Control de Paginación; Botón Crear Nuevo Usuario
+  - **Datos que muestra:** Lista de usuarios; Filtro por rol de usuario; Filtro por estado de cuenta
+  - **Acciones del usuario:** Crear nuevo usuario; Editar usuario seleccionado; Desactivar usuario seleccionado; Reactivar usuario seleccionado; Asignar manager a usuario; Aplicar filtros; Limpiar filtros
+
+### ARC-045 · Formulario de Edición de Usuario
+El administrador modifica la información de una cuenta de usuario existente.
+- **API** (cargar los datos del usuario para editar): `GET /admin/users/{userId}` — Obtiene el detalle de una cuenta de usuario específica.
+- **API** (guardar los cambios del usuario): `PUT /admin/users/{userId}` — Modifica los datos principales de un usuario (nombre, rol).
+- **Campos del contrato de esta pantalla** (tipa el JSON con ESTOS nombres, vía `libs/api-types`): `UserDetail.user_id` (uuid), `UserDetail.full_name` (string), `UserDetail.email` (string), `UserDetail.user_role` (enum), `UserDetail.status` (enum), `UserDetail.manager_name` (string), `UserUpdateRequest.full_name` (string), `UserUpdateRequest.user_role` (enum)
+- **Detalle de UI (B.7) · `UIS-019`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
+  - Propósito: Permite a un administrador modificar la información personal y el rol de un usuario existente en el sistema.
+  - Disposición: **formulario** (`form`) — respétala; no rediseñes la pantalla.
+  - Navegación: sección de menú «Gestión de Usuarios» (orden 1).
+  - **Sección «Datos del Usuario»** (2 columnas):
+    - «Nombre de usuario» (widget `text`, tipo `string`, obligatorio, campo `nombre_usuario` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`) — No puede estar vacío.
+    - «Email» (widget `text`, tipo `string`, obligatorio, campo `email_usuario` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`) — Debe ser una dirección de email válida.
+    - «Rol» (widget `select`, tipo `enum`, obligatorio, campo `rol_usuario` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`) — Debe seleccionar un rol para el usuario.
+  - **Acciones:**
+    - «Cancelar» (widget `cancel`, opcional)
+    - «Guardar cambios» (widget `submit`, opcional) — si el formulario es válido
+- Flujo `FLOW-011` · pantalla `SCR-001`
+  - **Rutas:** `/admin/users/{userId}/edit`
+  - **Componentes de UI:** Formulario de Edición de Usuario; Botón Guardar Cambios; Botón Cancelar
+  - **Datos que muestra:** Nombre de usuario; Email de usuario; Rol de usuario
+  - **Acciones del usuario:** Guardar cambios; Cancelar y volver al listado
+
+### ARC-046 · Diálogo de Confirmación de Desactivación
+El administrador confirma la desactivación de una cuenta de usuario.
+- **API** (confirmar la desactivación del usuario): `PATCH /admin/users/{userId}/status` — Activa o desactiva una cuenta de usuario.
+- **Campos del contrato de esta pantalla** (tipa el JSON con ESTOS nombres, vía `libs/api-types`): `UserStatusUpdateRequest.status` (enum), `UserDetail.user_id` (uuid), `UserDetail.full_name` (string), `UserDetail.email` (string), `UserDetail.user_role` (enum), `UserDetail.status` (enum), `UserDetail.manager_name` (string)
+- **Detalle de UI (B.7) · `UIS-020`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
+  - Propósito: El administrador confirma su intención de desactivar la cuenta de un usuario para evitar una revocación de acceso accidental.
+  - Disposición: **confirmación** (`confirmation`) — respétala; no rediseñes la pantalla.
+  - Navegación: sección de menú «Gestión de Usuarios» (orden 1).
+  - **Datos que muestra:**
+    - «El usuario perderá todo acceso al sistema. ¿Desea confirmar la desactivación?» (widget `text_block`, opcional)
+  - **Acciones:**
+    - «Cancelar» (widget `cancel`, opcional)
+    - «Desactivar» (widget `primary_button`, opcional)
+- Flujo `FLOW-012` · pantalla `SCR-001`
+  - **Rutas:** `/admin/users/{userId}/deactivate`
+  - **Componentes de UI:** Mensaje de Confirmación de Desactivación; Botón Confirmar Desactivación; Botón Cancelar
+  - **Datos que muestra:** Usuario a desactivar; Mensaje de confirmación de desactivación
+  - **Acciones del usuario:** Confirmar desactivación; Cancelar
+
+### ARC-047 · Diálogo de Confirmación de Reactivación
+El administrador confirma la reactivación de una cuenta de usuario inactiva.
+- **API** (confirmar la reactivación del usuario): `PATCH /admin/users/{userId}/status` — Activa o desactiva una cuenta de usuario.
+- **Campos del contrato de esta pantalla** (tipa el JSON con ESTOS nombres, vía `libs/api-types`): `UserStatusUpdateRequest.status` (enum), `UserDetail.user_id` (uuid), `UserDetail.full_name` (string), `UserDetail.email` (string), `UserDetail.user_role` (enum), `UserDetail.status` (enum), `UserDetail.manager_name` (string)
+- **Detalle de UI (B.7) · `UIS-021`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
+  - Propósito: El administrador confirma la reactivación de una cuenta de usuario que se encontraba inactiva para restaurar su acceso al sistema.
+  - Disposición: **formulario** (`form`) — respétala; no rediseñes la pantalla.
+  - **Datos que muestra:**
+    - «Usuario a reactivar» (widget `label`, tipo `string`, opcional)
+    - «¿Estás seguro de que deseas reactivar esta cuenta? Esta acción restaurará el acceso del usuario al sistema.» (widget `text_block`, opcional)
+  - **Acciones:**
+    - «Cancelar» (widget `cancel`, opcional)
+    - «Confirmar Reactivación» (widget `primary_button`, opcional)
+- Flujo `FLOW-013` · pantalla `SCR-001`
+  - **Rutas:** `/admin/users/{userId}/reactivate`
+  - **Componentes de UI:** Mensaje de Confirmación de Reactivación; Botón Confirmar Reactivación; Botón Cancelar
+  - **Datos que muestra:** Usuario a reactivar; Mensaje de confirmación de reactivación
+  - **Acciones del usuario:** Confirmar reactivación; Cancelar
+
+### ARC-048 · Formulario de Asignación de Manager
+El administrador asigna un manager a un empleado que no lo tiene.
+- **API** (cargar el catálogo de managers): `GET /admin/users` — Consulta el listado de todos los usuarios del sistema (empleados y managers).
+- **API** (asignar manager a empleado): `POST /admin/employees/{employeeId}/manager` — Asigna un manager a un empleado que no tiene uno.
+- **Campos del contrato de esta pantalla** (tipa el JSON con ESTOS nombres, vía `libs/api-types`): `UserList.items` (array), `UserList.total` (integer), `UserList.page` (integer), `UserList.size` (integer), `ManagerAssignmentRequest.manager_id` (uuid), `HierarchyNodeDetail.employee_id` (uuid), `HierarchyNodeDetail.employee_name` (string), `HierarchyNodeDetail.manager_id` (uuid), `HierarchyNodeDetail.manager_name` (string)
+- **Detalle de UI (B.7) · `UIS-022`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
+  - Propósito: Permite a un administrador seleccionar un manager de una lista y asignárselo a un empleado concreto para establecer la relación jerárquica entre ellos.
+  - Disposición: **formulario** (`form`) — respétala; no rediseñes la pantalla.
+  - Navegación: sección de menú «Gestión de Usuarios» (orden 4).
+  - **Sección «Datos de la Asignación»** (2 columnas):
+    - «Empleado» (widget `text_block`, tipo `string`, opcional, campo `employee_name` → contrato EP-007 · `HierarchyNodeDetail.employee_name`)
+    - «Manager» (widget `autocomplete`, tipo `string`, obligatorio, campo `manager_id` → contrato EP-007 · `ManagerAssignmentRequest.manager_id`) — Debe seleccionar un manager de la lista. El empleado no puede ser su propio manager.
+  - **Acciones:**
+    - «Cancelar» (widget `cancel`, opcional)
+    - «Asignar» (widget `submit`, opcional) — Se debe seleccionar un manager de la lista para asignar al empleado.
+- Flujo `FLOW-014` · pantalla `SCR-001`
+  - **Rutas:** `/admin/users/{userId}/assign-manager`
+  - **Componentes de UI:** Formulario de Asignación de Manager; Selector de Empleado; Selector de Manager; Botón Asignar; Botón Cancelar
+  - **Datos que muestra:** Empleado para asignar manager; Lista de managers disponibles
+  - **Acciones del usuario:** Confirmar asignación de manager; Cancelar asignación
+
+### ARC-049 · Formulario de Modificación de Manager
+El administrador cambia el manager asignado a un empleado.
+- **API** (cargar datos del empleado): `GET /admin/users/{userId}` — Obtiene el detalle de una cuenta de usuario específica.
+- **API** (cargar el catálogo de managers): `GET /admin/users` — Consulta el listado de todos los usuarios del sistema (empleados y managers).
+- **API** (modificar el manager del empleado): `PUT /admin/employees/{employeeId}/manager` — Modifica el manager asignado a un empleado.
+- **Campos del contrato de esta pantalla** (tipa el JSON con ESTOS nombres, vía `libs/api-types`): `UserDetail.user_id` (uuid), `UserDetail.full_name` (string), `UserDetail.email` (string), `UserDetail.user_role` (enum), `UserDetail.status` (enum), `UserDetail.manager_name` (string), `UserList.items` (array), `UserList.total` (integer), `UserList.page` (integer), `UserList.size` (integer), `ManagerAssignmentRequest.manager_id` (uuid), `HierarchyNodeDetail.employee_id` (uuid), `HierarchyNodeDetail.employee_name` (string), `HierarchyNodeDetail.manager_id` (uuid), `HierarchyNodeDetail.manager_name` (string)
+- **Detalle de UI (B.7) · `UIS-024`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
+  - Propósito: Permite al administrador reasignar un empleado a un nuevo mánager, mostrando el mánager actual y permitiendo seleccionar uno nuevo de la lista de disponibles.
+  - Disposición: **formulario** (`form`) — respétala; no rediseñes la pantalla.
+  - Navegación: sección de menú «Gestión de Usuarios» (orden 2).
+  - **Sección «Datos de la Asignación»** (2 columnas):
+    - «Empleado» (widget `key_value`, tipo `string`, opcional, campo `nombre_empleado` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`)
+    - «Mánager actual» (widget `key_value`, tipo `string`, opcional, campo `nombre_manager_actual` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`)
+  - **Sección «Seleccionar Nuevo Mánager»** (1 columna):
+    - «Seleccionar nuevo mánager» (widget `autocomplete`, tipo `string`, obligatorio, campo `nuevo_manager_id` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`) — Debe ser un mánager distinto al actual. El empleado no puede ser su propio mánager.
+  - **Acciones:**
+    - «Cancelar» (widget `cancel`, opcional)
+    - «Guardar cambios» (widget `submit`, opcional, navega) — Si se ha seleccionado un nuevo manager
+- Flujo `FLOW-015` · pantalla `SCR-001`
+  - **Rutas:** `/admin/users/{userId}/change-manager`
+  - **Componentes de UI:** Formulario de Modificación de Manager; Selector de Nuevo Manager; Botón Guardar Cambio; Botón Cancelar
+  - **Datos que muestra:** Empleado; Manager actual; Lista de nuevos managers disponibles
+  - **Acciones del usuario:** Continuar para confirmar cambio; Cancelar modificación
+  - **Navegación:**
+    - Guardar cambios → «Diálogo de Confirmación de Cambio de Manager» si Si se ha seleccionado un nuevo manager [open_modal]
+
+### ARC-050 · Diálogo de Confirmación de Cambio de Manager
+El administrador confirma la reasignación de manager para un empleado.
+- **API**: esta pantalla no trae cableado pantalla→endpoint de T.5. NO lo interpretes como «no llama a la API»: elige los endpoints que necesita de la tabla del contrato congelado (sección api-contract), con su path y su verbo literales, y **repórtalo como health check `Warning` con `check: api-contract`** indicando cuáles has usado.
+- **Detalle de UI (B.7) · `UIS-025`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
+  - Propósito: Presenta un resumen del cambio de mánager propuesto (empleado, mánager actual y nuevo mánager) para que el administrador lo verifique y confirme la operación de forma explícita.
+  - Disposición: **confirmación** (`confirmation`) — respétala; no rediseñes la pantalla.
+  - Navegación: sección de menú «Gestión de Usuarios» (orden 3).
+  - **Datos que muestra:**
+    - «Empleado» (widget `key_value`, tipo `string`, opcional, campo `nombre_empleado`)
+    - «Mánager actual» (widget `key_value`, tipo `string`, opcional, campo `nombre_manager_actual`)
+    - «Nuevo mánager» (widget `key_value`, tipo `string`, opcional, campo `nombre_nuevo_manager`)
+  - **Acciones:**
+    - «Volver a editar» (widget `secondary_button`, opcional, navega)
+    - «Confirmar cambio» (widget `primary_button`, opcional)
+- Flujo `FLOW-015` · pantalla `SCR-002`
+  - **Rutas:** `/admin/users/{userId}/change-manager/confirm`
+  - **Componentes de UI:** Mensaje de Confirmación de Cambio de Manager; Botón Confirmar Cambio; Botón Cancelar
+  - **Datos que muestra:** Nombre del empleado; Manager actual; Nuevo manager; Mensaje de confirmación de cambio de manager
+  - **Acciones del usuario:** Confirmar cambio de manager; Volver a editar; Cancelar
+  - **Navegación:**
+    - Cancelar → «Formulario de Modificación de Manager» [back]
+
+### ARC-051 · Diálogo de Confirmación de Eliminación de Asignación
+El administrador confirma la desvinculación de un empleado de su manager.
+- **API** (eliminar asignación de manager): `DELETE /admin/employees/{employeeId}/manager` — Elimina la asignación de manager de un empleado.
+- **Detalle de UI (B.7) · `UIS-023`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
+  - Propósito: El administrador confirma que desea desvincular a un empleado de su mánager actual, asegurando que la acción es intencionada antes de que sea definitiva.
+  - Disposición: **confirmación** (`confirmation`) — respétala; no rediseñes la pantalla.
+  - Navegación: sección de menú «Gestión de Usuarios» (orden 0).
+  - **Datos que muestra:**
+    - «Mensaje de confirmación» (widget `text_block`, opcional)
+    - «Empleado» (widget `key_value`, tipo `string`, opcional, campo `nombre_empleado`)
+    - «Mánager actual» (widget `key_value`, tipo `string`, opcional, campo `nombre_manager_actual`)
+  - **Acciones:**
+    - «Cancelar» (widget `cancel`, opcional)
+    - «Confirmar Eliminación» (widget `primary_button`, opcional)
+- Flujo `FLOW-016` · pantalla `SCR-001`
+  - **Rutas:** `/admin/users/{userId}/unassign-manager`
+  - **Componentes de UI:** Mensaje de Confirmación de Eliminación de Asignación; Botón Confirmar Eliminación; Botón Cancelar
+  - **Datos que muestra:** Empleado a desvincular; Manager actual; Mensaje de confirmación de desvinculación
+  - **Acciones del usuario:** Confirmar desvinculación; Cancelar
+
+### ARC-052 · Listado de Estructura Jerárquica
+El administrador visualiza y filtra la estructura de dependencias de la organización.
+- **API** (consultar la estructura jerárquica): `GET /admin/hierarchy` — Consulta la estructura jerárquica de la organización.
+- **API** (cargar el catálogo de managers para el filtro): `GET /admin/users` — Consulta el listado de todos los usuarios del sistema (empleados y managers).
+- **Campos del contrato de esta pantalla** (tipa el JSON con ESTOS nombres, vía `libs/api-types`): `HierarchyList.items` (array), `HierarchyList.total` (integer), `HierarchyList.page` (integer), `HierarchyList.size` (integer), `UserList.items` (array), `UserList.total` (integer), `UserList.page` (integer), `UserList.size` (integer)
+- **Detalle de UI (B.7) · `UIS-026`** — FUENTE AUTORITATIVA: los `label` son el texto a pintar y el `widget` el control a usar.
+  - Propósito: Permite a un administrador visualizar la lista de todos los empleados, ver qué manager tienen asignado y filtrar la información para facilitar la gestión de la estructura organizativa.
+  - Disposición: **listado** (`list`) — respétala; no rediseñes la pantalla.
+  - Navegación: es PUERTA DE ENTRADA de la aplicación; sección de menú «Administración» (orden 0).
+  - **Sección «Filtros de búsqueda»** (2 columnas):
+    - «Buscar por empleado» (widget `search`, tipo `string`, opcional, campo `filtro_empleado` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`)
+    - «Aplicar filtros» (widget `submit`, opcional)
+    - «Filtrar por manager» (widget `select`, tipo `string`, opcional, campo `filtro_manager` ⚠ SIN campo en el contrato de sus endpoints (campo-sin-contrato): NO lo inventes en el JSON — repórtalo como `Warning` `api-contract`)
+  - **Sección «Jerarquía de Empleados»** (1 columna):
+    - «Modificar asignación» (widget `icon_button`, opcional)
+    - «Empleados y managers» (widget `table`, opcional)
+      - Columnas: «Empleado» (`label` ⚠ `nombre_empleado` sin campo en el contrato), «Manager Asignado» (`label` ⚠ `nombre_manager` sin campo en el contrato)
+    - «Desvincular» (widget `icon_button`, opcional)
+- Flujo `FLOW-017` · pantalla `SCR-001`
+  - **Rutas:** `/admin/organization/structure`
+  - **Componentes de UI:** Título de la pantalla: Estructura Jerárquica; Controles de Filtrado (por empleado, por manager); Tabla de Jerarquía de Empleados; Control de Paginación
+  - **Datos que muestra:** Lista de estructura jerárquica; Filtro de búsqueda de estructura jerárquica
+  - **Acciones del usuario:** Aplicar filtros de búsqueda; Modificar asignación de manager; Desvincular empleado de manager
 
 ## Plantillas corporativas de comunicación (OBLIGATORIO — no inventes HTML)
 
@@ -513,7 +1610,40 @@ HTML, asuntos o cuerpos alternativos. Si implementas un COMMS-*, referencia su
 
 ## Entorno de prueba de esta sesión
 
-NO se levanta ningún servicio de respaldo para esta tarea: verifica con tests unitarios y dobles en memoria. No intentes arrancar contenedores por tu cuenta ni asumas que hay una BBDD disponible.
+Antes de arrancar tu sesión, la plataforma levanta los servicios de abajo como contenedores efímeros y deja sus datos de conexión en `.mind/TSK-010/env.sh` (y en `env.json`). Contrato de uso:
+
+- **Haz `source .mind/TSK-010/env.sh` antes de cada build/test** que necesite el entorno; si el fichero no existe, el entorno NO se pudo levantar (ver el final de esta sección).
+- Los tests **leen la conexión de esas variables** (o de Testcontainers, ver abajo). NUNCA hardcodees host, puerto ni credenciales, y NUNCA toques la configuración `local/` del arquetipo para apuntarla a este entorno.
+- Son servicios de PRUEBA y efímeros: se destruyen al terminar la sesión. No guardes nada que deba sobrevivir ni los uses como almacén de resultados.
+
+### `wiremock` — wiremock/wiremock:3.13.1 (capa `api`)
+Por qué está: servir el contrato de API del proyecto (22 endpoint(s)) para que las pantallas tengan a quién preguntar, sin levantar el backend.
+Variables: `MIND_ENV_WIREMOCK_HOST`, `MIND_ENV_WIREMOCK_PORT`, `MIND_ENV_WIREMOCK_URL`.
+
+**Tests de integración contra `wiremock` — reglas de obligado cumplimiento:**
+1. El motor del test tiene que ser **el mismo del proyecto**: `wiremock/wiremock:3.13.1`, vía `wiremock-captain`. NO uses otro motor (ni `PostgreSQLContainer`, ni H2, ni una BBDD embebida) aunque el test 'pase': verificarías contra un dialecto que no es el de producción, que es exactamente cómo se cuelan los defectos de esquema. Esta regla PREVALECE sobre cualquier plantilla o ejemplo de este brief —incluidas las «Plantillas canónicas» del handbook—: si alguna usa otro motor, la plantilla está mal; sigue esta regla y repórtalo como Warning.
+2. Fija Testcontainers en **1.21.3 o superior**. El daemon de esta sesión exige API ≥1.40; las versiones anteriores de Testcontainers negocian v1.32 y el daemon las rechaza — el error que verías es `Could not find a valid Docker environment`, que no apunta a la causa. Añadir la dependencia en scope de test está autorizado: es convención del proyecto, no desviación del arquetipo.
+3. El daemon ya está configurado en tu entorno (`DOCKER_HOST`, `DOCKER_API_VERSION`, `TESTCONTAINERS_HOST_OVERRIDE`): NO los toques ni montes el socket. Basta declarar el contenedor en el test.
+4. **Si el test no llega a funcionar, NO lo desactives** —ni renombrando el fichero, ni borrándolo, ni comentándolo—: eso quita cobertura de forma invisible para el revisor y para el CI. Déjalo en el entregable, márcalo como que requiere Docker de la forma que el proyecto ya use para eso (etiqueta/anotación condicional) y repórtalo como health check **Warning** con el error EXACTO que te dio. Un test desactivado en silencio es peor que un test que falla.
+
+Las rutas del contrato de API del proyecto ya están cargadas: responden 200/201 con **cuerpo vacío**. El contrato guarda el nombre del esquema de respuesta, no su forma, así que la plataforma no inventa payloads — cada stub lleva ese nombre en su `name` para que sepas qué se espera.
+Si tu pantalla necesita un cuerpo concreto, añádelo tú por el admin API (`POST http://$MIND_ENV_WIREMOCK_HOST:$MIND_ENV_WIREMOCK_PORT/__admin/mappings`) **desde el propio test**, para que quede declarado en el entregable y no dependa de un estado manual. Y NO levantes el backend: esta tarea se verifica contra el contrato, no contra la implementación de otro equipo — si el back tuviera un bug, tu tarea no debe teñirse de rojo por ello.
+
+**Cómo apuntar la aplicación al stub** — la URL es distinta en cada sesión (puerto efímero), así que se lee de `$MIND_ENV_WIREMOCK_URL` en tiempo de ejecución del test y NO se escribe a mano en ningún fichero:
+- Tests unitarios y de componente: no necesitan el stub. Mockea el cliente HTTP (en Angular, `HttpClientTestingModule` / `provideHttpClientTesting`) y no dependas de red.
+- Tests que sí hacen HTTP real: inyecta la URL base en el arranque del test desde la variable de entorno (p. ej. `define`/`env` de la configuración de Vitest o Karma leyendo `process.env.MIND_ENV_WIREMOCK_URL`), y que el servicio la reciba por su token de configuración. NUNCA `localhost:puerto` en el código ni en `environment.ts`.
+- E2E (Playwright/Cypress): la misma variable como URL base del API en su fichero de configuración.
+
+**Playwright — la plataforma lo EJECUTA** cuando la `PlaywrightTriggerPolicy` detecta impacto UI (templates/CSS/rutas/componentes compartidos ≥2 imports/shell).
+
+- **Automático (plataforma):** navega las **rutas** de cada `screen_code` de esta tarea (smoke in-session + visual post-PR) con bypass del selector de entorno (`dev`). No dependas solo del seed `welcome`.
+- **Tu parte:** por cada pantalla del DoD, añade `e2e/<CODE>.*.e2e-spec.ts` con tags `@smoke` (y `@visual` si aplica) **y** `@screen:<CODE>` (p.ej. `@screen:SCR-066`) para asserts de negocio. Extiende; no renombres a `*.spec.ts` (chocan con Jest/Karma).
+- Sin baselines pixel en el repo (`toHaveScreenshot` prohibido aquí).
+
+**Navegador para los tests**: el runtime trae Chromium y `CHROME_BIN` ya apunta a él, así que NO lo instales ni lo descargues. Pero corre en un contenedor sin privilegios, así que su sandbox no puede activarse: usa un launcher headless con `--no-sandbox` (en Karma, un `customLaunchers` que extienda `ChromeHeadless`; en Playwright, `args: ['--no-sandbox']`). Sin eso el navegador está pero no arranca, y el síntoma no lo dice.
+
+### Si el entorno no está disponible
+Comprueba `.mind/TSK-010/env.json`: si su `status` es `unavailable` o `degraded`, la plataforma no pudo darte (todo) el entorno. En ese caso ESCRIBE igualmente los tests de integración y déjalos en el entregable, y repórtalo como health check **Warning** con `check: entorno-de-prueba` — NO como Blocker: no es un defecto de tu tarea, y la verificación queda diferida al CI. Reserva el Blocker para cuando el entorno SÍ estaba y los tests fallan por el código o por el brief.
 
 ## Fallo del intento anterior (OBLIGATORIO corregir)
 
