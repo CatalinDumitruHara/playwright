@@ -310,4 +310,45 @@ class HierarchyControllerIT extends AbstractOracleIT {
         mockMvc.perform(get("/api/admin/hierarchy"))
                 .andExpect(status().isUnauthorized());
     }
+
+    private List<Long> pendingVisibleTo(Long managerId) {
+        return jdbcTemplate.queryForList(
+                "SELECT vr.ID FROM VACATION_REQUESTS vr JOIN USERS u ON u.ID = vr.EMPLOYEE_ID "
+                        + "JOIN REQUEST_STATUS s ON s.ID = vr.STATUS_ID "
+                        + "WHERE s.STATUS_NAME = 'Pendiente' AND u.MANAGER_ID = ?",
+                Long.class, managerId);
+    }
+
+    @Test
+    @DisplayName("RT-004: cambio de manager reasigna la solicitud pendiente")
+    void rt004_changeManager_reassignsPendingRequest() throws Exception {
+        User a = seedUser("Manager A", "mgra@mapfre.com", "MANAGER");
+        User b = seedUser("Manager B", "mgrb@mapfre.com", "MANAGER");
+        User emp = seedUser("Empleado Uno", "emp1@mapfre.com", "EMPLEADO");
+        assignVia("POST", emp, a);
+
+        jdbcTemplate.update(
+                "INSERT INTO VACATION_REQUESTS (ID, EMPLOYEE_ID, STATUS_ID, START_DATE, END_DATE, REASON, MANAGER_ID, CREATED_AT, UPDATED_AT) "
+                        + "VALUES (VACATION_REQUESTS_SEQ.NEXTVAL, ?, (SELECT ID FROM REQUEST_STATUS WHERE STATUS_NAME = 'Pendiente'), "
+                        + "DATE '2026-12-01', DATE '2026-12-05', 'Vacaciones', NULL, SYSTIMESTAMP, SYSTIMESTAMP)",
+                emp.getId());
+        Long requestId = jdbcTemplate.queryForObject(
+                "SELECT ID FROM VACATION_REQUESTS WHERE EMPLOYEE_ID = ?", Long.class, emp.getId());
+
+        assertThat(pendingVisibleTo(a.getId())).hasSize(1).containsExactly(requestId);
+        assertThat(pendingVisibleTo(b.getId())).isEmpty();
+
+        mockMvc.perform(put("/api/admin/employees/{id}/manager", apiId(emp))
+                        .with(admin())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(assignBody(apiId(b))))
+                .andExpect(status().isOk());
+
+        assertThat(pendingVisibleTo(a.getId())).isEmpty();
+        assertThat(pendingVisibleTo(b.getId())).containsExactly(requestId);
+        String statusName = jdbcTemplate.queryForObject(
+                "SELECT s.STATUS_NAME FROM VACATION_REQUESTS vr JOIN REQUEST_STATUS s ON s.ID = vr.STATUS_ID WHERE vr.ID = ?",
+                String.class, requestId);
+        assertThat(statusName).isEqualTo("Pendiente");
+    }
 }
