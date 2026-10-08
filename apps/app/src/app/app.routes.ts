@@ -44,132 +44,172 @@ export const appRoutes: Route[] = [
         canActivate: [roleGuard],
         data: { roles: ['ROL-002'] },
       },
-      // TSK-010 · Portal de Gestión de Vacaciones — empleado y manager (ROL-001, ROL-002)
+      // TSK-010 · Portal de Gestión de Vacaciones — rutas de T.5/B.7 (ARC-029..ARC-052)
       {
         path: 'solicitudes',
         canActivate: [roleGuard],
         data: { roles: ['ROL-001', 'ROL-002'] },
-        children: [
-          {
-            path: '',
-            loadComponent: () =>
-              import(
-                './features/vacations/pages/my-vacation-requests/my-vacation-requests.page'
-              ).then((p) => p.MyVacationRequestsPage),
-          },
-          {
-            path: 'nueva',
-            loadComponent: () =>
-              import(
-                './features/vacations/pages/vacation-request-new/vacation-request-new.page'
-              ).then((p) => p.VacationRequestNewPage),
-          },
-          {
-            path: 'nueva/confirmacion',
-            loadComponent: () =>
-              import(
-                './features/vacations/pages/vacation-request-confirmation/vacation-request-confirmation.page'
-              ).then((p) => p.VacationRequestConfirmationPage),
-          },
-          {
-            path: ':id',
-            loadComponent: () =>
-              import(
-                './features/vacations/pages/vacation-request-detail/vacation-request-detail.page'
-              ).then((p) => p.VacationRequestDetailPage),
-          },
-          {
-            path: ':id/cancelar',
-            loadComponent: () =>
-              import(
-                './features/vacations/pages/vacation-request-cancel/vacation-request-cancel.page'
-              ).then((p) => p.VacationRequestCancelPage),
-          },
-        ],
+        loadComponent: () =>
+          import('./features/vacations/pages/my-vacation-requests/my-vacation-requests.page').then((p) => p.MyVacationRequestsPage),
       },
-      // TSK-010 · Gestión de equipo (ROL-002)
       {
-        path: 'equipo',
+        path: 'solicitudes/nueva',
+        canActivate: [roleGuard],
+        data: { roles: ['ROL-001', 'ROL-002'] },
+        loadComponent: () =>
+          import('./features/vacations/pages/vacation-request-new/vacation-request-new.page').then((p) => p.VacationRequestNewPage),
+      },
+      {
+        path: 'solicitudes/nueva/confirmacion',
+        canActivate: [roleGuard],
+        data: { roles: ['ROL-001', 'ROL-002'] },
+        loadComponent: () =>
+          import('./features/vacations/pages/vacation-request-confirmation/vacation-request-confirmation.page').then((p) => p.VacationRequestConfirmationPage),
+      },
+      {
+        path: 'solicitudes/:id',
+        canActivate: [roleGuard],
+        data: { roles: ['ROL-001', 'ROL-002'] },
+        loadComponent: () =>
+          import('./features/vacations/pages/vacation-request-detail/vacation-request-detail.page').then((p) => p.VacationRequestDetailPage),
+      },
+      {
+        path: 'solicitudes/:id/cancelar',
+        canActivate: [roleGuard],
+        data: { roles: ['ROL-001', 'ROL-002'] },
+        loadComponent: () =>
+          import('./features/vacations/pages/vacation-request-cancel/vacation-request-cancel.page').then((p) => p.VacationRequestCancelPage),
+      },
+      {
+        path: 'equipo/solicitudes',
         canActivate: [roleGuard],
         data: { roles: ['ROL-002'] },
-        children: [
-          {
-            path: '',
-            loadComponent: () =>
-              import('./features/team/pages/my-team/my-team.page').then(
-                (p) => p.MyTeamPage
-              ),
-          },
-          {
-            path: 'solicitudes',
-            loadComponent: () =>
-              import(
-                './features/team/pages/team-vacation-requests/team-vacation-requests.page'
-              ).then((p) => p.TeamVacationRequestsPage),
-          },
-          {
-            path: 'solicitudes/:id',
-            loadComponent: () =>
-              import(
-                './features/team/pages/team-vacation-request-detail/team-vacation-request-detail.page'
-              ).then((p) => p.TeamVacationRequestDetailPage),
-          },
-          {
-            path: 'solicitudes/:id/rechazar',
-            loadComponent: () =>
-              import(
-                './features/team/pages/team-vacation-request-reject/team-vacation-request-reject.page'
-              ).then((p) => p.TeamVacationRequestRejectPage),
-          },
-          {
-            path: 'informes',
-            loadComponent: () =>
-              import(
-                './features/team/pages/monthly-report-export/monthly-report-export.page'
-              ).then((p) => p.MonthlyReportExportPage),
-          },
-        ],
+        loadComponent: () =>
+          import('./features/team/pages/team-vacation-requests/team-vacation-requests.page').then((p) => p.TeamVacationRequestsPage),
       },
-      // TSK-010 · Administración (ROL-003)
       {
-        path: 'admin',
+        path: 'equipo/solicitudes/gestion-confirmada',
+        canActivate: [roleGuard],
+        data: { roles: ['ROL-002'] },
+        loadComponent: () =>
+          import('./features/team/pages/team-request-managed/team-request-managed.page').then((p) => p.TeamRequestManagedPage),
+      },
+      {
+        path: 'equipo/solicitudes/:id',
+        canActivate: [roleGuard],
+        data: { roles: ['ROL-002'] },
+        loadComponent: () =>
+          import('./features/team/pages/team-vacation-request-detail/team-vacation-request-detail.page').then((p) => p.TeamVacationRequestDetailPage),
+      },
+      {
+        path: 'equipo/solicitudes/:id/rechazar',
+        canActivate: [roleGuard],
+        data: { roles: ['ROL-002'] },
+        loadComponent: () =>
+          import('./features/team/pages/team-vacation-request-reject/team-vacation-request-reject.page').then((p) => p.TeamVacationRequestRejectPage),
+      },
+      {
+        path: 'informes/exportar',
+        canActivate: [roleGuard],
+        data: { roles: ['ROL-002'] },
+        loadComponent: () =>
+          import('./features/team/pages/monthly-report-export/monthly-report-export.page').then((p) => p.MonthlyReportExportPage),
+      },
+      {
+        path: 'informes',
+        canActivate: [roleGuard],
+        data: { roles: ['ROL-002'] },
+        loadComponent: () =>
+          import('./features/team/pages/export-history/export-history.page').then((p) => p.ExportHistoryPage),
+      },
+      {
+        path: 'profile',
+        canActivate: [roleGuard],
+        data: { roles: ['ROL-001', 'ROL-002'] },
+        loadComponent: () =>
+          import('./features/profile/pages/user-profile/user-profile.page').then((p) => p.UserProfilePage),
+      },
+      {
+        path: 'my-team',
+        canActivate: [roleGuard],
+        data: { roles: ['ROL-002'] },
+        loadComponent: () =>
+          import('./features/team/pages/my-team/my-team.page').then((p) => p.MyTeamPage),
+      },
+      {
+        path: 'admin/users',
         canActivate: [roleGuard],
         data: { roles: ['ROL-003'] },
-        children: [
-          {
-            path: '',
-            redirectTo: 'usuarios',
-            pathMatch: 'full',
-          },
-          {
-            path: 'usuarios',
-            loadComponent: () =>
-              import('./features/admin/pages/admin-users/admin-users.page').then(
-                (p) => p.AdminUsersPage
-              ),
-          },
-          {
-            path: 'usuarios/nuevo',
-            loadComponent: () =>
-              import(
-                './features/admin/pages/admin-user-new/admin-user-new.page'
-              ).then((p) => p.AdminUserNewPage),
-          },
-          {
-            path: 'usuarios/:id',
-            loadComponent: () =>
-              import(
-                './features/admin/pages/admin-user-detail/admin-user-detail.page'
-              ).then((p) => p.AdminUserDetailPage),
-          },
-          {
-            path: 'jerarquia',
-            loadComponent: () =>
-              import(
-                './features/admin/pages/admin-hierarchy/admin-hierarchy.page'
-              ).then((p) => p.AdminHierarchyPage),
-          },
-        ],
+        loadComponent: () =>
+          import('./features/admin/pages/admin-users/admin-users.page').then((p) => p.AdminUsersPage),
+      },
+      {
+        path: 'admin/users/new',
+        canActivate: [roleGuard],
+        data: { roles: ['ROL-003'] },
+        loadComponent: () =>
+          import('./features/admin/pages/admin-user-new/admin-user-new.page').then((p) => p.AdminUserNewPage),
+      },
+      {
+        path: 'admin/users/:userId/edit',
+        canActivate: [roleGuard],
+        data: { roles: ['ROL-003'] },
+        loadComponent: () =>
+          import('./features/admin/pages/admin-user-edit/admin-user-edit.page').then((p) => p.AdminUserEditPage),
+      },
+      {
+        path: 'admin/users/:userId/deactivate',
+        canActivate: [roleGuard],
+        data: { roles: ['ROL-003'] },
+        loadComponent: () =>
+          import('./features/admin/pages/admin-user-deactivate/admin-user-deactivate.page').then((p) => p.AdminUserDeactivatePage),
+      },
+      {
+        path: 'admin/users/:userId/reactivate',
+        canActivate: [roleGuard],
+        data: { roles: ['ROL-003'] },
+        loadComponent: () =>
+          import('./features/admin/pages/admin-user-reactivate/admin-user-reactivate.page').then((p) => p.AdminUserReactivatePage),
+      },
+      {
+        path: 'admin/users/:userId/assign-manager',
+        canActivate: [roleGuard],
+        data: { roles: ['ROL-003'] },
+        loadComponent: () =>
+          import('./features/admin/pages/admin-assign-manager/admin-assign-manager.page').then((p) => p.AdminAssignManagerPage),
+      },
+      {
+        path: 'admin/users/:userId/change-manager',
+        canActivate: [roleGuard],
+        data: { roles: ['ROL-003'] },
+        loadComponent: () =>
+          import('./features/admin/pages/admin-change-manager/admin-change-manager.page').then((p) => p.AdminChangeManagerPage),
+      },
+      {
+        path: 'admin/users/:userId/change-manager/confirm',
+        canActivate: [roleGuard],
+        data: { roles: ['ROL-003'] },
+        loadComponent: () =>
+          import('./features/admin/pages/admin-change-manager-confirm/admin-change-manager-confirm.page').then((p) => p.AdminChangeManagerConfirmPage),
+      },
+      {
+        path: 'admin/users/:userId/unassign-manager',
+        canActivate: [roleGuard],
+        data: { roles: ['ROL-003'] },
+        loadComponent: () =>
+          import('./features/admin/pages/admin-unassign-manager/admin-unassign-manager.page').then((p) => p.AdminUnassignManagerPage),
+      },
+      {
+        path: 'admin/organization/structure',
+        canActivate: [roleGuard],
+        data: { roles: ['ROL-003'] },
+        loadComponent: () =>
+          import('./features/admin/pages/admin-hierarchy/admin-hierarchy.page').then((p) => p.AdminHierarchyPage),
+      },
+      {
+        path: 'admin',
+        redirectTo: 'admin/users',
+        pathMatch: 'full',
       },
       {
         path: '',
