@@ -1,5 +1,6 @@
-package com.mapfre.product.microservice.users;
+package com.mapfre.product.microservice.useradmin;
 
+import com.mapfre.product.microservice.users.UserService;
 import com.mapfre.product.microservice.users.dto.UserCreateRequest;
 import com.mapfre.product.microservice.users.dto.UserDetail;
 import com.mapfre.product.microservice.users.dto.UserList;
@@ -24,17 +25,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * API de administración de usuarios (requiere rol ADMINISTRADOR, ver SecurityConfig).
- * Paths literales del contrato (openapi.yaml); la base pública {@code /api}
- * (servers[0].url) la añade el composition root ({@code Application}).
+ * API de administración de usuarios (EP-001..EP-005, TSK-001). Vive fuera del paquete users/
+ * para separar sus rutas de las de jerarquía (TSK-002); delega en UserService.
  */
 @RestController
 @Validated
-public class UsuarioController {
+public class UserAdminController {
 
     private final UserService userService;
 
-    public UsuarioController(UserService userService) {
+    public UserAdminController(UserService userService) {
         this.userService = userService;
     }
 

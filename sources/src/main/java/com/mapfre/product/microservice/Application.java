@@ -27,7 +27,7 @@ public class Application implements WebMvcConfigurer {
 	}
 
 	/**
-	 * Monta todos los controllers REST del producto (p. ej. UsuarioController) bajo la base
+	 * Monta todos los controllers REST del producto (p. ej. UsuarioController, UserAdminController) bajo la base
 	 * pública del contrato, de modo que la URL pública sea {@code /api + path del contrato}.
 	 * Actuator queda fuera del prefijo.
 	 */
